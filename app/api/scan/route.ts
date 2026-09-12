@@ -93,30 +93,34 @@ export async function POST(request: NextRequest) {
     if (apiKey) {
       try {
         const ai = new GoogleGenAI({ apiKey });
-        const response = await ai.models.generateContent({
-          model: "gemini-1.5-flash",
-          contents: [
-            {
-              role: "user",
-              parts: [
-                { text: SYSTEM_PROMPT },
-                { inlineData: { mimeType, data: base64Data } },
-              ],
-            },
+        const interaction = await ai.interactions.create({
+          model: "gemini-3.6-flash",
+          input: [
+            { type: "text", text: SYSTEM_PROMPT },
+            { type: "image", mime_type: mimeType, data: base64Data },
           ],
-          config: {
-            responseMimeType: "application/json",
-          },
         });
 
-        if (response.text) {
-          const parsed = JSON.parse(response.text);
-          if (parsed.title && Array.isArray(parsed.flashcards)) {
+        let rawText = "";
+        for (const step of interaction.steps || []) {
+          if ("content" in step && Array.isArray(step.content)) {
+            for (const c of step.content) {
+              if (c && typeof c === "object" && "text" in c && typeof c.text === "string") {
+                rawText += c.text;
+              }
+            }
+          }
+        }
+
+        if (rawText) {
+          const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+          const parsed = JSON.parse(cleanJson);
+          if (parsed.title && Array.isArray(parsed.flashcards) && parsed.flashcards.length > 0) {
             scanResult = parsed;
           }
         }
       } catch (geminiError) {
-        console.error("Erreur Gemini 1.5 Flash Vision, utilisation du fallback :", geminiError);
+        console.error("Erreur Gemini Vision, utilisation du fallback :", geminiError);
         // Fallback gracieux sur les données de démonstration
       }
     }

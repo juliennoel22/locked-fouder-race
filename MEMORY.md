@@ -40,6 +40,7 @@
 - **Domaine Personnalisé Officiel** : [https://www.loreno.app](https://www.loreno.app) 🟢 **LIVE & PRERENDERED**
 - **URL Alternative Vercel** : [https://snapstudy-lime.vercel.app](https://snapstudy-lime.vercel.app)
 - **Variables d'environnement injectées sur Vercel** :
+  - `GEMINI_API_KEY` (Google Interactions API / Gemini 3.6 Flash) 🟢 **VALIDÉE & ACTIVE**
   - `NEXT_PUBLIC_STRIPE_PAYMENT_LINK`
   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
   - `NEXT_PUBLIC_SUPABASE_URL`
@@ -73,6 +74,6 @@
 | **Phase 2** | **Supabase DB & Auth Gateway** | 🟢 Terminé | Schéma SQL exécuté, tables `decks`, `flashcards` et bucket `course-scans` créés. Clés branchées. |
 | **Phase 3** | **Upload Caméra & Compression Canvas** | 🟢 Terminé | Composant `CameraUpload`, redimensionnement Canvas < 400 Ko, upload Supabase Storage `course-scans`. |
 | **Phase 4** | **Player Flashcards 3D Swipe & Paywall** | 🟢 Terminé | `FlashcardPlayer` tactile swipe 3D, confettis, `MirrorModal` (photo originale) et `PaywallModal` (9,99 € Stripe). |
-| **Phase 5** | **OCR Vision Gemini 1.5 Flash** | 🟢 Terminé | Route `/api/scan` avec SDK `@google/genai` multimodal + fallback pédagogique complet. |
+| **Phase 5** | **OCR Vision Gemini 3.6 Flash** | 🟢 Terminé | Route `/api/scan` avec SDK `@google/genai` (Interactions API / `gemini-3.6-flash`) validée et connectée en production. |
 | **Phase 6** | **Tuteur d'Examen IA (Chatbot)** | 🟡 En cours | Chatbot interactif posant la 1ère question d'examen déduite du cours scanné. |
 | **Phase 7** | **Vidéo Pitch & Soumission Jury** | ⚪ Prévu | Vidéo MP4 $\le$ 500 Mo, vérification clé Stripe Read-Only, repo public. |
