@@ -2,27 +2,34 @@
 
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
-import { Trophy, RotateCcw, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { Trophy, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { Flashcard } from "@/types/loreno";
 
 interface FlashcardCompleteViewProps {
   knownCount: number;
   totalCount: number;
+  failedCards?: Flashcard[];
+  onRetryFailed?: () => void;
   onReset?: () => void;
   onComplete?: () => void;
+  isRound2?: boolean;
 }
 
 export function FlashcardCompleteView({
   knownCount,
   totalCount,
+  failedCards = [],
+  onRetryFailed,
   onReset,
   onComplete,
+  isRound2 = false,
 }: FlashcardCompleteViewProps) {
   const safeTotal = Math.max(1, totalCount);
   const safeKnown = Math.min(safeTotal, Math.max(0, knownCount));
   const scorePercent = Math.round((safeKnown / safeTotal) * 100);
   const reviewCount = safeTotal - safeKnown;
+  const hasFailedCards = failedCards.length > 0 && onRetryFailed;
 
-  // Déclencher les confettis si bon score
   useEffect(() => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("loreno_retention_score", String(scorePercent));
@@ -30,7 +37,7 @@ export function FlashcardCompleteView({
     if (scorePercent >= 60) {
       try {
         confetti({
-          particleCount: scorePercent === 100 ? 100 : 60,
+          particleCount: scorePercent === 100 ? 110 : 60,
           spread: 70,
           origin: { y: 0.6 },
         });
@@ -41,8 +48,8 @@ export function FlashcardCompleteView({
   const getFeedback = () => {
     if (scorePercent === 100) {
       return {
-        badge: "🏆 Maîtrise parfaite",
-        title: "Score de rétention maximal !",
+        badge: "🏆 100% Maîtrise parfaite",
+        title: isRound2 ? "Round 2 Réussi : 100% !" : "Score de rétention maximal !",
         description: "Tu maîtrises l'intégralité de ces concepts pour le jour des partiels.",
       };
     }
@@ -50,27 +57,20 @@ export function FlashcardCompleteView({
       return {
         badge: "🎯 Excellent travail",
         title: "Très bon score de rétention !",
-        description: "Presque tout est acquis. Un dernier coup d'œil et ce sera parfait.",
+        description: "Presque tout est acquis. Revois les dernières cartes pour viser le sans-faute.",
       };
     }
     if (scorePercent >= 60) {
       return {
         badge: "💡 Bonne base",
         title: "Notions bien comprises !",
-        description: "Tu as la majorité des concepts. Pense à revoir les fiches manquantes.",
-      };
-    }
-    if (scorePercent >= 40) {
-      return {
-        badge: "📚 À consolider",
-        title: "Score de rétention moyen",
-        description: "Plusieurs points clés méritent d'être retravaillés avant l'examen.",
+        description: "Tu as la majorité des concepts. Retravaille les cartes à perfectionner.",
       };
     }
     return {
-      badge: "⚠️ À revoir d'urgence",
-      title: "Concepts non maîtrisés",
-      description: "Prends le temps de relire les explications pour bien ancrer les bases.",
+      badge: "⚠️ À consolider",
+      title: "Score de rétention à renforcer",
+      description: "Prends un court instant pour retravailler les cartes non maîtrisées.",
     };
   };
 
@@ -118,15 +118,24 @@ export function FlashcardCompleteView({
             <AlertCircle className="w-4 h-4 text-zinc-400 shrink-0" />
             <div className="text-left">
               <span className="font-bold text-black">{reviewCount}</span>
-              <p className="text-[10px] text-zinc-500">À revoir</p>
+              <p className="text-[10px] text-zinc-500">À perfectionner</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Actions 20/80 : Round 2 Deuxième Chance */}
       <div className="w-full max-w-xs space-y-2.5 pt-2">
-        {onComplete && (
+        {hasFailedCards && reviewCount > 0 ? (
+          <button
+            type="button"
+            onClick={onRetryFailed}
+            className="w-full h-14 bg-black hover:bg-zinc-800 text-white font-bold rounded-xl active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm shadow-md"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Revoir les {failedCards.length} cartes ratées (Round 2)</span>
+          </button>
+        ) : onComplete ? (
           <button
             type="button"
             onClick={onComplete}
@@ -135,18 +144,16 @@ export function FlashcardCompleteView({
             <span>Sauvegarder et continuer</span>
             <ArrowRight className="w-4 h-4" />
           </button>
-        )}
+        ) : null}
 
         {onReset && (
           <button
             type="button"
             onClick={onReset}
-            className={`w-full h-12 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-[0.98] ${
-              !onComplete ? "h-14 bg-black text-white hover:bg-zinc-800" : ""
-            }`}
+            className="w-full h-12 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-[0.98]"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Recommencer la série ({safeTotal} cartes)</span>
+            <span>Recommencer tout le cours ({safeTotal} cartes)</span>
           </button>
         )}
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Check, X, RotateCcw, ArrowRight, Layers, Sparkles } from "lucide-react";
+import { Check, X, RotateCcw, ArrowRight, Layers, Sparkles, Trophy, AlertTriangle, Zap } from "lucide-react";
 import confetti from "canvas-confetti";
 import { ScanResult } from "@/types/loreno";
 
@@ -21,10 +21,8 @@ interface McqQuestion {
 
 export function NotebookQuizView({
   deck,
-  onOpenPaywall,
   onGoToFlashcards,
 }: NotebookQuizViewProps) {
-  // Générer les questions QCM à partir des fiches du deck
   const questions: McqQuestion[] = useMemo(() => {
     const cards = deck.flashcards || [];
     if (cards.length === 0) {
@@ -51,8 +49,6 @@ export function NotebookQuizView({
         otherCards[1]?.back || "Une règle dérogatoire sans portée générale",
         otherCards[2]?.back || "Une théorie rejetée par la jurisprudence",
       ];
-
-      // Mélanger la bonne réponse et les distracteurs de manière déterministe
       const rawOptions = [card.back, ...distractors.slice(0, 3)];
       const shift = idx % rawOptions.length;
       const options = [...rawOptions.slice(shift), ...rawOptions.slice(0, shift)];
@@ -77,17 +73,11 @@ export function NotebookQuizView({
   const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
 
   const handleSelectOption = (optIdx: number) => {
-    if (selectedOption !== null) return; // Déjà répondu
-
+    if (selectedOption !== null) return;
     setSelectedOption(optIdx);
-    const isCorrect = optIdx === currentQ.correctIndex;
-    if (isCorrect) {
+    if (optIdx === currentQ.correctIndex) {
       setScore((prev) => prev + 1);
-      try {
-        confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } });
-      } catch {
-        // Ignorer
-      }
+      try { confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } }); } catch {}
     }
   };
 
@@ -97,11 +87,7 @@ export function NotebookQuizView({
       setSelectedOption(null);
     } else {
       setIsFinished(true);
-      try {
-        confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
-      } catch {
-        // Ignorer
-      }
+      try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } }); } catch {}
     }
   };
 
@@ -112,28 +98,54 @@ export function NotebookQuizView({
     setIsFinished(false);
   };
 
-  // Écran de fin du QCM
+  // Écran de fin du QCM avec Note Prédictive sur 20
   if (isFinished) {
-    const percentage = Math.round((score / questions.length) * 100);
+    const note20 = Math.round((score / Math.max(1, questions.length)) * 20);
+    const getExamMention = () => {
+      if (note20 >= 16) {
+        return {
+          badge: `${note20}/20 : Mention Très Bien 🏆`,
+          title: "Excellente maîtrise d'examen !",
+          desc: "Tu maîtrises les notions clés pour cartonner le jour des partiels.",
+          badgeStyle: "bg-emerald-50 text-emerald-900 border-emerald-200",
+          icon: Trophy,
+        };
+      }
+      if (note20 >= 10) {
+        return {
+          badge: `${note20}/20 : Admis — Révise les points clés ⚡`,
+          title: "Moyenne validée !",
+          desc: "Bonne base acquise. Revois les quelques questions ratées pour viser la mention.",
+          badgeStyle: "bg-amber-50 text-amber-900 border-amber-200",
+          icon: Zap,
+        };
+      }
+      return {
+        badge: `${note20}/20 : Rattrapage — Tuteur IA conseillé 🚨`,
+        title: "Notions à consolider d'urgence",
+        desc: "Révise les flashcards et pose tes questions au Tuteur IA pour sécuriser l'examen.",
+        badgeStyle: "bg-red-50 text-red-900 border-red-200",
+        icon: AlertTriangle,
+      };
+    };
+
+    const mention = getExamMention();
+    const MentionIcon = mention.icon;
+
     return (
-      <div className="w-full py-6 flex flex-col items-center text-center space-y-6 select-none animate-in fade-in duration-300">
-        <div className="w-16 h-16 rounded-3xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-3xl shadow-sm">
-          🏆
+      <div className="w-full py-6 flex flex-col items-center text-center space-y-5 select-none animate-in fade-in duration-300">
+        <div className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold ${mention.badgeStyle}`}>
+          <MentionIcon className="w-3.5 h-3.5 shrink-0" />
+          <span>{mention.badge}</span>
         </div>
 
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight text-black">QCM terminé !</h2>
-          <p className="text-sm text-zinc-600">
-            Ton score :{" "}
-            <strong className="text-black text-base font-bold">
-              {score} / {questions.length}
-            </strong>{" "}
-            ({percentage}%)
-          </p>
+        <div className="space-y-1">
+          <div className="text-5xl sm:text-6xl font-black tracking-tight text-black">
+            {note20}<span className="text-2xl font-bold text-zinc-400">/20</span>
+          </div>
+          <h2 className="text-lg font-bold text-black">{mention.title}</h2>
           <p className="text-xs text-zinc-500 max-w-xs mx-auto">
-            {percentage >= 80
-              ? "Excellente maîtrise ! Tu es prêt pour les questions d'examen."
-              : "Quelques notions méritent d'être consolidées avec les flashcards."}
+            {score} sur {questions.length} questions réussies ({Math.round((score / questions.length) * 100)}%). {mention.desc}
           </p>
         </div>
 
@@ -143,7 +155,7 @@ export function NotebookQuizView({
             className="w-full h-13 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-[0.98] shadow-sm py-3.5"
           >
             <Layers className="w-4 h-4" />
-            <span>Réviser les cartes du cours</span>
+            <span>Réviser avec les Flashcards</span>
           </button>
 
           <button
@@ -162,11 +174,9 @@ export function NotebookQuizView({
     <div className="w-full space-y-5 text-left select-none animate-in fade-in duration-200">
       {/* Header bar QCM */}
       <div className="flex items-center justify-between pb-2 border-b border-zinc-200">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-black uppercase tracking-wider">
-            QCM d&apos;examen
-          </span>
-        </div>
+        <span className="text-xs font-bold text-black uppercase tracking-wider">
+          QCM d&apos;examen
+        </span>
         <span className="text-xs font-mono text-zinc-500">
           Question {currentIndex + 1} / {questions.length}
         </span>
@@ -190,10 +200,10 @@ export function NotebookQuizView({
         </h3>
       </div>
 
-      {/* Les 4 Choix QCM */}
+      {/* Les 4 Choix QCM avec feedback visuel instantané */}
       <div className="space-y-2.5">
         {currentQ.options.map((opt, optIdx) => {
-          const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
+          const letter = String.fromCharCode(65 + optIdx);
           const isSelected = selectedOption === optIdx;
           const isCorrect = optIdx === currentQ.correctIndex;
           const hasAnswered = selectedOption !== null;
@@ -202,11 +212,11 @@ export function NotebookQuizView({
 
           if (hasAnswered) {
             if (isCorrect) {
-              btnStyle = "border-black bg-black text-white font-semibold shadow-xs";
+              btnStyle = "border-emerald-600 bg-emerald-600 text-white font-semibold shadow-xs";
             } else if (isSelected) {
-              btnStyle = "border-zinc-400 bg-zinc-200 text-zinc-900 line-through";
+              btnStyle = "border-red-300 bg-red-50 text-red-900 line-through";
             } else {
-              btnStyle = "border-zinc-200 bg-zinc-50 text-zinc-400 opacity-60";
+              btnStyle = "border-zinc-200 bg-zinc-50 text-zinc-400 opacity-50";
             }
           }
 
@@ -222,7 +232,9 @@ export function NotebookQuizView({
                 <span
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                     hasAnswered && isCorrect
-                      ? "bg-white text-black"
+                      ? "bg-white text-emerald-700"
+                      : hasAnswered && isSelected
+                      ? "bg-red-200 text-red-800"
                       : "bg-zinc-100 text-zinc-700 border border-zinc-200"
                   }`}
                 >
@@ -231,21 +243,37 @@ export function NotebookQuizView({
                 <span className="text-xs sm:text-sm leading-snug">{opt}</span>
               </div>
 
-              {hasAnswered && isCorrect && <Check className="w-4 h-4 text-white shrink-0" />}
-              {hasAnswered && isSelected && !isCorrect && <X className="w-4 h-4 text-zinc-600 shrink-0" />}
+              {hasAnswered && isCorrect && <Check className="w-4 h-4 text-white shrink-0 stroke-[2.5]" />}
+              {hasAnswered && isSelected && !isCorrect && <X className="w-4 h-4 text-red-600 shrink-0 stroke-[2.5]" />}
             </button>
           );
         })}
       </div>
 
-      {/* Explication & Bouton Suivant si déjà répondu */}
+      {/* Micro-Explication instantanée & Bouton Suivant */}
       {selectedOption !== null && (
-        <div className="space-y-3 pt-2 animate-in fade-in">
-          <div className="p-3.5 rounded-xl bg-zinc-100 border border-zinc-200 text-xs text-zinc-800 space-y-1">
-            <span className="font-bold text-black">
-              {selectedOption === currentQ.correctIndex ? "✓ Exact !" : "Explication :"}
-            </span>
-            <p className="leading-relaxed">{currentQ.explanation}</p>
+        <div className="space-y-3 pt-1 animate-in fade-in duration-200">
+          <div
+            className={`p-3.5 rounded-xl border text-xs space-y-1 ${
+              selectedOption === currentQ.correctIndex
+                ? "bg-emerald-50 border-emerald-200 text-emerald-950"
+                : "bg-amber-50 border-amber-200 text-amber-950"
+            }`}
+          >
+            <div className="flex items-center gap-1.5 font-bold">
+              {selectedOption === currentQ.correctIndex ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="text-emerald-900">✓ Exact ! Point clé retenu :</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span className="text-amber-900">💡 Pourquoi ? Le principe clé :</span>
+                </>
+              )}
+            </div>
+            <p className="leading-relaxed opacity-90 pl-5">{currentQ.explanation}</p>
           </div>
 
           <button
@@ -254,7 +282,7 @@ export function NotebookQuizView({
             className="w-full h-13 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-sm py-3.5"
           >
             <span>
-              {currentIndex + 1 < questions.length ? "Question suivante" : "Voir mon score"}
+              {currentIndex + 1 < questions.length ? "Question suivante" : "Voir ma note d'examen"}
             </span>
             <ArrowRight className="w-4 h-4" />
           </button>

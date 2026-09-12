@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
-import { Check, X, Eye, Flame } from "lucide-react";
+import { Check, X, Flame } from "lucide-react";
 import { Flashcard } from "@/types/loreno";
 import { MirrorModal } from "./mirror-modal";
 import { PaywallModal } from "./paywall-modal";
@@ -26,11 +26,13 @@ export function FlashcardPlayer({
   deckTitle,
   subject,
   imageUrl,
-  initialQuizQuestion,
   onReset,
   onComplete,
   disablePaywall = false,
 }: FlashcardPlayerProps) {
+  const [activeCards, setActiveCards] = useState<Flashcard[]>(cards);
+  const [failedCards, setFailedCards] = useState<Flashcard[]>([]);
+  const [isRound2, setIsRound2] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -48,29 +50,37 @@ export function FlashcardPlayer({
   const touchDeltaX = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
 
-  const currentCard = cards[currentIndex] || cards[0];
-  const progressPercent = Math.round(((currentIndex + 1) / cards.length) * 100);
+  useEffect(() => {
+    setActiveCards(cards);
+    setFailedCards([]);
+    setIsRound2(false);
+    setCurrentIndex(0);
+    setKnownCount(0);
+    setFinalKnownCount(null);
+    setIsCompleted(false);
+  }, [cards]);
+
+  const currentCard = activeCards[currentIndex] || activeCards[0] || cards[0];
+  const progressPercent = Math.round(((currentIndex + 1) / activeCards.length) * 100);
 
   const advanceCard = (known: boolean) => {
     const newStreak = known ? streak + 1 : 0;
     setStreak(newStreak);
     const updatedKnownCount = known ? knownCount + 1 : knownCount;
     if (known) setKnownCount(updatedKnownCount);
+    else setFailedCards((prev) => [...prev, currentCard]);
 
     if (known && newStreak >= 3) {
-      try { confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } }); } catch {}
+      try { confetti({ particleCount: 45, spread: 60, origin: { y: 0.6 } }); } catch {}
     }
 
-    if (currentIndex + 1 < cards.length) {
+    if (currentIndex + 1 < activeCards.length) {
       setCurrentIndex((prev) => prev + 1);
       setIsFlipped(false);
       setDragOffset(0);
       setExitDirection(null);
-      if (!disablePaywall && newStreak === 3) {
-        setTimeout(() => setShowPaywall(true), 500);
-      }
+      if (!disablePaywall && newStreak === 3) setTimeout(() => setShowPaywall(true), 500);
     } else {
-      // Fin de la série : score final garanti exact
       setFinalKnownCount(updatedKnownCount);
       setIsCompleted(true);
       setDragOffset(0);
@@ -82,30 +92,9 @@ export function FlashcardPlayer({
   const handleNextCard = (known: boolean) => {
     if (exitDirection) return;
     setExitDirection(known ? "right" : "left");
-    setTimeout(() => advanceCard(known), 280);
+    setTimeout(() => advanceCard(known), 260);
   };
 
-  // Support des touches clavier sur ordinateur (Flèche gauche / droite / Espace)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isCompleted) return;
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        handleNextCard(false);
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        handleNextCard(true);
-      } else if (e.key === " " || e.key === "Spacebar") {
-        e.preventDefault();
-        setIsFlipped((prev) => !prev);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, isCompleted, exitDirection]);
-
-  // Tactile Mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     if (exitDirection) return;
     touchStartX.current = e.touches[0].clientX;
@@ -118,7 +107,6 @@ export function FlashcardPlayer({
     if (touchStartX.current === null || exitDirection) return;
     const diffX = e.touches[0].clientX - touchStartX.current;
     const diffY = e.touches[0].clientY - (touchStartY.current || 0);
-
     if (Math.abs(diffX) > 8 || Math.abs(diffY) > 8) isDragging.current = true;
     if (Math.abs(diffX) > Math.abs(diffY)) {
       touchDeltaX.current = diffX;
@@ -141,7 +129,25 @@ export function FlashcardPlayer({
     isDragging.current = false;
   };
 
+  const handleRetryFailed = () => {
+    if (failedCards.length === 0) return;
+    setActiveCards(failedCards);
+    setFailedCards([]);
+    setIsRound2(true);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setStreak(0);
+    setKnownCount(0);
+    setFinalKnownCount(null);
+    setIsCompleted(false);
+    setDragOffset(0);
+    setExitDirection(null);
+  };
+
   const handleResetSession = () => {
+    setActiveCards(cards);
+    setFailedCards([]);
+    setIsRound2(false);
     setCurrentIndex(0);
     setIsFlipped(false);
     setStreak(0);
@@ -153,30 +159,67 @@ export function FlashcardPlayer({
     if (onReset) onReset();
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isCompleted) return;
+      if (e.key === "ArrowLeft") { e.preventDefault(); handleNextCard(false); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); handleNextCard(true); }
+      else if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); setIsFlipped((p) => !p); }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, isCompleted, exitDirection]);
+
   if (isCompleted) {
     const scoreToDisplay = finalKnownCount !== null ? finalKnownCount : knownCount;
     return (
       <FlashcardCompleteView
         knownCount={scoreToDisplay}
-        totalCount={cards.length}
+        totalCount={activeCards.length}
+        failedCards={failedCards}
+        onRetryFailed={handleRetryFailed}
         onReset={handleResetSession}
         onComplete={onComplete}
+        isRound2={isRound2}
       />
     );
   }
 
   return (
     <div className="w-full flex flex-col items-center select-none pb-6">
-      {/* Header : Streak & Index */}
+      {/* Header : Dynamic Fiery Streak & Index */}
       <div className="w-full flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-semibold">
-            <Flame className="w-3.5 h-3.5 text-zinc-600" />
-            <span>Série : {streak}</span>
-          </div>
+          {streak >= 5 ? (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black text-amber-300 text-xs font-black shadow-md border border-amber-400/40 animate-pulse">
+              <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              <span>⚡ x{streak} Maîtrise d&apos;examen !</span>
+            </div>
+          ) : streak >= 3 ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 text-white text-xs font-bold shadow-xs">
+              <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              <span>🔥 x{streak} En feu !</span>
+            </div>
+          ) : streak >= 2 ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-300 text-zinc-900 text-xs font-bold">
+              <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <span>🔥 x{streak} Combo</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs font-medium">
+              <Flame className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Série : {streak}</span>
+            </div>
+          )}
+
+          {isRound2 && (
+            <span className="px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-800 text-[10px] font-bold">
+              Round 2
+            </span>
+          )}
         </div>
         <span className="text-xs text-zinc-400 font-mono">
-          {currentIndex + 1} / {cards.length}
+          {currentIndex + 1} / {activeCards.length}
         </span>
       </div>
 
@@ -242,7 +285,7 @@ export function FlashcardPlayer({
         onClose={() => setShowPaywall(false)}
         retentionScore={Math.round(
           ((finalKnownCount !== null ? finalKnownCount : knownCount) /
-            Math.max(1, cards.length)) *
+            Math.max(1, activeCards.length)) *
             100
         )}
       />
