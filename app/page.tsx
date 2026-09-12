@@ -2,7 +2,7 @@ import { QuizFunnel } from "@/components/quiz-funnel";
 
 export default function Home() {
   return (
-    <main className="min-h-[100dvh] w-full bg-black text-white">
+    <main className="min-h-[100dvh] w-full bg-black text-white selection:bg-white selection:text-black">
       <QuizFunnel />
     </main>
   );

@@ -364,7 +364,7 @@ export function QuizFunnel() {
 
       {/* Footer Minimalist */}
       <div className="py-2 text-center text-[11px] text-zinc-600">
-        Loreno ⚡ • Quiz Funnel Mobile
+        Loreno
       </div>
     </div>
   );
