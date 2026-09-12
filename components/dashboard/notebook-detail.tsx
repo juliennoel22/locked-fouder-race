@@ -249,14 +249,13 @@ export function NotebookDetail({
         notebook={notebook}
       />
 
-      {/* Modal Miroir pour prévisualiser les notes originales et basculer / ajouter un cours */}
+      {/* Visionneuse des documents du cours original (Photos & PDF) avec import */}
       <MirrorModal
         isOpen={showMirrorModal}
         onClose={() => setShowMirrorModal(false)}
         currentNotebook={notebook}
-        allNotebooks={allNotebooks}
-        onSelectNotebook={onSelectNotebook}
-        onAddNewCourse={onOpenScanModal}
+        imageUrl={notebook.imageUrl}
+        deckTitle={notebook.title}
       />
     </div>
   );

@@ -11,7 +11,7 @@ interface PaywallModalProps {
 export function PaywallModal({
   isOpen,
   onClose,
-  retentionScore = 85,
+  retentionScore,
 }: PaywallModalProps) {
   if (!isOpen) return null;
 
@@ -31,13 +31,15 @@ export function PaywallModal({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Badge sobre */}
-        <div className="flex justify-start mb-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-medium">
-            <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
-            <span>Score de rétention : {retentionScore}%</span>
+        {/* Badge optionnel (affiché uniquement après une session d'entraînement réelle) */}
+        {typeof retentionScore === "number" && (
+          <div className="flex justify-start mb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-medium">
+              <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
+              <span>Score de rétention : {retentionScore}%</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Header épuré */}
         <div className="text-left mb-5 space-y-1.5">
