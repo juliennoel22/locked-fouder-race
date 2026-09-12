@@ -62,7 +62,7 @@ export function ExamTrapBox({
             <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
             Fiches complètes détectées
           </span>
-          <span className="text-[11px] text-zinc-500">Pack Fondateur</span>
+          <span className="text-[11px] text-zinc-500">Pack Premium</span>
         </div>
 
         {/* Cartes Floutées Teasing */}

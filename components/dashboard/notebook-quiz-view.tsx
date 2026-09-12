@@ -143,7 +143,7 @@ export function NotebookQuizView({
             className="w-full h-13 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-[0.98] shadow-sm py-3.5"
           >
             <Layers className="w-4 h-4" />
-            <span>Réviser les cartes du carnet</span>
+            <span>Réviser les cartes du cours</span>
           </button>
 
           <button

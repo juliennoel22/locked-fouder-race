@@ -68,7 +68,7 @@ export function UserProfileModal({
             <span className="text-xs text-zinc-500">Statut de compte</span>
             {isPro ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-black text-white">
-                <Sparkles className="w-3 h-3 text-amber-400" /> Fondateur à vie
+                <Sparkles className="w-3 h-3 text-amber-400" /> Premium à vie
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-zinc-200 text-zinc-800">
@@ -83,7 +83,7 @@ export function UserProfileModal({
           <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
             <div className="text-lg font-bold text-black">{notebooksCount}</div>
             <div className="text-[11px] text-zinc-500 flex items-center justify-center gap-1">
-              <BookOpen className="w-3 h-3" /> Carnets
+              <BookOpen className="w-3 h-3" /> Cours
             </div>
           </div>
           <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
@@ -103,7 +103,7 @@ export function UserProfileModal({
             className="w-full h-11 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Passer Fondateur (9,99 € à vie)</span>
+            <span>Passer Premium (9,99 € à vie)</span>
           </button>
         )}
 

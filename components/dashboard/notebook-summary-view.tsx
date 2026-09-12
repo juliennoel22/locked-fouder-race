@@ -30,7 +30,7 @@ export function NotebookSummaryView({
       <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
         <h3 className="text-sm font-semibold text-black">{title}</h3>
         <p className="text-xs sm:text-sm text-zinc-700 leading-relaxed whitespace-pre-line">
-          {summary || "Synthèse en cours de génération pour ce carnet."}
+          {summary || "Synthèse en cours de génération pour ce cours."}
         </p>
       </div>
 

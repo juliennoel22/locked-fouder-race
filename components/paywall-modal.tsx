@@ -53,7 +53,7 @@ export function PaywallModal({
         <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 mb-5 space-y-3">
           <div className="flex justify-between items-baseline border-b border-zinc-200 pb-3">
             <div>
-              <div className="font-bold text-black text-base">Pack Fondateur</div>
+              <div className="font-bold text-black text-base">Pack Premium</div>
               <div className="text-xs text-zinc-500">Accès à vie • Réservé aux 50 premiers</div>
             </div>
             <div className="text-right">
@@ -92,7 +92,7 @@ export function PaywallModal({
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 h-13 py-3.5 px-6 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-sm transition active:scale-[0.99] shadow-md"
           >
-            <span>Obtenir le Pack Fondateur (9,99 €)</span>
+            <span>Obtenir le Pack Premium (9,99 €)</span>
             <ArrowRight className="w-4 h-4" />
           </a>
 

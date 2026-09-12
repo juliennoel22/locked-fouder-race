@@ -10,6 +10,7 @@ import { NotebookDetail } from "@/components/dashboard/notebook-detail";
 import { FloatingScanBar } from "@/components/dashboard/floating-scan-bar";
 import { PaywallModal } from "@/components/paywall-modal";
 import { FeedbackModal } from "@/components/dashboard/feedback-modal";
+import { ScanModal } from "@/components/dashboard/scan-modal";
 import { useProStatus } from "@/lib/use-pro-status";
 import { createClient } from "@/lib/supabase/client";
 
@@ -55,6 +56,8 @@ export default function DashboardPage() {
   const [selectedNotebook, setSelectedNotebook] = useState<NotebookItem | null>(null);
   const [selectedNotebookMode, setSelectedNotebookMode] = useState<"grid" | "flashcards" | "quiz">("grid");
   const [showAiTutorDirect, setShowAiTutorDirect] = useState<boolean>(false);
+  const [showScanModal, setShowScanModal] = useState<boolean>(false);
+  const [scanTargetMode, setScanTargetMode] = useState<"flashcards" | "quiz" | "tutor" | "grid">("grid");
   const [showPaywall, setShowPaywall] = useState<boolean>(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -79,7 +82,7 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // Initialisation et chargement complet des carnets depuis Supabase
+  // Initialisation et chargement complet des cours depuis Supabase
   const initDashboard = useCallback(async () => {
     try {
       const supabase = createClient();
@@ -88,7 +91,7 @@ export default function DashboardPage() {
         setUserEmail(userData.user.email);
       }
 
-      // 1. Récupération des carnets réels en base de données
+      // 1. Récupération des cours réels en base de données
       const res = await fetch("/api/decks");
       const json = await res.json();
       let loadedNotebooks: NotebookItem[] = [];
@@ -109,17 +112,11 @@ export default function DashboardPage() {
               );
 
               if (!alreadyExists && userData?.user) {
+                const { title, subject, summary, initial_quiz_question, flashcards } = parsed.scanData;
                 const saveRes = await fetch("/api/decks", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    title: parsed.scanData.title,
-                    subject: parsed.scanData.subject,
-                    summary: parsed.scanData.summary,
-                    initial_quiz_question: parsed.scanData.initial_quiz_question,
-                    image_url: parsed.imageUrl,
-                    flashcards: parsed.scanData.flashcards,
-                  }),
+                  body: JSON.stringify({ title, subject, summary, initial_quiz_question, image_url: parsed.imageUrl, flashcards }),
                 });
                 const saveJson = await saveRes.json();
                 if (saveJson.success && saveJson.deck) {
@@ -164,37 +161,25 @@ export default function DashboardPage() {
         setSelectedNotebook(null);
       }
     } catch (err) {
-      console.error("Erreur suppression carnet :", err);
+      console.error("Erreur suppression cours :", err);
     }
   };
 
   const handleActionClick = (mode: "flashcards" | "quiz" | "tutor") => {
-    if (notebooks.length === 0) {
-      router.push("/dashboard/new");
-      return;
-    }
-
-    const targetNb = notebooks[0];
-    setSelectedNotebook(targetNb);
-
-    if (mode === "tutor") {
-      setSelectedNotebookMode("grid");
-      setShowAiTutorDirect(true);
-    } else {
-      setSelectedNotebookMode(mode);
-      setShowAiTutorDirect(false);
-    }
+    // Sur "Créer & Réviser", cliquer sur n'importe quel bouton ouvre la modale de scan configurée pour ce mode
+    setScanTargetMode(mode);
+    setShowScanModal(true);
   };
 
   return (
     <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
       <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
-        {/* Bannière de célébration Pack Fondateur activé */}
+        {/* Bannière de célébration Pack Premium activé */}
         {justUnlocked && (
           <div className="mb-3 p-3.5 rounded-2xl bg-black text-white flex items-center justify-between animate-in slide-in-from-top duration-300 shadow-md">
             <div className="text-xs">
               <div className="font-bold flex items-center gap-1.5">
-                <span>🎉</span> Pack Fondateur Activé à vie !
+                <span>🎉</span> Pack Premium Activé à vie !
               </div>
               <p className="text-[11px] text-zinc-300 mt-0.5">
                 Tous tes accès illimités et le Tuteur IA sont débloqués.
@@ -212,7 +197,7 @@ export default function DashboardPage() {
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center space-y-3 py-16">
             <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
-            <p className="text-xs text-zinc-500 font-medium">Chargement de tes carnets...</p>
+            <p className="text-xs text-zinc-500 font-medium">Chargement de tes cours...</p>
           </div>
         ) : selectedNotebook ? (
           <NotebookDetail
@@ -240,18 +225,45 @@ export default function DashboardPage() {
             userEmail={userEmail}
             onDeleteNotebook={handleDeleteNotebook}
             onActionClick={handleActionClick}
+            onOpenScanModal={() => {
+              setScanTargetMode("grid");
+              setShowScanModal(true);
+            }}
           />
         )}
 
-        {/* Barre flottante Caméra, Nouveau Carnet & Avis dans la Thumb Zone */}
+        {/* Barre flottante Caméra, Nouveau Cours & Avis dans la Thumb Zone */}
         {!selectedNotebook && !loading && (
           <FloatingScanBar
             onNewNotebook={handleAddNewNotebook}
             isRateLimited={!isPro && notebooks.length >= 2}
             onRateLimit={() => setShowPaywall(true)}
             onOpenFeedback={() => setShowFeedbackModal(true)}
+            onOpenScanModal={() => {
+              setScanTargetMode("grid");
+              setShowScanModal(true);
+            }}
           />
         )}
+
+        {/* Modale de Scan Rapide de cours */}
+        <ScanModal
+          isOpen={showScanModal}
+          onClose={() => setShowScanModal(false)}
+          onSuccess={(newDeck, targetMode) => {
+            handleAddNewNotebook(newDeck);
+            if (targetMode === "flashcards" || targetMode === "quiz") {
+              setSelectedNotebookMode(targetMode);
+            } else if (targetMode === "tutor") {
+              setSelectedNotebookMode("grid");
+              setShowAiTutorDirect(true);
+            }
+          }}
+          isPro={isPro}
+          existingNotebooksCount={notebooks.length}
+          onOpenPaywall={() => setShowPaywall(true)}
+          targetMode={scanTargetMode}
+        />
 
         {/* Modal Paywall Stripe */}
         <PaywallModal

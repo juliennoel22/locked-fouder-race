@@ -71,7 +71,7 @@ export default function TermsPage() {
           <section className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
             <h2 className="text-sm font-semibold text-black">4. Tarifs &amp; Paiements</h2>
             <p>
-              Loreno propose une découverte gratuite ainsi qu&apos;une formule &laquo; Pack Fondateur &raquo; (accès à vie en paiement unique) ou des options payantes gérées de manière sécurisée par Stripe.
+              Loreno propose une découverte gratuite ainsi qu&apos;une formule &laquo; Pack Premium &raquo; (accès à vie en paiement unique) ou des options payantes gérées de manière sécurisée par Stripe.
             </p>
             <p className="text-zinc-600">
               Les prix sont indiqués en euros toutes taxes comprises. Aucun renouvellement automatique n&apos;est prélevé sans votre accord exprès.

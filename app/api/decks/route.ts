@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     if (deckError || !deck) {
       console.error("Erreur insertion deck :", deckError);
       return NextResponse.json(
-        { success: false, error: deckError?.message || "Erreur création carnet" },
+        { success: false, error: deckError?.message || "Erreur création cours" },
         { status: 500 }
       );
     }
@@ -186,7 +186,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { success: false, error: "ID du carnet manquant" },
+        { success: false, error: "ID du cours manquant" },
         { status: 400 }
       );
     }

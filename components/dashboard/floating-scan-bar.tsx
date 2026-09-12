@@ -9,18 +9,24 @@ interface FloatingScanBarProps {
   isRateLimited?: boolean;
   onRateLimit?: () => void;
   onOpenFeedback?: () => void;
+  onOpenScanModal?: () => void;
 }
 
 export function FloatingScanBar({
   isRateLimited = false,
   onRateLimit,
   onOpenFeedback,
+  onOpenScanModal,
 }: FloatingScanBarProps) {
   const router = useRouter();
 
   const handleScanClick = () => {
     if (isRateLimited) {
       if (onRateLimit) onRateLimit();
+      return;
+    }
+    if (onOpenScanModal) {
+      onOpenScanModal();
       return;
     }
     router.push("/dashboard/new");
@@ -37,13 +43,13 @@ export function FloatingScanBar({
         <Camera className="w-5 h-5 text-black" />
       </button>
 
-      {/* Bouton Nouveau carnet */}
+      {/* Bouton Nouveau cours */}
       <button
         onClick={handleScanClick}
         className="flex-1 h-12 px-5 rounded-full bg-black border border-black text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-xl active:scale-95 hover:bg-zinc-800 transition"
       >
         <Plus className="w-4 h-4" />
-        <span>Nouveau carnet</span>
+        <span>Nouveau cours</span>
       </button>
 
       {/* Petit bouton d'avis avec pastille de notification */}

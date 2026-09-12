@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X, Send, Sparkles, Bot, User, Loader2 } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
+import { FormattedAiText } from "./formatted-ai-text";
 
 interface AiTutorModalProps {
   isOpen: boolean;
@@ -13,26 +14,75 @@ interface AiTutorModalProps {
 interface Message {
   role: "user" | "model";
   text: string;
+  isStreaming?: boolean;
 }
 
 export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "model",
-      text: `Salut ! Je suis ton tuteur IA pour "${notebook.title}". Pose-moi n'importe quelle question ou demande-moi de te tester sur une notion piège d'examen !`,
+      text: `Salut ! Je suis ton tuteur IA pour **${notebook.title}**.\n\nPose-moi tes questions ou demande-moi une **question piège** pour t'entraîner !`,
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const streamTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-scroll vers le bas
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
+
+  // Nettoyage au démontage
+  useEffect(() => {
+    return () => {
+      if (streamTimeoutRef.current) clearTimeout(streamTimeoutRef.current);
+    };
+  }, []);
 
   if (!isOpen) return null;
+
+  // Effet de streaming mot par mot fluide
+  const streamWordByWord = (fullText: string, baseMessages: Message[]) => {
+    const words = fullText.split(" ");
+    let currentIdx = 0;
+
+    const streamNext = () => {
+      // 2 mots par tick de 25ms pour une fluidité naturelle
+      currentIdx = Math.min(currentIdx + 2, words.length);
+      const displayedText = words.slice(0, currentIdx).join(" ");
+      const isDone = currentIdx >= words.length;
+
+      setMessages([
+        ...baseMessages,
+        {
+          role: "model",
+          text: displayedText,
+          isStreaming: !isDone,
+        },
+      ]);
+
+      if (!isDone) {
+        streamTimeoutRef.current = setTimeout(streamNext, 25);
+      } else {
+        setLoading(false);
+      }
+    };
+
+    streamNext();
+  };
 
   const handleSend = async (userPrompt?: string) => {
     const textToSend = userPrompt || input.trim();
     if (!textToSend || loading) return;
 
-    const newMessages: Message[] = [...messages, { role: "user", text: textToSend }];
-    setMessages(newMessages);
+    if (streamTimeoutRef.current) clearTimeout(streamTimeoutRef.current);
+
+    const updatedUserMessages: Message[] = [...messages, { role: "user", text: textToSend }];
+    setMessages(updatedUserMessages);
     setInput("");
     setLoading(true);
 
@@ -45,25 +95,20 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
           subject: notebook.subject,
           summary: notebook.deck.summary,
           flashcards: notebook.deck.flashcards,
-          messages: newMessages,
+          messages: updatedUserMessages.map((m) => ({ role: m.role, text: m.text })),
         }),
       });
 
       const data = await res.json();
-      if (data.reply) {
-        setMessages([...newMessages, { role: "model", text: data.reply }]);
-      } else {
-        setMessages([
-          ...newMessages,
-          { role: "model", text: "Je n'ai pas pu générer de réponse. Réessaie." },
-        ]);
-      }
+      const reply =
+        data.reply ||
+        "Je n'ai pas pu formuler de réponse pour ce cours. Réessaie dans un instant.";
+      streamWordByWord(reply, updatedUserMessages);
     } catch {
       setMessages([
-        ...newMessages,
+        ...updatedUserMessages,
         { role: "model", text: "Erreur de connexion. Vérifie ton réseau." },
       ]);
-    } finally {
       setLoading(false);
     }
   };
@@ -90,15 +135,18 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              if (streamTimeoutRef.current) clearTimeout(streamTimeoutRef.current);
+              onClose();
+            }}
             className="p-1.5 rounded-lg text-zinc-400 hover:text-black hover:bg-zinc-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Message feed */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
+        {/* Message feed avec auto-scroll */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
           {messages.map((m, idx) => (
             <div
               key={idx}
@@ -110,13 +158,17 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
                 </div>
               )}
               <div
-                className={`max-w-[82%] rounded-2xl p-3 leading-relaxed ${
+                className={`max-w-[85%] rounded-2xl p-3 ${
                   m.role === "user"
-                    ? "bg-black text-white rounded-br-none"
-                    : "bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-bl-none"
+                    ? "bg-black text-white rounded-br-none whitespace-pre-wrap leading-relaxed"
+                    : "bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-bl-none shadow-2xs"
                 }`}
               >
-                {m.text}
+                {m.role === "model" ? (
+                  <FormattedAiText content={m.text} isStreaming={m.isStreaming} />
+                ) : (
+                  m.text
+                )}
               </div>
               {m.role === "user" && (
                 <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center shrink-0 mt-0.5 text-white">
@@ -126,7 +178,7 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
             </div>
           ))}
 
-          {loading && (
+          {loading && !messages[messages.length - 1]?.isStreaming && (
             <div className="flex gap-2.5 items-center text-zinc-400 text-xs">
               <div className="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />

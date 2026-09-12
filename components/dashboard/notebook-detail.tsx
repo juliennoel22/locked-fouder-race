@@ -46,7 +46,7 @@ export function NotebookDetail({
 
         {isPro ? (
           <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-zinc-100 border border-zinc-300 text-black flex items-center gap-1">
-            <span>⭐</span> FONDATEUR
+            <span>⭐</span> PREMIUM
           </span>
         ) : (
           <button

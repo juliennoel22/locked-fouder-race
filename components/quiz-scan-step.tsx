@@ -65,7 +65,7 @@ export function QuizScanStep({
           <div className="space-y-2">
             <h2 className="text-2xl font-bold tracking-tight text-black">Scanne ton cours</h2>
             <p className="text-sm text-zinc-600 max-w-xs mx-auto">
-              Prends en photo une ou plusieurs pages de tes notes. L&apos;IA combine tout en un seul carnet de révision.
+              Prends en photo une ou plusieurs pages de tes notes. L&apos;IA combine tout en un seul cours de révision.
             </p>
           </div>
 
@@ -192,7 +192,7 @@ export function QuizScanStep({
               onClick={onConfirmAndScan}
               className="w-full h-14 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md text-sm"
             >
-              <span>Générer mon carnet ({photos.length} page{photos.length > 1 ? "s" : ""}) →</span>
+              <span>Générer mon cours ({photos.length} page{photos.length > 1 ? "s" : ""}) →</span>
             </button>
 
             <div className="flex gap-2">

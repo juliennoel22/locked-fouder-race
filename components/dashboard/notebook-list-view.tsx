@@ -15,6 +15,7 @@ interface NotebookListViewProps {
   userEmail?: string | null;
   onDeleteNotebook?: (id: string) => void;
   onActionClick?: (mode: "flashcards" | "quiz" | "tutor") => void;
+  onOpenScanModal?: () => void;
 }
 
 export function NotebookListView({
@@ -25,6 +26,7 @@ export function NotebookListView({
   userEmail,
   onDeleteNotebook,
   onActionClick,
+  onOpenScanModal,
 }: NotebookListViewProps) {
   const router = useRouter();
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
@@ -47,7 +49,7 @@ export function NotebookListView({
         <div className="flex items-center gap-2.5">
           {isPro ? (
             <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-zinc-100 border border-zinc-300 text-black flex items-center gap-1">
-              <span>⭐</span> FONDATEUR
+              <span>⭐</span> PREMIUM
             </span>
           ) : (
             <button
@@ -69,7 +71,7 @@ export function NotebookListView({
         </div>
       </header>
 
-      {/* Bandeau d'état compact : Quota & Accès Fondateur */}
+      {/* Bandeau d'état compact : Quota & Accès Premium */}
       {!isPro ? (
         <div
           onClick={onOpenPaywall}
@@ -81,7 +83,7 @@ export function NotebookListView({
               {notebooks.length >= 2 ? (
                 <>Limite 2/2 atteinte • <strong className="text-white font-semibold">Accès illimité (9,99€)</strong></>
               ) : (
-                <>{notebooks.length}/2 cours gratuits • <strong className="text-white font-semibold">Pack Fondateur à vie</strong></>
+                <>{notebooks.length}/2 cours gratuits • <strong className="text-white font-semibold">Pack Premium à vie</strong></>
               )}
             </span>
           </div>
@@ -95,7 +97,7 @@ export function NotebookListView({
             Mes cours : <strong className="text-black font-bold">{notebooks.length}</strong> (Accès illimité)
           </span>
           <span className="text-[10px] font-bold text-black bg-zinc-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
-            ⭐ Membre Fondateur
+            ⭐ Membre Premium
           </span>
         </div>
       )}
@@ -135,10 +137,7 @@ export function NotebookListView({
 
           {/* TUILE 3 : ASSISTANT IA (Pleine Largeur) */}
           <button
-            onClick={() => {
-              if (isPro) onActionClick?.("tutor");
-              else onOpenPaywall();
-            }}
+            onClick={() => onActionClick?.("tutor")}
             className="w-full p-3 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group"
           >
             <div className="flex items-center gap-2.5 truncate">
@@ -168,13 +167,16 @@ export function NotebookListView({
         <div className="space-y-2.5">
           {notebooks.length === 0 ? (
             <div
-              onClick={() => router.push("/dashboard/new")}
+              onClick={() => {
+                if (onOpenScanModal) onOpenScanModal();
+                else router.push("/dashboard/new");
+              }}
               className="p-8 text-center text-zinc-500 text-xs border border-dashed border-zinc-300 rounded-2xl space-y-2 bg-zinc-50/70 hover:bg-zinc-100/80 hover:border-zinc-400 transition cursor-pointer active:scale-[0.99] group shadow-2xs"
             >
               <div className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-black mx-auto group-hover:scale-110 transition shadow-xs">
                 <Plus className="w-5 h-5" />
               </div>
-              <p className="font-semibold text-black text-sm">Aucun carnet pour le moment</p>
+              <p className="font-semibold text-black text-sm">Aucun cours pour le moment</p>
               <p className="text-zinc-500 max-w-xs mx-auto">
                 Appuie ici pour scanner ton premier cours ou importer un document.
               </p>
@@ -207,13 +209,13 @@ export function NotebookListView({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (typeof window !== "undefined" && window.confirm(`Supprimer le carnet "${nb.title}" ?`)) {
+                        if (typeof window !== "undefined" && window.confirm(`Supprimer le cours "${nb.title}" ?`)) {
                           onDeleteNotebook(nb.id);
                         }
                       }}
                       className="w-8 h-8 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 hover:text-red-600 hover:border-red-200 transition"
-                      title="Supprimer ce carnet"
-                      aria-label="Supprimer ce carnet"
+                      title="Supprimer ce cours"
+                      aria-label="Supprimer ce cours"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

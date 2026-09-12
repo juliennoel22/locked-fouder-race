@@ -65,7 +65,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-4 space-y-1 text-zinc-600">
               <li>Fournir le service de scan, d&apos;extraction et de révision par flashcards.</li>
-              <li>Sauvegarder vos carnets d&apos;études dans votre espace personnel sécurisé.</li>
+              <li>Sauvegarder vos cours d&apos;études dans votre espace personnel sécurisé.</li>
               <li>Gérer vos accès et paiements éventuels via Stripe (sans stockage de vos coordonnées bancaires sur nos serveurs).</li>
             </ul>
             <p className="text-zinc-600">
