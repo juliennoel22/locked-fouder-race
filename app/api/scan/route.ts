@@ -59,28 +59,45 @@ Règles impératives :
 
 export async function POST(request: NextRequest) {
   try {
-    let base64Data = "";
-    let mimeType = "image/jpeg";
-    let originalImageUrl: string | null = null;
+    const imagesList: Array<{ base64: string; mimeType: string; imageUrl?: string }> = [];
 
     const contentType = request.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
       const body = await request.json();
-      base64Data = body.base64?.replace(/^data:image\/\w+;base64,/, "") || "";
-      mimeType = body.mimeType || "image/jpeg";
-      originalImageUrl = body.imageUrl || null;
+      if (Array.isArray(body.images) && body.images.length > 0) {
+        for (const item of body.images) {
+          const rawBase64 = (item.base64 || "").replace(/^data:image\/\w+;base64,/, "");
+          if (rawBase64) {
+            imagesList.push({
+              base64: rawBase64,
+              mimeType: item.mimeType || "image/jpeg",
+              imageUrl: item.imageUrl,
+            });
+          }
+        }
+      } else if (body.base64) {
+        imagesList.push({
+          base64: body.base64.replace(/^data:image\/\w+;base64,/, ""),
+          mimeType: body.mimeType || "image/jpeg",
+          imageUrl: body.imageUrl,
+        });
+      }
     } else if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
-      const file = formData.get("file") as File | null;
-      if (file) {
-        mimeType = file.type || "image/jpeg";
-        const bytes = await file.arrayBuffer();
-        base64Data = Buffer.from(bytes).toString("base64");
+      const files = formData.getAll("file") as File[];
+      for (const file of files) {
+        if (file) {
+          const bytes = await file.arrayBuffer();
+          imagesList.push({
+            base64: Buffer.from(bytes).toString("base64"),
+            mimeType: file.type || "image/jpeg",
+          });
+        }
       }
     }
 
-    if (!base64Data) {
+    if (imagesList.length === 0) {
       return NextResponse.json<ScanApiResponse>(
         { success: false, error: "Aucune image fournie pour le scan" },
         { status: 400 }
@@ -93,11 +110,21 @@ export async function POST(request: NextRequest) {
     if (apiKey) {
       try {
         const ai = new GoogleGenAI({ apiKey });
+        const imageInputs = imagesList.map((img) => ({
+          type: "image" as const,
+          mime_type: img.mimeType,
+          data: img.base64,
+        }));
+
+        const promptText = imagesList.length > 1
+          ? `${SYSTEM_PROMPT}\n\nNOTE IMPORTANTE : Tu reçois ${imagesList.length} pages successives d'un même cours. Analyse et combine TOUTES ces pages ensemble.`
+          : SYSTEM_PROMPT;
+
         const interaction = await ai.interactions.create({
           model: "gemini-3.6-flash",
           input: [
-            { type: "text", text: SYSTEM_PROMPT },
-            { type: "image", mime_type: mimeType, data: base64Data },
+            { type: "text", text: promptText },
+            ...imageInputs,
           ],
         });
 
@@ -141,7 +168,7 @@ export async function POST(request: NextRequest) {
             subject: scanResult.subject,
             summary: scanResult.summary,
             initial_quiz_question: scanResult.initial_quiz_question,
-            image_url: originalImageUrl,
+            image_url: imagesList[0]?.imageUrl || null,
           })
           .select("id")
           .single();
@@ -167,7 +194,7 @@ export async function POST(request: NextRequest) {
       success: true,
       deckId: savedDeckId,
       data: scanResult,
-      imageUrl: originalImageUrl || undefined,
+      imageUrl: imagesList[0]?.imageUrl || undefined,
     });
   } catch (error) {
     console.error("Erreur globale /api/scan :", error);

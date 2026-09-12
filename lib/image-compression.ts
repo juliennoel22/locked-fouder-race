@@ -7,7 +7,7 @@ export interface CompressedImage {
 }
 
 /**
- * Compression Canvas HTML5 côté client (Normes commando 80/20 Loreno).
+ * Compression Canvas HTML5 côté client (Normes commando Loreno).
  * Réduit une photo de smartphone (5-10 Mo) à < 400 Ko en JPEG 0.8 avec dimension max 1600px.
  */
 export async function compressCourseImage(

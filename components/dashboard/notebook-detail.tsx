@@ -1,195 +1,212 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, FileText, Sparkles, HelpCircle, Lock, Layers, Send } from "lucide-react";
+import { ArrowLeft, FileText, Sparkles, CheckCircle2, Lock, Layers } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FlashcardPlayer } from "@/components/flashcard-player";
+import { NotebookSummaryView } from "./notebook-summary-view";
+import { NotebookQuizView } from "./notebook-quiz-view";
+
+import { AiTutorModal } from "./ai-tutor-modal";
 
 interface NotebookDetailProps {
   notebook: NotebookItem;
   onBack: () => void;
   onOpenPaywall: () => void;
+  isPro?: boolean;
 }
+
+type NotebookMode = "grid" | "flashcards" | "fiche" | "quiz";
 
 export function NotebookDetail({
   notebook,
   onBack,
   onOpenPaywall,
+  isPro = false,
 }: NotebookDetailProps) {
-  const [activeSection, setActiveSection] = useState<"flashcards" | "synthese" | "tuteur">("flashcards");
-  const [tuteurInput, setTuteurInput] = useState("");
-  const [tuteurMessages, setTuteurMessages] = useState<Array<{ sender: "ia" | "user"; text: string }>>([
-    {
-      sender: "ia",
-      text: `Bonjour ! Je suis ton tuteur d'examen sur "${notebook.title}". Pose-moi une question sur tes notes ou demande-moi de tester tes connaissances.`,
-    },
-  ]);
-
-  const scrollTo = (id: string, tab: "flashcards" | "synthese" | "tuteur") => {
-    setActiveSection(tab);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  const handleSendTuteur = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tuteurInput.trim()) return;
-
-    const userQuestion = tuteurInput;
-    setTuteurInput("");
-    setTuteurMessages((prev) => [...prev, { sender: "user", text: userQuestion }]);
-
-    setTimeout(() => {
-      onOpenPaywall();
-    }, 600);
-  };
+  const [mode, setMode] = useState<NotebookMode>("grid");
+  const [showAiTutor, setShowAiTutor] = useState<boolean>(false);
 
   return (
-    <div className="w-full flex-1 flex flex-col select-none pb-24">
-      {/* Header avec retour & PRO */}
+    <div className="w-full flex-1 flex flex-col select-none pb-20">
+      {/* Header avec bouton retour contextuel & PRO */}
       <header className="w-full pt-1 flex items-center justify-between h-12 border-b border-zinc-200 pb-2 mb-4">
         <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-black transition p-1 -ml-1"
+          onClick={() => {
+            if (mode === "grid") onBack();
+            else setMode("grid");
+          }}
+          className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-black transition p-1 -ml-1"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Mes carnets</span>
+          <span>{mode === "grid" ? "Mes carnets" : "Menu du carnet"}</span>
         </button>
 
-        <button
-          onClick={onOpenPaywall}
-          className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition"
-        >
-          PRO
-        </button>
+        {isPro ? (
+          <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-zinc-100 border border-zinc-300 text-black flex items-center gap-1">
+            <span>⭐</span> FONDATEUR
+          </span>
+        ) : (
+          <button
+            onClick={onOpenPaywall}
+            className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition"
+          >
+            PRO
+          </button>
+        )}
       </header>
 
       {/* Titre & Matière du Carnet */}
-      <div className="space-y-1 mb-6 text-left">
+      <div className="space-y-1 mb-5 text-left">
         <div className="text-xl font-bold tracking-tight text-black flex items-center gap-2">
           <span>{notebook.emoji}</span>
           <span className="truncate">{notebook.title}</span>
         </div>
         <p className="text-xs text-zinc-500">
-          {notebook.subject} • {notebook.deck.flashcards.length} fiches de révision
+          {notebook.subject} • {notebook.deck.flashcards.length} fiches
         </p>
       </div>
 
-      {/* SECTION 1 : FLASHCARDS (Tout sur une page) */}
-      <section id="section-flashcards" className="w-full mb-10 scroll-mt-4">
-        <FlashcardPlayer
-          cards={notebook.deck.flashcards}
-          deckTitle={notebook.deck.title}
-          subject={notebook.deck.subject}
-          imageUrl={notebook.imageUrl}
-          initialQuizQuestion={notebook.deck.initial_quiz_question}
-          summary={notebook.deck.summary}
-          disablePaywall={true}
-        />
-      </section>
-
-      {/* SÉPARATEUR */}
-      <div className="w-full h-px bg-zinc-200 mb-8" />
-
-      {/* SECTION 2 : SYNTHÈSE 80/20 (Tout sur une page) */}
-      <section id="section-synthese" className="w-full space-y-4 text-left mb-10 scroll-mt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-black flex items-center gap-2">
-            <FileText className="w-4 h-4 text-zinc-500" />
-            <span>Synthèse essentielle (Loi des 80/20)</span>
-          </h2>
-          <span className="text-[10px] text-zinc-500 font-mono bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200">
-            Lecture : 2 min
-          </span>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200">
-          <p className="text-xs sm:text-sm text-zinc-800 leading-relaxed whitespace-pre-line">
-            {notebook.deck.summary || "Synthèse en cours de traitement pour ce cours."}
-          </p>
-        </div>
-      </section>
-
-      {/* SÉPARATEUR */}
-      <div className="w-full h-px bg-zinc-200 mb-8" />
-
-      {/* SECTION 3 : QUESTION D'EXAMEN & TUTEUR IA (Tout sur une page) */}
-      <section id="section-tuteur" className="w-full space-y-4 text-left scroll-mt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-black flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-zinc-500" />
-            <span>Tuteur IA &amp; Examen Blanc</span>
-          </h2>
-          <span className="text-[10px] text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200 font-medium">
-            Entraînement
-          </span>
-        </div>
-
-        {/* Bloc Question type */}
-        <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
-          <p className="text-xs text-zinc-600">Question type identifiée pour tes partiels :</p>
-          <div className="p-3.5 rounded-xl bg-white border border-zinc-200 text-xs sm:text-sm text-zinc-900 italic font-medium">
-            &laquo; {notebook.deck.initial_quiz_question || "Quels sont les points clés de ce cours ?"} &raquo;
-          </div>
-          <button
-            onClick={onOpenPaywall}
-            className="w-full h-11 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.99]"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Débloquer le corrigé officiel et la grille (9,99 €)</span>
-          </button>
-        </div>
-
-        {/* Chat interactif Tuteur */}
-        <div className="space-y-3 pt-2">
-          {tuteurMessages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`p-3.5 rounded-xl text-xs leading-relaxed max-w-[85%] ${
-                msg.sender === "ia"
-                  ? "bg-zinc-100 border border-zinc-200 text-zinc-800 self-start"
-                  : "bg-black text-white font-medium ml-auto"
-              }`}
+      {/* VUE 1 : GRILLE 2x2 (Menu principal du carnet) */}
+      {mode === "grid" && (
+        <div className="flex-1 flex flex-col justify-center space-y-4 my-auto py-2">
+          <div className="grid grid-cols-2 gap-3.5">
+            {/* TUILLE 1 : FLASHCARDS */}
+            <button
+              onClick={() => setMode("flashcards")}
+              className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-xs"
             >
-              {msg.text}
-            </div>
-          ))}
+              <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-bold text-black">Flashcards</h3>
+                <p className="text-[11px] text-zinc-500">
+                  {notebook.deck.flashcards.length} cartes • Swipe 3D
+                </p>
+              </div>
+            </button>
+
+            {/* TUILLE 2 : FICHE DE RÉVISION */}
+            <button
+              onClick={() => setMode("fiche")}
+              className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-xs"
+            >
+              <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-bold text-black">Fiche révision</h3>
+                <p className="text-[11px] text-zinc-500">
+                  Synthèse essentielle du cours
+                </p>
+              </div>
+            </button>
+
+            {/* TUILLE 3 : QUIZ */}
+            <button
+              onClick={() => setMode("quiz")}
+              className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-xs"
+            >
+              <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-bold text-black">Quiz examen</h3>
+                <p className="text-[11px] text-zinc-500">
+                  Questions pièges &amp; score
+                </p>
+              </div>
+            </button>
+
+            {/* TUILLE 4 : ASSISTANT IA */}
+            <button
+              onClick={() => {
+                if (isPro) setShowAiTutor(true);
+                else onOpenPaywall();
+              }}
+              className="p-4 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-sm relative overflow-hidden"
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                {isPro ? (
+                  <span className="px-2 py-0.5 rounded-full bg-white text-black font-bold text-[10px] flex items-center gap-1">
+                    ACTIF
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full bg-white text-black font-bold text-[10px] flex items-center gap-1">
+                    <Lock className="w-3 h-3" />
+                    PRO
+                  </span>
+                )}
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-bold text-white">Assistant IA</h3>
+                <p className="text-[11px] text-zinc-400">
+                  {isPro ? "Tuteur d'examen 24/7" : "Débloquer le tuteur 24/7"}
+                </p>
+              </div>
+            </button>
+          </div>
         </div>
+      )}
 
-        <form onSubmit={handleSendTuteur} className="pt-2 flex gap-2">
-          <input
-            type="text"
-            value={tuteurInput}
-            onChange={(e) => setTuteurInput(e.target.value)}
-            placeholder="Pose une question à ton tuteur..."
-            className="flex-1 h-12 bg-zinc-50 border border-zinc-200 rounded-xl px-4 text-xs text-black placeholder-zinc-400 focus:outline-none focus:border-black transition"
+      {/* VUE 2 : MODE FLASHCARDS */}
+      {mode === "flashcards" && (
+        <div className="w-full">
+          <FlashcardPlayer
+            cards={notebook.deck.flashcards}
+            deckTitle={notebook.deck.title}
+            subject={notebook.deck.subject}
+            imageUrl={notebook.imageUrl}
+            initialQuizQuestion={notebook.deck.initial_quiz_question}
+            summary={notebook.deck.summary}
+            disablePaywall={true}
           />
-          <button
-            type="submit"
-            className="h-12 px-4 rounded-xl bg-black text-white font-semibold text-xs hover:bg-zinc-800 transition shrink-0 flex items-center justify-center"
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
-      </section>
+        </div>
+      )}
 
-      {/* NAVBAR FIXE EN BAS DE PAGE (Thumb Zone, ultra simple, monochrome) */}
+      {/* VUE 3 : MODE FICHE DE RÉVISION */}
+      {mode === "fiche" && (
+        <NotebookSummaryView
+          title={notebook.deck.title}
+          subject={notebook.deck.subject}
+          summary={notebook.deck.summary}
+          onTestFlashcards={() => setMode("flashcards")}
+        />
+      )}
+
+      {/* VUE 4 : MODE QUIZ QCM */}
+      {mode === "quiz" && (
+        <NotebookQuizView
+          deck={notebook.deck}
+          onOpenPaywall={onOpenPaywall}
+          onGoToFlashcards={() => setMode("flashcards")}
+        />
+      )}
+
+      {/* NAVBAR FIXE EN BAS DE PAGE */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200 max-w-md mx-auto">
         <div className="flex items-center justify-around h-16 px-2">
           <button
-            onClick={onBack}
+            onClick={() => {
+              if (mode === "grid") onBack();
+              else setMode("grid");
+            }}
             className="flex flex-col items-center justify-center w-16 h-full text-zinc-500 hover:text-black transition"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">Carnets</span>
+            <span className="text-[10px] font-medium mt-1">
+              {mode === "grid" ? "Carnets" : "Menu"}
+            </span>
           </button>
 
           <button
-            onClick={() => scrollTo("section-flashcards", "flashcards")}
+            onClick={() => setMode("flashcards")}
             className={`flex flex-col items-center justify-center w-16 h-full transition ${
-              activeSection === "flashcards" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
+              mode === "flashcards" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
             }`}
           >
             <Layers className="w-5 h-5" />
@@ -197,9 +214,9 @@ export function NotebookDetail({
           </button>
 
           <button
-            onClick={() => scrollTo("section-synthese", "synthese")}
+            onClick={() => setMode("fiche")}
             className={`flex flex-col items-center justify-center w-16 h-full transition ${
-              activeSection === "synthese" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
+              mode === "fiche" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
             }`}
           >
             <FileText className="w-5 h-5" />
@@ -207,24 +224,34 @@ export function NotebookDetail({
           </button>
 
           <button
-            onClick={() => scrollTo("section-tuteur", "tuteur")}
+            onClick={() => setMode("quiz")}
             className={`flex flex-col items-center justify-center w-16 h-full transition ${
-              activeSection === "tuteur" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
+              mode === "quiz" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
             }`}
           >
-            <HelpCircle className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">Tuteur</span>
+            <CheckCircle2 className="w-5 h-5" />
+            <span className="text-[10px] font-medium mt-1">Quiz</span>
           </button>
 
           <button
-            onClick={onOpenPaywall}
+            onClick={() => {
+              if (isPro) setShowAiTutor(true);
+              else onOpenPaywall();
+            }}
             className="flex flex-col items-center justify-center w-16 h-full text-zinc-500 hover:text-black transition"
           >
             <Sparkles className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">PRO</span>
+            <span className="text-[10px] font-medium mt-1">{isPro ? "Tuteur" : "PRO"}</span>
           </button>
         </div>
       </nav>
+
+      {/* Modal Tuteur IA pour les membres ayant le Pack Fondateur */}
+      <AiTutorModal
+        isOpen={showAiTutor}
+        onClose={() => setShowAiTutor(false)}
+        notebook={notebook}
+      />
     </div>
   );
 }

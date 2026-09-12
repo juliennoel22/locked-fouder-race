@@ -8,7 +8,7 @@ import { ScanApiResponse, ScanResult } from "@/types/loreno";
 import { createClient } from "@/lib/supabase/client";
 import { DEFAULT_SCAN_RESULT } from "@/lib/quiz-data";
 import { QuizLoadingOverlay } from "@/components/quiz-loading-overlay";
-import { QuizScanStep } from "@/components/quiz-scan-step";
+import { QuizScanStep, ScannedPhotoItem } from "@/components/quiz-scan-step";
 import { FlashcardPlayer } from "@/components/flashcard-player";
 import { QuizStepsForm } from "@/components/quiz-steps-form";
 
@@ -29,10 +29,9 @@ export default function QuizPage() {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [selectedPhotos, setSelectedPhotos] = useState<ScannedPhotoItem[]>([]);
   const [scanData, setScanData] = useState<ScanResult | null>(null);
   const [scannedImageUrl, setScannedImageUrl] = useState<string | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleBack = () => {
     if (step > 1) {
@@ -49,49 +48,58 @@ export default function QuizPage() {
     }, 150);
   };
 
-  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleAddPhotos = (newFiles: File[]) => {
+    setErrorMessage(null);
+    const newItems: ScannedPhotoItem[] = newFiles.map((file) => ({
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    setSelectedPhotos((prev) => [...prev, ...newItems]);
+  };
+
+  const handleRemovePhoto = (id: string) => {
+    setSelectedPhotos((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleConfirmAndScan = async () => {
+    if (selectedPhotos.length === 0) {
+      setErrorMessage("Veuillez ajouter au moins une photo de votre cours.");
+      return;
+    }
 
     setErrorMessage(null);
     setLoading(true);
     setLoadingProgress(15);
-    setLoadingMessage("Compression de ta note...");
+    setLoadingMessage(
+      selectedPhotos.length > 1
+        ? `Compression optimisée de tes ${selectedPhotos.length} pages...`
+        : "Compression de ta note de cours..."
+    );
 
     try {
-      const compressed = await compressCourseImage(file, 1600, 0.8);
-      setLoadingProgress(35);
-      setLoadingMessage("Lecture de l'écriture manuscrite...");
+      const compressedList = await Promise.all(
+        selectedPhotos.map((p) => compressCourseImage(p.file, 1600, 0.8))
+      );
 
-      let uploadedPublicUrl = compressed.previewUrl;
-      try {
-        const supabase = createClient();
-        const { data: userData } = await supabase.auth.getUser();
-        const userId = userData?.user?.id || "guest";
-        const fileName = `${userId}/${Date.now()}.jpg`;
+      setLoadingProgress(45);
+      setLoadingMessage(
+        selectedPhotos.length > 1
+          ? `Analyse multimodale de tes ${selectedPhotos.length} pages combinées...`
+          : "Analyse multimodale de ton cours..."
+      );
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("course-scans")
-          .upload(fileName, compressed.file, { contentType: "image/jpeg", upsert: true });
-
-        if (!uploadError && uploadData) {
-          const { data: pUrl } = supabase.storage.from("course-scans").getPublicUrl(uploadData.path);
-          uploadedPublicUrl = pUrl.publicUrl;
-        }
-      } catch {
-        // Fallback silencieux
-      }
-
-      setLoadingProgress(60);
-      setLoadingMessage(`Détection des questions pièges pour ${userName || "ton cours"}...`);
+      const imagesPayload = compressedList.map((c) => ({
+        base64: c.base64,
+        mimeType: "image/jpeg",
+        imageUrl: c.previewUrl,
+      }));
 
       const res = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          base64: compressed.base64,
-          mimeType: "image/jpeg",
-          imageUrl: uploadedPublicUrl,
+          images: imagesPayload,
         }),
       });
 
@@ -101,12 +109,15 @@ export default function QuizPage() {
       setLoadingProgress(100);
       setLoadingMessage("Génération terminée !");
 
+      const primaryImageUrl = compressedList[0]?.previewUrl;
+
       if (typeof window !== "undefined") {
         sessionStorage.setItem(
           "loreno_scan_cache",
           JSON.stringify({
             scanData: finalScanResult,
-            imageUrl: uploadedPublicUrl,
+            imageUrl: primaryImageUrl,
+            pageCount: selectedPhotos.length,
             userName,
             level,
             goal,
@@ -116,7 +127,7 @@ export default function QuizPage() {
 
       setTimeout(() => {
         setScanData(finalScanResult);
-        setScannedImageUrl(uploadedPublicUrl);
+        setScannedImageUrl(primaryImageUrl);
         setLoading(false);
       }, 400);
     } catch (err) {
@@ -230,8 +241,11 @@ export default function QuizPage() {
         ) : (
           <div className="flex-1 flex flex-col justify-center py-6">
             <QuizScanStep
-              fileInputRef={fileInputRef}
-              onFileSelect={handleFileSelect}
+              photos={selectedPhotos}
+              onAddPhotos={handleAddPhotos}
+              onRemovePhoto={handleRemovePhoto}
+              onConfirmAndScan={handleConfirmAndScan}
+              onSkip={() => router.push("/auth")}
               errorMessage={errorMessage}
             />
           </div>

@@ -76,7 +76,7 @@ export function ExamTrapBox({
             <Lock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
           </div>
           <div className="p-2.5 rounded-xl bg-white border border-zinc-200 flex items-center justify-between text-xs text-zinc-600 select-none">
-            <span className="blur-[2px]">Synthèse 80/20 pour sécuriser la note</span>
+            <span className="blur-[2px]">Synthèse essentielle pour sécuriser la note</span>
             <Lock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
           </div>
         </div>

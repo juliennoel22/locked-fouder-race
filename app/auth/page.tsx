@@ -111,10 +111,6 @@ export default function AuthPage() {
         {/* Content Minimalist */}
         <div className="flex-1 flex flex-col justify-center py-6">
           <div className="space-y-6 text-center">
-            <div className="w-12 h-12 rounded-2xl border border-zinc-200 bg-zinc-100 flex items-center justify-center mx-auto text-xl">
-              ⚡
-            </div>
-
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-black">
                 Connecte-toi pour continuer

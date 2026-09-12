@@ -8,12 +8,14 @@ interface NotebookListViewProps {
   notebooks: NotebookItem[];
   onSelectNotebook: (nb: NotebookItem) => void;
   onOpenPaywall: () => void;
+  isPro?: boolean;
 }
 
 export function NotebookListView({
   notebooks,
   onSelectNotebook,
   onOpenPaywall,
+  isPro = false,
 }: NotebookListViewProps) {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -40,12 +42,18 @@ export function NotebookListView({
             <Search className="w-4 h-4" />
           </button>
 
-          <button
-            onClick={onOpenPaywall}
-            className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition"
-          >
-            PRO
-          </button>
+          {isPro ? (
+            <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-zinc-100 border border-zinc-300 text-black flex items-center gap-1">
+              <span>⭐</span> FONDATEUR
+            </span>
+          ) : (
+            <button
+              onClick={onOpenPaywall}
+              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition"
+            >
+              PRO
+            </button>
+          )}
 
           <button
             onClick={onOpenPaywall}
@@ -79,27 +87,63 @@ export function NotebookListView({
         </div>
       )}
 
-      {/* Bouton d'accès au Pack Fondateur (Accessible dans la liste de nos notebooks) */}
-      <div
-        onClick={onOpenPaywall}
-        className="w-full p-4 rounded-2xl border border-zinc-200 bg-black text-white hover:bg-zinc-800 transition flex items-center justify-between cursor-pointer active:scale-[0.99] shadow-sm"
-      >
-        <div className="space-y-0.5 text-left">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-zinc-200">
-            <Sparkles className="w-3.5 h-3.5 text-white" />
-            <span>Pack Fondateur • 9,99 € à vie</span>
-          </div>
-          <p className="text-[11px] text-zinc-400">
-            Débloque tous tes cours illimités & le Mode Examen
-          </p>
-        </div>
-        <button
-          type="button"
-          className="px-3.5 py-1.5 bg-white text-black font-semibold text-xs rounded-xl hover:bg-zinc-100 transition shrink-0 ml-3"
-        >
-          Débloquer
-        </button>
+      {/* Indicateur de limite (Illimité si Pro, max 2 sinon) */}
+      <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs">
+        <span className="text-zinc-600 font-medium">
+          {isPro ? (
+            <>Carnets : <strong className="text-black font-bold">{notebooks.length}</strong> (Accès illimité)</>
+          ) : (
+            <>Projets gratuits : <strong className="text-black font-bold">{notebooks.length} / 2</strong></>
+          )}
+        </span>
+        {isPro ? (
+          <span className="text-[10px] font-bold text-black bg-zinc-200 px-2 py-0.5 rounded flex items-center gap-1">
+            ⭐ Membre Fondateur
+          </span>
+        ) : notebooks.length >= 2 ? (
+          <span className="text-[10px] font-bold text-black bg-zinc-200 px-2 py-0.5 rounded">
+            Limite atteinte (Max 2)
+          </span>
+        ) : (
+          <span className="text-[10px] font-medium text-zinc-500">
+            {2 - notebooks.length} restant{2 - notebooks.length > 1 ? "s" : ""}
+          </span>
+        )}
       </div>
+
+      {/* Bouton d'accès au Pack Fondateur */}
+      {!isPro ? (
+        <div
+          onClick={onOpenPaywall}
+          className="w-full p-4 rounded-2xl border border-zinc-200 bg-black text-white hover:bg-zinc-800 transition flex items-center justify-between cursor-pointer active:scale-[0.99] shadow-sm"
+        >
+          <div className="space-y-0.5 text-left">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-zinc-200">
+              <Sparkles className="w-3.5 h-3.5 text-white" />
+              <span>Pack Fondateur • 9,99 € à vie</span>
+            </div>
+            <p className="text-[11px] text-zinc-400">
+              Débloque tous tes cours illimités & le Tuteur IA
+            </p>
+          </div>
+          <button
+            type="button"
+            className="px-3.5 py-1.5 bg-white text-black font-semibold text-xs rounded-xl hover:bg-zinc-100 transition shrink-0 ml-3"
+          >
+            Débloquer
+          </button>
+        </div>
+      ) : (
+        <div className="w-full px-4 py-3 rounded-2xl border border-zinc-200 bg-zinc-50 text-black flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-base">⭐</span>
+            <div>
+              <div className="font-bold text-black">Pack Fondateur Actif</div>
+              <p className="text-[11px] text-zinc-500">Tous tes accès, scans et le Tuteur IA sont débloqués à vie.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Liste des cartes de carnets (Style capture d'écran, 100% monochrome blanc/noir) */}
       <div className="space-y-2.5 pt-1">
