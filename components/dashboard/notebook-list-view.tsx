@@ -14,7 +14,7 @@ interface NotebookListViewProps {
   isPro?: boolean;
   userEmail?: string | null;
   onDeleteNotebook?: (id: string) => void;
-  onActionClick?: (mode: "flashcards" | "fiche" | "quiz" | "tutor") => void;
+  onActionClick?: (mode: "flashcards" | "quiz" | "tutor") => void;
 }
 
 export function NotebookListView({
@@ -100,7 +100,7 @@ export function NotebookListView({
         </div>
       )}
 
-      {/* SECTION : CRÉER & RÉVISER (Grille 2x2 épurée) */}
+      {/* SECTION : CRÉER & RÉVISER */}
       <div className="space-y-1.5 pt-0.5">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
@@ -108,55 +108,49 @@ export function NotebookListView({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          {/* TUILE 1 : FLASHCARDS */}
-          <button
-            onClick={() => onActionClick?.("flashcards")}
-            className="p-3 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-xs group"
-          >
-            <div className="w-8 h-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
-              <Layers className="w-4 h-4" />
-            </div>
-            <span className="text-xs font-bold text-black truncate">Flashcards</span>
-          </button>
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            {/* TUILE 1 : FLASHCARDS */}
+            <button
+              onClick={() => onActionClick?.("flashcards")}
+              className="p-3 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-xs group"
+            >
+              <div className="w-8 h-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+                <Layers className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-black truncate">Flashcards</span>
+            </button>
 
-          {/* TUILE 2 : FICHE RÉVISION */}
-          <button
-            onClick={() => onActionClick?.("fiche")}
-            className="p-3 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-xs group"
-          >
-            <div className="w-8 h-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
-              <FileText className="w-4 h-4" />
-            </div>
-            <span className="text-xs font-bold text-black truncate">Fiche révision</span>
-          </button>
+            {/* TUILE 2 : QUIZ EXAMEN */}
+            <button
+              onClick={() => onActionClick?.("quiz")}
+              className="p-3 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-xs group"
+            >
+              <div className="w-8 h-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-black truncate">Quiz examen</span>
+            </button>
+          </div>
 
-          {/* TUILE 3 : QUIZ EXAMEN */}
-          <button
-            onClick={() => onActionClick?.("quiz")}
-            className="p-3 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-xs group"
-          >
-            <div className="w-8 h-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-            <span className="text-xs font-bold text-black truncate">Quiz examen</span>
-          </button>
-
-          {/* TUILE 4 : ASSISTANT IA */}
+          {/* TUILE 3 : ASSISTANT IA (Pleine Largeur) */}
           <button
             onClick={() => {
               if (isPro) onActionClick?.("tutor");
               else onOpenPaywall();
             }}
-            className="p-3 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group"
+            className="w-full p-3 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group"
           >
             <div className="flex items-center gap-2.5 truncate">
               <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shrink-0 shadow-2xs">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
-              <span className="text-xs font-bold text-white truncate">Assistant IA</span>
+              <div className="truncate">
+                <div className="text-xs font-bold text-white truncate">Assistant IA Personnel</div>
+                <div className="text-[10px] text-zinc-400">Pose toutes tes questions sur tes cours 24/7</div>
+              </div>
             </div>
-            <span className="px-1.5 py-0.5 rounded-md bg-white text-black font-bold text-[9px] shrink-0 ml-1">
+            <span className="px-2 py-0.5 rounded-md bg-white text-black font-bold text-[10px] shrink-0 ml-2">
               {isPro ? "IA" : "PRO"}
             </span>
           </button>

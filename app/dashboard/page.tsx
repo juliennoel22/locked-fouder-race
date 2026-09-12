@@ -53,7 +53,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [notebooks, setNotebooks] = useState<NotebookItem[]>([]);
   const [selectedNotebook, setSelectedNotebook] = useState<NotebookItem | null>(null);
-  const [selectedNotebookMode, setSelectedNotebookMode] = useState<"grid" | "flashcards" | "fiche" | "quiz">("grid");
+  const [selectedNotebookMode, setSelectedNotebookMode] = useState<"grid" | "flashcards" | "quiz">("grid");
   const [showAiTutorDirect, setShowAiTutorDirect] = useState<boolean>(false);
   const [showPaywall, setShowPaywall] = useState<boolean>(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
@@ -168,7 +168,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleActionClick = (mode: "flashcards" | "fiche" | "quiz" | "tutor") => {
+  const handleActionClick = (mode: "flashcards" | "quiz" | "tutor") => {
     if (notebooks.length === 0) {
       router.push("/dashboard/new");
       return;

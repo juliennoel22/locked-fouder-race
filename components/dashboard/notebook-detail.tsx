@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ArrowLeft, FileText, Sparkles, CheckCircle2, Layers, Eye } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FlashcardPlayer } from "@/components/flashcard-player";
-import { NotebookSummaryView } from "./notebook-summary-view";
 import { NotebookQuizView } from "./notebook-quiz-view";
 import { AiTutorModal } from "./ai-tutor-modal";
 import { MirrorModal } from "@/components/mirror-modal";
@@ -12,11 +11,11 @@ interface NotebookDetailProps {
   onBack: () => void;
   onOpenPaywall: () => void;
   isPro?: boolean;
-  initialMode?: "grid" | "flashcards" | "fiche" | "quiz";
+  initialMode?: "grid" | "flashcards" | "quiz";
   initialShowAiTutor?: boolean;
 }
 
-type NotebookMode = "grid" | "flashcards" | "fiche" | "quiz";
+type NotebookMode = "grid" | "flashcards" | "quiz";
 
 export function NotebookDetail({
   notebook,
@@ -139,7 +138,6 @@ export function NotebookDetail({
                 </div>
               </section>
             )}
-
           </div>
 
           {/* STICKY BOTTOM : MODES D'ENTRAÎNEMENT (GRAND FORMAT) */}
@@ -150,56 +148,44 @@ export function NotebookDetail({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
-              {/* 1. Flashcards */}
-              <button
-                onClick={() => setMode("flashcards")}
-                className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
-              >
-                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
-                  <Layers className="w-4 h-4" />
-                </div>
-                <div className="truncate">
-                  <div className="text-xs sm:text-sm font-bold text-black truncate">Flashcards</div>
-                  <div className="text-[10px] text-zinc-500">{notebook.deck.flashcards.length} cartes</div>
-                </div>
-              </button>
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* 1. Flashcards */}
+                <button
+                  onClick={() => setMode("flashcards")}
+                  className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <div className="truncate">
+                    <div className="text-xs sm:text-sm font-bold text-black truncate">Flashcards</div>
+                    <div className="text-[10px] text-zinc-500">{notebook.deck.flashcards.length} cartes</div>
+                  </div>
+                </button>
 
-              {/* 2. Fiche révision */}
-              <button
-                onClick={() => setMode("fiche")}
-                className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
-              >
-                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div className="truncate">
-                  <div className="text-xs sm:text-sm font-bold text-black truncate">Fiche révision</div>
-                  <div className="text-[10px] text-zinc-500">Synthèse</div>
-                </div>
-              </button>
+                {/* 2. Quiz examen */}
+                <button
+                  onClick={() => setMode("quiz")}
+                  className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div className="truncate">
+                    <div className="text-xs sm:text-sm font-bold text-black truncate">Quiz examen</div>
+                    <div className="text-[10px] text-zinc-500">Test chrono</div>
+                  </div>
+                </button>
+              </div>
 
-              {/* 3. Quiz examen */}
-              <button
-                onClick={() => setMode("quiz")}
-                className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
-              >
-                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-                <div className="truncate">
-                  <div className="text-xs sm:text-sm font-bold text-black truncate">Quiz examen</div>
-                  <div className="text-[10px] text-zinc-500">Test chrono</div>
-                </div>
-              </button>
-
-              {/* 4. Assistant IA */}
+              {/* 3. Assistant IA (Pleine Largeur) */}
               <button
                 onClick={() => {
                   if (isPro) setShowAiTutor(true);
                   else onOpenPaywall();
                 }}
-                className="p-3.5 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group"
+                className="w-full p-3.5 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group"
               >
                 <div className="flex items-center gap-2.5 truncate">
                   <div className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shrink-0 shadow-2xs">
@@ -210,7 +196,7 @@ export function NotebookDetail({
                     <div className="text-[10px] text-zinc-400">{isPro ? "Tuteur 24/7" : "Débloquer"}</div>
                   </div>
                 </div>
-                <span className="px-1.5 py-0.5 rounded-md bg-white text-black font-bold text-[9px] shrink-0 ml-1">
+                <span className="px-2 py-0.5 rounded-md bg-white text-black font-bold text-[10px] shrink-0 ml-2">
                   {isPro ? "IA" : "PRO"}
                 </span>
               </button>
@@ -234,17 +220,7 @@ export function NotebookDetail({
         </div>
       )}
 
-      {/* VUE 3 : MODE FICHE DE RÉVISION */}
-      {mode === "fiche" && (
-        <NotebookSummaryView
-          title={notebook.deck.title}
-          subject={notebook.deck.subject}
-          summary={notebook.deck.summary}
-          onTestFlashcards={() => setMode("flashcards")}
-        />
-      )}
-
-      {/* VUE 4 : MODE QUIZ QCM */}
+      {/* VUE 3 : MODE QUIZ QCM */}
       {mode === "quiz" && (
         <NotebookQuizView
           deck={notebook.deck}

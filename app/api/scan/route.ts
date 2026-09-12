@@ -113,11 +113,14 @@ export async function POST(request: NextRequest) {
         const documentInputs = imagesList.map((doc) => {
           const isPdf =
             doc.mimeType === "application/pdf" ||
-            (doc.imageUrl && doc.imageUrl.toLowerCase().endsWith(".pdf"));
+            doc.base64.startsWith("JVBERi") ||
+            (doc.imageUrl && doc.imageUrl.toLowerCase().includes(".pdf"));
+
+          const finalMime = isPdf ? "application/pdf" : (doc.mimeType && doc.mimeType.startsWith("image/") ? doc.mimeType : "image/jpeg");
 
           return {
             type: isPdf ? ("document" as const) : ("image" as const),
-            mime_type: doc.mimeType || (isPdf ? "application/pdf" : "image/jpeg"),
+            mime_type: finalMime,
             data: doc.base64,
           };
         });
