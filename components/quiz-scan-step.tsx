@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, ChangeEvent } from "react";
-import { Camera, Upload, Plus, X } from "lucide-react";
+import { Camera, Upload, Plus, X, FileText } from "lucide-react";
 import Image from "next/image";
 
 export interface ScannedPhotoItem {
@@ -41,7 +41,7 @@ export function QuizScanStep({
 
   return (
     <div className="space-y-5 text-center select-none">
-      {/* Inputs cachés (un pour la caméra directe, un pour la galerie multiple) */}
+      {/* Inputs cachés (un pour la caméra directe, un pour les photos ou documents PDF) */}
       <input
         ref={cameraInputRef}
         type="file"
@@ -53,7 +53,7 @@ export function QuizScanStep({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         multiple
         onChange={handleFiles}
         className="hidden"
@@ -83,7 +83,7 @@ export function QuizScanStep({
               className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 font-medium text-xs flex items-center justify-center gap-2 transition"
             >
               <Upload className="w-4 h-4" />
-              <span>Importer des photos (sélection multiple possible)</span>
+              <span>Importer photos ou document PDF</span>
             </button>
 
             {onSkip && (
@@ -103,14 +103,14 @@ export function QuizScanStep({
           <div className="space-y-1">
             <div className="flex items-center justify-center gap-2">
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-black text-white font-bold">
-                {photos.length} page{photos.length > 1 ? "s" : ""}
+                {photos.length} document{photos.length > 1 ? "s" : ""}
               </span>
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-black">
-              Confirme tes pages
+              Confirme tes documents
             </h2>
             <p className="text-xs text-zinc-500">
-              Vérifie tes photos ou ajoute d&apos;autres pages avant de lancer l&apos;IA.
+              Vérifie tes photos ou PDF avant de lancer l&apos;analyse IA.
             </p>
           </div>
 
@@ -121,14 +121,34 @@ export function QuizScanStep({
                 key={photo.id}
                 className="relative group rounded-xl border border-zinc-200 bg-zinc-100 overflow-hidden aspect-[3/4] shadow-sm flex flex-col justify-between"
               >
-                {/* Image */}
-                <Image
-                  src={photo.previewUrl}
-                  alt={`Page ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
+                {/* Image ou Carte Document PDF */}
+                {photo.file.type === "application/pdf" ||
+                photo.file.name.toLowerCase().endsWith(".pdf") ? (
+                  <div className="w-full h-full p-3 flex flex-col justify-between items-center text-center bg-zinc-50">
+                    <div className="w-full flex justify-start items-center">
+                      <span className="px-1.5 py-0.5 rounded bg-black text-white text-[9px] font-bold">
+                        PDF
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1.5 my-auto px-1">
+                      <FileText className="w-8 h-8 text-black stroke-[1.5]" />
+                      <p className="text-[10px] font-semibold text-zinc-800 line-clamp-2 break-all leading-tight">
+                        {photo.file.name}
+                      </p>
+                      <span className="text-[9px] text-zinc-400 font-mono">
+                        {Math.round(photo.file.size / 1024)} Ko
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <Image
+                    src={photo.previewUrl}
+                    alt={`Page ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                )}
 
                 {/* Badge numéro de page */}
                 <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-black/80 text-white text-[10px] font-bold">
@@ -140,23 +160,23 @@ export function QuizScanStep({
                   type="button"
                   onClick={() => onRemovePhoto(photo.id)}
                   className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/90 text-zinc-700 hover:text-black hover:bg-white flex items-center justify-center shadow transition"
-                  aria-label="Supprimer cette page"
+                  aria-label="Supprimer ce document"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             ))}
 
-            {/* Carte pour ajouter une autre page */}
+            {/* Carte pour ajouter une autre page ou un PDF */}
             <button
               type="button"
-              onClick={() => cameraInputRef.current?.click()}
+              onClick={() => fileInputRef.current?.click()}
               className="rounded-xl border-2 border-dashed border-zinc-300 hover:border-black bg-zinc-50 hover:bg-zinc-100 transition aspect-[3/4] flex flex-col items-center justify-center gap-2 text-zinc-500 hover:text-black p-3"
             >
               <div className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center shadow-xs">
                 <Plus className="w-5 h-5" />
               </div>
-              <span className="text-[11px] font-semibold">Ajouter une page</span>
+              <span className="text-[11px] font-semibold">Ajouter photo ou PDF</span>
             </button>
           </div>
 

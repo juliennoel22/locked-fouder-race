@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, User, Play, X, Sparkles } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
+import { FeedbackForm } from "@/components/dashboard/feedback-form";
 
 interface NotebookListViewProps {
   notebooks: NotebookItem[];
@@ -182,6 +183,11 @@ export function NotebookListView({
             </div>
           ))
         )}
+      </div>
+
+      {/* Formulaire de Feedback pour les retours étudiants */}
+      <div className="pt-3">
+        <FeedbackForm />
       </div>
     </div>
   );

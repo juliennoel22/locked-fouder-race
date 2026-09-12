@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       if (Array.isArray(body.images) && body.images.length > 0) {
         for (const item of body.images) {
-          const rawBase64 = (item.base64 || "").replace(/^data:image\/\w+;base64,/, "");
+          const rawBase64 = (item.base64 || "").replace(/^data:[^;]+;base64,/, "");
           if (rawBase64) {
             imagesList.push({
               base64: rawBase64,
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         }
       } else if (body.base64) {
         imagesList.push({
-          base64: body.base64.replace(/^data:image\/\w+;base64,/, ""),
+          base64: body.base64.replace(/^data:[^;]+;base64,/, ""),
           mimeType: body.mimeType || "image/jpeg",
           imageUrl: body.imageUrl,
         });
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     if (imagesList.length === 0) {
       return NextResponse.json<ScanApiResponse>(
-        { success: false, error: "Aucune image fournie pour le scan" },
+        { success: false, error: "Aucun document ou image fourni pour le scan" },
         { status: 400 }
       );
     }
@@ -110,21 +110,27 @@ export async function POST(request: NextRequest) {
     if (apiKey) {
       try {
         const ai = new GoogleGenAI({ apiKey });
-        const imageInputs = imagesList.map((img) => ({
-          type: "image" as const,
-          mime_type: img.mimeType,
-          data: img.base64,
-        }));
+        const documentInputs = imagesList.map((doc) => {
+          const isPdf =
+            doc.mimeType === "application/pdf" ||
+            (doc.imageUrl && doc.imageUrl.toLowerCase().endsWith(".pdf"));
+
+          return {
+            type: isPdf ? ("document" as const) : ("image" as const),
+            mime_type: doc.mimeType || (isPdf ? "application/pdf" : "image/jpeg"),
+            data: doc.base64,
+          };
+        });
 
         const promptText = imagesList.length > 1
-          ? `${SYSTEM_PROMPT}\n\nNOTE IMPORTANTE : Tu reçois ${imagesList.length} pages successives d'un même cours. Analyse et combine TOUTES ces pages ensemble.`
+          ? `${SYSTEM_PROMPT}\n\nNOTE IMPORTANTE : Tu reçois ${imagesList.length} pages ou documents successifs d'un même cours. Analyse et combine TOUT en un seul jeu de fiches.`
           : SYSTEM_PROMPT;
 
         const interaction = await ai.interactions.create({
           model: "gemini-3.6-flash",
           input: [
             { type: "text", text: promptText },
-            ...imageInputs,
+            ...documentInputs,
           ],
         });
 

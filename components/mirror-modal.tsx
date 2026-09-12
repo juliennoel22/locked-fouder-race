@@ -38,14 +38,23 @@ export function MirrorModal({
           </button>
         </div>
 
-        {/* Image Container with Scroll/Zoom */}
+        {/* Image / PDF Document Container */}
         <div className="flex-1 overflow-auto p-2 flex items-center justify-center bg-zinc-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
-            alt="Note de cours originale"
-            className="max-w-full max-h-full object-contain rounded-xl shadow-md select-none"
-          />
+          {imageUrl.startsWith("data:application/pdf") ||
+          imageUrl.toLowerCase().includes(".pdf") ? (
+            <iframe
+              src={imageUrl}
+              title="Document PDF original"
+              className="w-full h-full rounded-xl border-0 shadow-md bg-white"
+            />
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={imageUrl}
+              alt="Note de cours originale"
+              className="max-w-full max-h-full object-contain rounded-xl shadow-md select-none"
+            />
+          )}
         </div>
 
         {/* Bottom hint in thumb zone */}

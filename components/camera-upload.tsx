@@ -40,18 +40,22 @@ export function CameraUpload() {
       // 2. Upload direct dans Supabase Storage si configuré
       setLoadingStep("Sauvegarde de la note originale...");
       let uploadedPublicUrl = compressed.previewUrl;
+      const isPdf =
+        compressed.isPdf ||
+        file.type === "application/pdf" ||
+        file.name.toLowerCase().endsWith(".pdf");
 
       try {
         const supabase = createClient();
         const { data: userData } = await supabase.auth.getUser();
         const userId = userData?.user?.id || "anonymous";
-        const fileExt = "jpg";
+        const fileExt = isPdf ? "pdf" : "jpg";
         const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("course-scans")
           .upload(fileName, compressed.file, {
-            contentType: "image/jpeg",
+            contentType: isPdf ? "application/pdf" : "image/jpeg",
             upsert: true,
           });
 
@@ -67,14 +71,14 @@ export function CameraUpload() {
 
       setScannedImageUrl(uploadedPublicUrl);
 
-      // 3. Appel API Scan (Gemini 1.5 Flash Vision)
+      // 3. Appel API Scan (Gemini Flash Vision & Document)
       setLoadingStep("Extraction IA des concepts clés (< 2s)...");
       const res = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           base64: compressed.base64,
-          mimeType: "image/jpeg",
+          mimeType: compressed.mimeType || (isPdf ? "application/pdf" : "image/jpeg"),
           imageUrl: uploadedPublicUrl,
         }),
       });
@@ -137,8 +141,7 @@ export function CameraUpload() {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
-        capture="environment"
+        accept="image/*,application/pdf"
         onChange={handleFileChange}
         className="hidden"
       />

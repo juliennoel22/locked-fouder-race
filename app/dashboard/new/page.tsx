@@ -71,8 +71,16 @@ export default function NewNotebookPage() {
     setErrorMessage(null);
     setLoading(true);
     setLoadingProgress(20);
+    const hasPdf = selectedPhotos.some(
+      (p) =>
+        p.file.type === "application/pdf" ||
+        p.file.name.toLowerCase().endsWith(".pdf")
+    );
+
     setLoadingMessage(
-      selectedPhotos.length > 1
+      hasPdf
+        ? "Préparation et analyse de tes documents..."
+        : selectedPhotos.length > 1
         ? `Compression de tes ${selectedPhotos.length} pages...`
         : "Compression de ta page de cours..."
     );
@@ -84,14 +92,16 @@ export default function NewNotebookPage() {
 
       setLoadingProgress(50);
       setLoadingMessage(
-        selectedPhotos.length > 1
+        hasPdf
+          ? "Extraction IA des concepts clés du document..."
+          : selectedPhotos.length > 1
           ? `Analyse multimodale de tes ${selectedPhotos.length} pages combinées...`
           : "Analyse multimodale de ton cours..."
       );
 
       const imagesPayload = compressedList.map((c) => ({
         base64: c.base64,
-        mimeType: "image/jpeg",
+        mimeType: c.mimeType || (c.isPdf ? "application/pdf" : "image/jpeg"),
         imageUrl: c.previewUrl,
       }));
 

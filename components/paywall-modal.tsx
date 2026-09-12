@@ -17,7 +17,7 @@ export function PaywallModal({
 
   const stripeUrl =
     process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
-    "https://buy.stripe.com/test_fZudR83IDajF1aBe9N3VC01";
+    "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">

@@ -4,11 +4,13 @@ export interface CompressedImage {
   previewUrl: string;
   sizeKb: number;
   originalSizeKb: number;
+  mimeType?: string;
+  isPdf?: boolean;
 }
 
 /**
- * Compression Canvas HTML5 côté client (Normes commando Loreno).
- * Réduit une photo de smartphone (5-10 Mo) à < 400 Ko en JPEG 0.8 avec dimension max 1600px.
+ * Compression Canvas HTML5 côté client pour les images,
+ * ou lecture directe Base64 pour les documents PDF.
  */
 export async function compressCourseImage(
   inputFile: File,
@@ -16,6 +18,33 @@ export async function compressCourseImage(
   quality: number = 0.8
 ): Promise<CompressedImage> {
   const originalSizeKb = Math.round(inputFile.size / 1024);
+
+  // Prise en charge native des fichiers PDF
+  if (
+    inputFile.type === "application/pdf" ||
+    inputFile.name.toLowerCase().endsWith(".pdf")
+  ) {
+    const previewUrl = URL.createObjectURL(inputFile);
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(inputFile);
+      reader.onload = (event) => {
+        const base64 = (event.target?.result as string) || "";
+        resolve({
+          file: inputFile,
+          base64,
+          previewUrl,
+          sizeKb: originalSizeKb,
+          originalSizeKb,
+          mimeType: "application/pdf",
+          isPdf: true,
+        });
+      };
+      reader.onerror = () =>
+        reject(new Error("Erreur de lecture du document PDF"));
+    });
+  }
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
