@@ -54,7 +54,7 @@ export async function updateSession(request: NextRequest) {
   // Seules les routes /protected nécessitent une authentification obligatoire
   if (request.nextUrl.pathname.startsWith("/protected") && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
+    url.pathname = "/auth";
     return NextResponse.redirect(url);
   }
 

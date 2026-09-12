@@ -2,16 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { NotebookItem } from "@/types/loreno";
-import { INITIAL_NOTEBOOKS } from "@/lib/initial-notebooks";
 import { NotebookListView } from "@/components/dashboard/notebook-list-view";
 import { NotebookDetail } from "@/components/dashboard/notebook-detail";
 import { FloatingScanBar } from "@/components/dashboard/floating-scan-bar";
 import { PaywallModal } from "@/components/paywall-modal";
 
 export default function DashboardPage() {
-  const [notebooks, setNotebooks] = useState<NotebookItem[]>(INITIAL_NOTEBOOKS);
+  const [notebooks, setNotebooks] = useState<NotebookItem[]>([]);
   const [selectedNotebook, setSelectedNotebook] = useState<NotebookItem | null>(null);
   const [showPaywall, setShowPaywall] = useState<boolean>(false);
+
+  // Nettoyer automatiquement les hash résiduels dans l'URL
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash.includes("error")) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
 
   // Charger le cours scanné depuis sessionStorage
   useEffect(() => {

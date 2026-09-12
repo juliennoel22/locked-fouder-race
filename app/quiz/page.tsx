@@ -6,14 +6,11 @@ import { ArrowLeft } from "lucide-react";
 import { compressCourseImage } from "@/lib/image-compression";
 import { ScanApiResponse, ScanResult } from "@/types/loreno";
 import { createClient } from "@/lib/supabase/client";
-import {
-  LEVEL_OPTIONS,
-  GOAL_OPTIONS,
-  PAIN_OPTIONS,
-  DEFAULT_SCAN_RESULT,
-} from "@/lib/quiz-data";
+import { DEFAULT_SCAN_RESULT } from "@/lib/quiz-data";
 import { QuizLoadingOverlay } from "@/components/quiz-loading-overlay";
 import { QuizScanStep } from "@/components/quiz-scan-step";
+import { FlashcardPlayer } from "@/components/flashcard-player";
+import { QuizStepsForm } from "@/components/quiz-steps-form";
 
 export default function QuizPage() {
   const router = useRouter();
@@ -31,6 +28,9 @@ export default function QuizPage() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [scanData, setScanData] = useState<ScanResult | null>(null);
+  const [scannedImageUrl, setScannedImageUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -115,21 +115,26 @@ export default function QuizPage() {
       }
 
       setTimeout(() => {
-        router.push("/auth");
-      }, 350);
+        setScanData(finalScanResult);
+        setScannedImageUrl(uploadedPublicUrl);
+        setLoading(false);
+      }, 400);
     } catch (err) {
       console.error("Erreur scan:", err);
+      const fallback = DEFAULT_SCAN_RESULT;
       if (typeof window !== "undefined") {
         sessionStorage.setItem(
           "loreno_scan_cache",
           JSON.stringify({
+            scanData: fallback,
             userName,
             level,
             goal,
           })
         );
       }
-      router.push("/auth");
+      setScanData(fallback);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -138,6 +143,47 @@ export default function QuizPage() {
   // Écran de Chargement / Traitement (Astra AI style original)
   if (loading) {
     return <QuizLoadingOverlay message={loadingMessage} progress={loadingProgress} />;
+  }
+
+  // Écran du Test Flashcards (dès la fin du scan, pas de paywall, swipe complet avant /auth)
+  if (scanData) {
+    return (
+      <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
+        <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
+          <div className="w-full pt-2 mb-2">
+            <div className="flex items-center justify-between h-8 mb-3">
+              <button
+                onClick={() => setScanData(null)}
+                className="p-2 -ml-2 text-zinc-400 hover:text-black transition"
+                aria-label="Retour"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <span className="text-xs font-mono text-zinc-400">
+                Test en direct
+              </span>
+            </div>
+          </div>
+
+          <FlashcardPlayer
+            cards={scanData.flashcards}
+            deckTitle={scanData.title}
+            subject={scanData.subject}
+            imageUrl={scannedImageUrl}
+            initialQuizQuestion={scanData.initial_quiz_question}
+            summary={scanData.summary}
+            disablePaywall={true}
+            onComplete={() => {
+              router.push("/auth");
+            }}
+          />
+
+          <div className="py-2 text-center text-[11px] text-zinc-400">
+            Loreno
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -167,107 +213,29 @@ export default function QuizPage() {
         </div>
 
         {/* Form Content Area */}
-        <div className="flex-1 flex flex-col justify-center py-6">
-          {/* STEP 1: Niveau */}
-          {step === 1 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-center text-black">Quel est ton niveau d&apos;études ?</h2>
-              <div className="space-y-2.5 pt-2">
-                {LEVEL_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => selectOptionAndAdvance(setLevel, opt.id)}
-                    className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] ${
-                      level === opt.id
-                        ? "border-black bg-black text-white font-semibold"
-                        : "border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-100"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: Objectif */}
-          {step === 2 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-center text-black">Quel est ton objectif principal ?</h2>
-              <div className="space-y-2.5 pt-2">
-                {GOAL_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => selectOptionAndAdvance(setGoal, opt.id)}
-                    className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] ${
-                      goal === opt.id
-                        ? "border-black bg-black text-white font-semibold"
-                        : "border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-100"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Prénom */}
-          {step === 3 && (
-            <div className="space-y-6 text-center">
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-black">Comment tu t&apos;appelles ?</h2>
-                <p className="text-xs text-zinc-500">Pour personnaliser ton apprentissage</p>
-              </div>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Ton prénom"
-                autoFocus
-                className="w-full h-14 bg-zinc-50 border border-zinc-200 rounded-xl px-4 text-center text-lg font-medium text-black placeholder:text-zinc-400 focus:outline-none focus:border-black transition"
-              />
-              <button
-                disabled={!userName.trim()}
-                onClick={() => setStep(4)}
-                className="w-full h-14 bg-black hover:bg-zinc-800 text-white font-semibold rounded-xl active:scale-[0.98] transition mt-6 disabled:opacity-30"
-              >
-                Continuer
-              </button>
-            </div>
-          )}
-
-          {/* STEP 4: Blocage */}
-          {step === 4 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-center text-black">Ce qui te ralentit le plus ?</h2>
-              <div className="space-y-2.5 pt-2">
-                {PAIN_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => selectOptionAndAdvance(setPainPoint, opt.id)}
-                    className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] ${
-                      painPoint === opt.id
-                        ? "border-black bg-black text-white font-semibold"
-                        : "border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-100"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 5: Scan Photo */}
-          {step === 5 && (
+        {step <= 4 ? (
+          <QuizStepsForm
+            step={step}
+            level={level}
+            setLevel={setLevel}
+            goal={goal}
+            setGoal={setGoal}
+            userName={userName}
+            setUserName={setUserName}
+            painPoint={painPoint}
+            setPainPoint={setPainPoint}
+            selectOptionAndAdvance={selectOptionAndAdvance}
+            onAdvanceToStep4={() => setStep(4)}
+          />
+        ) : (
+          <div className="flex-1 flex flex-col justify-center py-6">
             <QuizScanStep
               fileInputRef={fileInputRef}
               onFileSelect={handleFileSelect}
               errorMessage={errorMessage}
             />
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Footer Minimalist */}
         <div className="py-2 text-center text-[11px] text-zinc-400">

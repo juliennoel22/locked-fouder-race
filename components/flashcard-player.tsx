@@ -17,6 +17,8 @@ interface FlashcardPlayerProps {
   initialQuizQuestion?: string | null;
   summary?: string | null;
   onReset?: () => void;
+  onComplete?: () => void;
+  disablePaywall?: boolean;
 }
 
 export function FlashcardPlayer({
@@ -27,11 +29,14 @@ export function FlashcardPlayer({
   initialQuizQuestion,
   summary,
   onReset,
+  onComplete,
+  disablePaywall = false,
 }: FlashcardPlayerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [streak, setStreak] = useState(0);
   const [knownCount, setKnownCount] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [showMirror, setShowMirror] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
 
@@ -69,12 +74,19 @@ export function FlashcardPlayer({
 
     if (currentIndex + 1 < cards.length) {
       setCurrentIndex((prev) => prev + 1);
-      if (newStreak === 3) {
+      if (!disablePaywall && newStreak === 3) {
         setTimeout(() => setShowPaywall(true), 600);
       }
     } else {
       triggerConfetti();
-      setTimeout(() => setShowPaywall(true), 700);
+      setIsCompleted(true);
+      if (onComplete) {
+        setTimeout(() => {
+          onComplete();
+        }, 1200);
+      } else if (!disablePaywall) {
+        setTimeout(() => setShowPaywall(true), 700);
+      }
     }
   };
 
@@ -103,6 +115,38 @@ export function FlashcardPlayer({
     touchStartX.current = null;
     touchDeltaX.current = 0;
   };
+
+  if (isCompleted) {
+    return (
+      <div className="w-full py-8 flex flex-col items-center text-center space-y-6 select-none animate-in fade-in zoom-in-95 duration-300">
+        <div className="w-16 h-16 rounded-3xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-3xl shadow-sm">
+          🎯
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold tracking-tight text-black">
+            Test terminé !
+          </h2>
+          <p className="text-sm text-zinc-600 max-w-xs mx-auto">
+            Score de rétention :{" "}
+            <span className="font-bold text-black">
+              {Math.min(100, Math.max(70, Math.round((knownCount / cards.length) * 100)))}%
+            </span>{" "}
+            ({knownCount}/{cards.length} cartes maîtrisées)
+          </p>
+        </div>
+
+        <button
+          onClick={() => {
+            if (onComplete) onComplete();
+            else if (onReset) onReset();
+          }}
+          className="w-full h-14 bg-black hover:bg-zinc-800 text-white font-semibold rounded-xl active:scale-[0.98] transition flex items-center justify-center mt-4 text-sm shadow-sm"
+        >
+          Sauvegarder et continuer →
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col items-center select-none pb-6">

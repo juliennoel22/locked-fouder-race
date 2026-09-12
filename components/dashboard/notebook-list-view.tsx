@@ -15,7 +15,6 @@ export function NotebookListView({
   onSelectNotebook,
   onOpenPaywall,
 }: NotebookListViewProps) {
-  const [filter, setFilter] = useState<string>("all");
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -80,33 +79,36 @@ export function NotebookListView({
         </div>
       )}
 
-      {/* Filtres horizontaux (Tous, Mes cours, Partagés, Téléchargés) */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-xs font-medium">
-        {[
-          { id: "all", label: "Tous" },
-          { id: "mine", label: "Mes carnets" },
-          { id: "shared", label: "Partagés" },
-          { id: "downloaded", label: "Téléchargés" },
-        ].map((pill) => (
-          <button
-            key={pill.id}
-            onClick={() => setFilter(pill.id)}
-            className={`px-4 py-1.5 rounded-full transition shrink-0 ${
-              filter === pill.id
-                ? "bg-black text-white font-semibold"
-                : "bg-zinc-100 text-zinc-600 hover:text-black border border-zinc-200"
-            }`}
-          >
-            {pill.label}
-          </button>
-        ))}
+      {/* Bouton d'accès au Pack Fondateur (Accessible dans la liste de nos notebooks) */}
+      <div
+        onClick={onOpenPaywall}
+        className="w-full p-4 rounded-2xl border border-zinc-200 bg-black text-white hover:bg-zinc-800 transition flex items-center justify-between cursor-pointer active:scale-[0.99] shadow-sm"
+      >
+        <div className="space-y-0.5 text-left">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-zinc-200">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+            <span>Pack Fondateur • 9,99 € à vie</span>
+          </div>
+          <p className="text-[11px] text-zinc-400">
+            Débloque tous tes cours illimités & le Mode Examen
+          </p>
+        </div>
+        <button
+          type="button"
+          className="px-3.5 py-1.5 bg-white text-black font-semibold text-xs rounded-xl hover:bg-zinc-100 transition shrink-0 ml-3"
+        >
+          Débloquer
+        </button>
       </div>
 
       {/* Liste des cartes de carnets (Style capture d'écran, 100% monochrome blanc/noir) */}
       <div className="space-y-2.5 pt-1">
         {filtered.length === 0 ? (
-          <div className="p-8 text-center text-zinc-400 text-xs border border-dashed border-zinc-200 rounded-2xl space-y-2">
-            <p>Aucun carnet ne correspond à ta recherche.</p>
+          <div className="p-10 text-center text-zinc-500 text-xs border border-dashed border-zinc-200 rounded-2xl space-y-2 bg-zinc-50/50">
+            <p className="font-semibold text-black text-sm">Aucun carnet pour le moment</p>
+            <p className="text-zinc-500 max-w-xs mx-auto">
+              Prends en photo un cours avec le bouton ci-dessous pour créer ton premier carnet de fiches.
+            </p>
           </div>
         ) : (
           filtered.map((nb) => (
