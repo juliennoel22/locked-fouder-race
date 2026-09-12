@@ -14,11 +14,12 @@
    - Compression Canvas HTML5 (max 1600px, JPEG 0.8) côté client : passage de 5 Mo à < 400 Ko pour un upload instantané.
    - Upload direct sur Supabase Storage dans le bucket public `course-scans/${user.id}/${deckId}.jpg`.
    - `image_url` enregistrée dans `decks` pour permettre la ré-interrogation par le Tuteur IA et l'effet miroir sur les cartes.
-3. **Loop Swipe Dopamine & Offre Agressive** :
-   - Expérience de swipe fluide (swipe droite "Je sais" / swipe gauche "À revoir" + flip 3D au tap).
-   - Bouton "Voir la note originale" sur chaque carte pour lever le doute via `MirrorModal`.
-   - Gamification instantanée : Streak counter, confettis.
-   - **Déclencheur Paywall Interstitiel** : Dès la fin du premier set de 5 cartes ou au 3ème swipe réussi, popup agressive bloquante (`PaywallModal`) avec offre de lancement à 9,99 € (Pack Fondateur) pour débloquer la suite du cours et le Tuteur d'examen IA.
+3. **Loop Swipe Dopamine, Question Piège & Offre Agressive** :
+   - Expérience de swipe tactile 3D (flip au tap, swipe droite "Je sais" / gauche "À revoir").
+   - Bouton "Note originale" (`MirrorModal`) pour vérifier la feuille scannée.
+   - **Audit d'Examen Immédiat** (`ExamTrapBox`) : Détection du risque partiel et affichage de la **Question Piège du Professeur** avec CTA pour débloquer le corrigé type.
+   - **Teaser des 14 Cartes Floutées** (Sunk Cost Fallacy) : 3 cartes interactives offertes + aperçu flouté des cartes suivantes avec cadenas.
+   - **Paywall Anti-Rattrapage** (`PaywallModal`) : Reframe agressif (Prof 35€/h vs Rattrapage 6 mois vs 9,99€ à vie Loreno) sans export 1-clic superflu.
 
 ---
 

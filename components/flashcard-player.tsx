@@ -2,26 +2,20 @@
 
 import { useState, useRef } from "react";
 import confetti from "canvas-confetti";
-import {
-  RotateCw,
-  Check,
-  X,
-  Eye,
-  Flame,
-  Download,
-  Sparkles,
-  Share2,
-} from "lucide-react";
+import { RotateCw, Check, X, Eye, Flame } from "lucide-react";
 import { Button } from "./ui/button";
 import { Flashcard } from "@/types/loreno";
 import { MirrorModal } from "./mirror-modal";
 import { PaywallModal } from "./paywall-modal";
+import { ExamTrapBox } from "./exam-trap-box";
 
 interface FlashcardPlayerProps {
   cards: Flashcard[];
   deckTitle: string;
   subject?: string | null;
   imageUrl?: string | null;
+  initialQuizQuestion?: string | null;
+  summary?: string | null;
   onReset?: () => void;
 }
 
@@ -30,6 +24,8 @@ export function FlashcardPlayer({
   deckTitle,
   subject,
   imageUrl,
+  initialQuizQuestion,
+  summary,
   onReset,
 }: FlashcardPlayerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -50,12 +46,11 @@ export function FlashcardPlayer({
   const triggerConfetti = () => {
     try {
       confetti({
-        particleCount: 80,
-        spread: 70,
+        particleCount: 50,
+        spread: 60,
         origin: { y: 0.6 },
-        colors: ["#f59e0b", "#f97316", "#10b981"],
       });
-    } catch (e) {
+    } catch {
       // Ignorer si non supporté
     }
   };
@@ -68,25 +63,21 @@ export function FlashcardPlayer({
     setStreak(newStreak);
     if (known) setKnownCount((prev) => prev + 1);
 
-    // Déclenchement Dopamine & Confetti
     if (known && newStreak >= 3) {
       triggerConfetti();
     }
 
     if (currentIndex + 1 < cards.length) {
       setCurrentIndex((prev) => prev + 1);
-      // Déclencheur paywall au 3ème swipe consécutif
       if (newStreak === 3) {
         setTimeout(() => setShowPaywall(true), 600);
       }
     } else {
-      // Fin du premier set de cartes -> Dopamine max + Paywall bloquant
       triggerConfetti();
       setTimeout(() => setShowPaywall(true), 700);
     }
   };
 
-  // Touch handlers pour le swipe mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -100,11 +91,11 @@ export function FlashcardPlayer({
   };
 
   const handleTouchEnd = () => {
-    if (Math.abs(touchDeltaX.current) > 80) {
+    if (Math.abs(touchDeltaX.current) > 70) {
       if (touchDeltaX.current > 0) {
-        handleNextCard(true); // Swipe Droite = Je sais
+        handleNextCard(true);
       } else {
-        handleNextCard(false); // Swipe Gauche = À revoir
+        handleNextCard(false);
       }
     } else {
       setDragOffset(0);
@@ -113,69 +104,49 @@ export function FlashcardPlayer({
     touchDeltaX.current = 0;
   };
 
-  const handleExport = () => {
-    const tsv = cards.map((c) => `${c.front}\t${c.back}`).join("\n");
-    navigator.clipboard.writeText(tsv);
-    alert("Deck copié au format Anki / Quizlet (collable directement) !");
-  };
-
   return (
-    <div className="w-full flex flex-col items-center select-none">
-      {/* Header bar: Streak & Mirror trigger */}
-      <div className="w-full flex items-center justify-between mb-4 px-1">
+    <div className="w-full flex flex-col items-center select-none pb-6">
+      {/* Header bar: Streak & Note originale */}
+      <div className="w-full flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold">
-            <Flame className="w-4 h-4 fill-orange-500 text-orange-500 animate-pulse" />
-            <span>Streak {streak}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-semibold">
+            <Flame className="w-3.5 h-3.5 text-zinc-600" />
+            <span>Série : {streak}</span>
           </div>
-          <span className="text-xs text-zinc-400 font-medium">
+          <span className="text-xs text-zinc-400 font-mono">
             {currentIndex + 1} / {cards.length}
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {imageUrl && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowMirror(true)}
-              className="h-8 text-xs gap-1.5 border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Note originale
-            </Button>
-          )}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleExport}
-            title="Exporter vers Anki"
-            className="h-8 w-8 text-zinc-400 hover:text-white"
+        {imageUrl && (
+          <button
+            onClick={() => setShowMirror(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-zinc-200 bg-zinc-100 text-xs text-zinc-700 hover:text-black transition"
           >
-            <Download className="w-3.5 h-3.5" />
-          </Button>
-        </div>
+            <Eye className="w-3.5 h-3.5" />
+            <span>Note originale</span>
+          </button>
+        )}
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden mb-6">
+      {/* Progress Bar (exactement comme le quiz) */}
+      <div className="w-full h-1 bg-zinc-100 rounded-full overflow-hidden mb-5 border border-zinc-200">
         <div
-          className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300"
+          className="h-full bg-black transition-all duration-300 ease-out"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
-      {/* Interactive 3D Card with Touch Swipe */}
+      {/* Interactive 3D Card */}
       <div
-        className="w-full h-[380px] sm:h-[420px] relative cursor-pointer perspective-1000"
+        className="w-full h-[340px] sm:h-[380px] relative cursor-pointer perspective-1000"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onClick={() => setIsFlipped(!isFlipped)}
         style={{
-          transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.05}deg)`,
-          transition: dragOffset === 0 ? "transform 0.25s ease-out" : "none",
+          transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.04}deg)`,
+          transition: dragOffset === 0 ? "transform 0.2s ease-out" : "none",
         }}
       >
         <div
@@ -184,33 +155,33 @@ export function FlashcardPlayer({
           }`}
         >
           {/* Card Front (Recto) */}
-          <div className="absolute inset-0 backface-hidden flex flex-col justify-between p-6 sm:p-8 bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-950 border border-zinc-800 rounded-3xl shadow-xl">
-            <div className="flex justify-between items-center text-xs font-semibold text-zinc-500">
-              <span className="uppercase tracking-wider">{subject || "Concept Clé"}</span>
-              <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">Recto</span>
+          <div className="absolute inset-0 backface-hidden flex flex-col justify-between p-6 bg-white border border-zinc-200 rounded-2xl shadow-md">
+            <div className="flex justify-between items-center text-xs font-semibold text-zinc-400">
+              <span className="uppercase tracking-wider text-[10px] text-zinc-500">{subject || "Notion"}</span>
+              <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-600 text-[10px]">Question</span>
             </div>
 
             <div className="flex-1 flex items-center justify-center text-center py-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug">
+              <h2 className="text-xl sm:text-2xl font-bold text-black leading-snug">
                 {currentCard.front}
               </h2>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 text-xs text-amber-400/80 font-medium">
+            <div className="flex items-center justify-center gap-1.5 text-xs text-zinc-400 font-medium">
               <RotateCw className="w-3.5 h-3.5" />
-              <span>Touche pour retourner</span>
+              <span>Touche pour retourner la carte</span>
             </div>
           </div>
 
           {/* Card Back (Verso) */}
-          <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col justify-between p-6 sm:p-8 bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-950 border border-amber-500/30 rounded-3xl shadow-xl">
+          <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col justify-between p-6 bg-zinc-50 border border-zinc-300 rounded-2xl shadow-md">
             <div className="flex justify-between items-center text-xs font-semibold text-zinc-500">
-              <span className="uppercase tracking-wider text-amber-400">Réponse &amp; Explication</span>
-              <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">Verso</span>
+              <span className="uppercase tracking-wider text-[10px] text-zinc-700">Explication</span>
+              <span className="px-2 py-0.5 rounded bg-zinc-200 text-zinc-800 text-[10px]">Réponse</span>
             </div>
 
             <div className="flex-1 flex items-center justify-center text-center py-4 overflow-y-auto">
-              <p className="text-base sm:text-lg text-zinc-100 font-medium whitespace-pre-line leading-relaxed">
+              <p className="text-base sm:text-lg text-black font-medium whitespace-pre-line leading-relaxed">
                 {currentCard.back}
               </p>
             </div>
@@ -222,26 +193,34 @@ export function FlashcardPlayer({
         </div>
       </div>
 
-      {/* Actions in Thumb Zone (Bottom) */}
-      <div className="w-full grid grid-cols-2 gap-3 mt-6">
-        <Button
+      {/* Actions in Thumb Zone */}
+      <div className="w-full grid grid-cols-2 gap-3 mt-4">
+        <button
           onClick={() => handleNextCard(false)}
-          className="h-14 rounded-2xl bg-zinc-900 hover:bg-rose-950/40 border border-rose-900/40 text-rose-400 font-bold text-base flex items-center justify-center gap-2 active:scale-95 transition-all"
+          className="h-12 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-2 active:scale-95 transition"
         >
-          <X className="w-5 h-5" />
-          À revoir
-        </Button>
+          <X className="w-4 h-4" />
+          <span>À revoir</span>
+        </button>
 
-        <Button
+        <button
           onClick={() => handleNextCard(true)}
-          className="h-14 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
+          className="h-12 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-95 transition"
         >
-          <Check className="w-5 h-5 stroke-[3]" />
-          Je sais
-        </Button>
+          <Check className="w-4 h-4 stroke-[2.5]" />
+          <span>Je sais</span>
+        </button>
       </div>
 
-      {/* Mirror Drawer & Paywall Modal */}
+      {/* Section Question Piège d'Examen */}
+      <ExamTrapBox
+        initialQuestion={initialQuizQuestion}
+        subject={subject}
+        deckTitle={deckTitle}
+        onUnlock={() => setShowPaywall(true)}
+      />
+
+      {/* Mirror Modal & Paywall */}
       <MirrorModal
         isOpen={showMirror}
         onClose={() => setShowMirror(false)}
@@ -257,3 +236,4 @@ export function FlashcardPlayer({
     </div>
   );
 }
+

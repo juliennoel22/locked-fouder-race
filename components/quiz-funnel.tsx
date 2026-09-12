@@ -117,6 +117,8 @@ export function QuizFunnel() {
           deckTitle={scanData.title}
           subject={scanData.subject}
           imageUrl={scannedImageUrl}
+          initialQuizQuestion={scanData.initial_quiz_question}
+          summary={scanData.summary}
           onReset={() => {
             setScanData(null);
             setStep(1);

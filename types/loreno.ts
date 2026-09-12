@@ -38,3 +38,16 @@ export interface ScanApiResponse {
   imageUrl?: string;
   error?: string;
 }
+
+export interface NotebookItem {
+  id: string;
+  title: string;
+  subject: string;
+  emoji: string;
+  date: string;
+  sourceCount: number;
+  deck: ScanResult;
+  imageUrl?: string | null;
+}
+
+
