@@ -27,10 +27,12 @@ export function useProStatus() {
       return;
     }
 
-    // 1. Vérification paramètre URL de retour Stripe (?payment=success)
+    // 1. Vérification paramètre URL de retour Stripe (?paid=true, ?payment=success, ?session_id=...)
     const hasPaymentSuccess =
+      urlParams.get("paid") === "true" ||
       urlParams.get("payment") === "success" ||
       urlParams.get("unlocked") === "true" ||
+      urlParams.get("success") === "true" ||
       Boolean(urlParams.get("session_id"));
 
     // 2. Vérification localStorage
