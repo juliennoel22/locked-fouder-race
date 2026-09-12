@@ -14,7 +14,12 @@ interface TutorRequest {
   messages: TutorMessage[];
 }
 
-export async function POST(request: NextRequest) {
+/**
+ * Conversational AI Exam Tutor Endpoint
+ * Uses Gemini 1.5 Flash to tutor students on their scanned course notes.
+ * Enforces active recall by concluding with a predictive exam question.
+ */
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body: TutorRequest = await request.json();
     const { title, subject, summary, flashcards = [], messages = [] } = body;
@@ -30,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Contexte du cours scanné
+    // Format top flashcards as prompt context to ground the LLM in course material
     const cardsContext = flashcards
       .slice(0, 8)
       .map((c, i) => `[Carte ${i + 1}] Q: ${c.front} | R: ${c.back}`)
@@ -51,7 +56,7 @@ Directives pédagogiques impératives :
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // Construire le prompt complet avec l'historique
+    // Build chronological conversation history
     const historyText = messages
       .map((m) => `${m.role === "user" ? "Étudiant" : "Tuteur"}: ${m.text}`)
       .join("\n\n");
@@ -80,6 +85,7 @@ Directives pédagogiques impératives :
 
     return NextResponse.json({ success: true, reply });
   } catch (error) {
+    // Non-blocking fallback to protect student revision flow during rate limits or transient outages
     console.error("Note: Erreur Tutor API / Rate Limit, utilisation du fallback :", error);
     return NextResponse.json({
       success: true,

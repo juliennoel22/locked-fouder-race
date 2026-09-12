@@ -32,22 +32,22 @@ const METRICS = [
 const FEATURES = [
   { 
     step: "1", 
-    title: "Prends tes cours en photo", 
-    desc: "Scan instantané de tes notes manuscrites, polycopiés ou schémas.", 
+    title: "Prends tes cours en photo (Vision < 2s)", 
+    desc: "Scan instantané de tes notes manuscrites analysées par Google Gemini 1.5 Flash.", 
     icon: Camera,
     color: "bg-black text-white" 
   },
   { 
     step: "2", 
-    title: "Génère Flashcards & Quiz d'examen", 
-    desc: "Fiches mémos interactives et QCM optimisés notés sur /20.", 
+    title: "Flashcards 3D & Quiz d'examen (/20)", 
+    desc: "Mode Deuxième Chance (Round 2), note prédictive et explications pédagogiques instantanées.", 
     icon: Zap,
     color: "bg-black text-white" 
   },
   { 
     step: "3", 
-    title: "Révise avec ton Assistant IA", 
-    desc: "Pose tes questions sur ton cours et débloque les explications clés.", 
+    title: "Tuteur d'Examen IA Interactif", 
+    desc: "Pose tes questions sur ton cours, débloque des questions pièges et retiens l'essentiel.", 
     icon: Bot,
     color: "bg-black text-white" 
   },

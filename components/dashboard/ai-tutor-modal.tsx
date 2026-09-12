@@ -51,7 +51,6 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
     let currentIdx = 0;
 
     const streamNext = () => {
-      // 2 mots par tick de 25ms pour une fluidité naturelle
       currentIdx = Math.min(currentIdx + 2, words.length);
       const displayedText = words.slice(0, currentIdx).join(" ");
       const isDone = currentIdx >= words.length;

@@ -67,6 +67,13 @@ export const TIMELINE_STEPS: TimelineStep[] = [
       { src: "/recap/IMG_0427.jpg", alt: "Vercel Analytics 104 visiteurs" },
     ],
   },
+  {
+    time: "21:00 - 23:30",
+    title: "Round 2 & Note Prédictive /20",
+    description: "Mode Deuxième Chance sur les erreurs, note prédictive d'examen et explications pédagogiques instantanées par Gemini.",
+    tag: "Super-Features",
+    icon: Zap,
+  },
 ];
 
 interface RecapTimelineProps {
