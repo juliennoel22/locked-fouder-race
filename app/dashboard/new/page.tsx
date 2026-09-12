@@ -25,21 +25,20 @@ export default function NewNotebookPage() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [existingNotebooksCount, setExistingNotebooksCount] = useState(0);
 
-  // Vérifier la limite de 2 projets gratuits
+  // Vérifier la limite de 2 projets gratuits via la base de données
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cached = sessionStorage.getItem("loreno_scan_cache");
-      let count = 0;
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (parsed.scanData) count = 1;
-        } catch {
-          // Ignorer
+    async function checkCount() {
+      try {
+        const res = await fetch("/api/decks");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.decks)) {
+          setExistingNotebooksCount(json.decks.length);
         }
+      } catch (err) {
+        console.error("Erreur récupération count decks :", err);
       }
-      setExistingNotebooksCount(count);
     }
+    checkCount();
   }, []);
 
   const handleAddPhotos = (newFiles: File[]) => {

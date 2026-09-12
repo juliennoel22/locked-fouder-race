@@ -38,7 +38,11 @@ export const metadata: Metadata = {
     "Loreno",
   ],
   authors: [{ name: "Loreno" }],
-  creator: "Loreno",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   alternates: {
     canonical: "/",
   },
@@ -79,6 +83,35 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://www.loreno.app/#webapp",
+      "name": "Loreno",
+      "url": "https://www.loreno.app",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "All",
+      "description":
+        "Transforme tes notes et photos de cours en fiches de révision interactives et tuteur IA d'examen en 3 secondes.",
+      "offers": {
+        "@type": "Offer",
+        "price": "9.99",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+      },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://www.loreno.app/#organization",
+      "name": "Loreno",
+      "url": "https://www.loreno.app",
+      "logo": "https://www.loreno.app/icon.png",
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -86,6 +119,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning className="h-full">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${geistSans.className} antialiased min-h-full bg-white text-black`}>
         <ThemeProvider
           attribute="class"

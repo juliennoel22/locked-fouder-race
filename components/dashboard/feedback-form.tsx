@@ -10,7 +10,12 @@ const TAGS = [
   { id: "Autre", label: "💬 Autre" },
 ];
 
-export function FeedbackForm() {
+interface FeedbackFormProps {
+  onClose?: () => void;
+  hideHeader?: boolean;
+}
+
+export function FeedbackForm({ onClose, hideHeader = false }: FeedbackFormProps = {}) {
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [rating, setRating] = useState<number>(5);
@@ -77,31 +82,44 @@ export function FeedbackForm() {
             Ton message a bien été transmis directement à Julien par email.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setSubmitted(false)}
-          className="text-xs text-zinc-500 hover:text-black underline pt-1"
-        >
-          Envoyer un autre retour
-        </button>
+        <div className="pt-2 flex flex-col gap-1.5">
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full h-11 bg-black hover:bg-zinc-800 text-white font-bold rounded-xl text-xs transition"
+            >
+              Fermer
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setSubmitted(false)}
+            className="text-xs text-zinc-500 hover:text-black underline pt-1"
+          >
+            Envoyer un autre retour
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <section className="w-full p-4 rounded-2xl border border-zinc-200 bg-zinc-50/70 space-y-3.5 select-none">
-      {/* En-tête */}
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center shrink-0">
-          <MessageSquare className="w-3.5 h-3.5" />
+    <section className="w-full space-y-3.5 select-none">
+      {/* En-tête conditionnel */}
+      {!hideHeader && (
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center shrink-0">
+            <MessageSquare className="w-3.5 h-3.5" />
+          </div>
+          <div className="text-left">
+            <h2 className="text-sm font-bold text-black">Donne ton avis sur Loreno</h2>
+            <p className="text-[11px] text-zinc-500">
+              Une idée, un ressenti ou un bug ? Julien lit tous les retours.
+            </p>
+          </div>
         </div>
-        <div className="text-left">
-          <h2 className="text-sm font-bold text-black">Donne ton avis sur Loreno</h2>
-          <p className="text-[11px] text-zinc-500">
-            Une idée, un ressenti ou un bug ? Julien lit tous les retours.
-          </p>
-        </div>
-      </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-3 text-left">
         {/* Sélecteur de Tags */}

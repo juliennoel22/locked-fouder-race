@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, ChangeEvent } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { compressCourseImage } from "@/lib/image-compression";
@@ -162,7 +163,7 @@ export default function QuizPage() {
       <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
         <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
           <div className="w-full pt-2 mb-2">
-            <div className="flex items-center justify-between h-8 mb-3">
+            <div className="flex items-center justify-between h-9 mb-3">
               <button
                 onClick={() => setScanData(null)}
                 className="p-2 -ml-2 text-zinc-400 hover:text-black transition"
@@ -170,6 +171,14 @@ export default function QuizPage() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
+              <Image
+                src="/logo.png"
+                alt="loreno.app"
+                width={130}
+                height={32}
+                className="h-7 sm:h-8 w-auto object-contain"
+                priority
+              />
               <span className="text-xs font-mono text-zinc-400">
                 Test en direct
               </span>
@@ -200,9 +209,9 @@ export default function QuizPage() {
   return (
     <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
       <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black selection:bg-black selection:text-white">
-        {/* Top Header : Back Button & Progress Bar */}
+        {/* Top Header : Back Button, Logo & Progress Bar */}
         <div className="w-full pt-2">
-          <div className="flex items-center justify-between h-8 mb-3">
+          <div className="flex items-center justify-between h-9 mb-3">
             <button
               onClick={handleBack}
               className="p-2 -ml-2 text-zinc-400 hover:text-black transition"
@@ -210,6 +219,14 @@ export default function QuizPage() {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
+            <Image
+              src="/logo.png"
+              alt="loreno.app"
+              width={130}
+              height={32}
+              className="h-7 sm:h-8 w-auto object-contain"
+              priority
+            />
             <span className="text-xs font-mono text-zinc-400">
               {step + 1} / 6
             </span>
@@ -245,7 +262,21 @@ export default function QuizPage() {
               onAddPhotos={handleAddPhotos}
               onRemovePhoto={handleRemovePhoto}
               onConfirmAndScan={handleConfirmAndScan}
-              onSkip={() => router.push("/auth")}
+              onSkip={() => {
+                const sample = DEFAULT_SCAN_RESULT;
+                if (typeof window !== "undefined") {
+                  sessionStorage.setItem(
+                    "loreno_scan_cache",
+                    JSON.stringify({
+                      scanData: sample,
+                      userName,
+                      level,
+                      goal,
+                    })
+                  );
+                }
+                setScanData(sample);
+              }}
               errorMessage={errorMessage}
             />
           </div>

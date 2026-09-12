@@ -1,19 +1,19 @@
-"use client";
-
 import { useState } from "react";
-import { ArrowLeft, FileText, Sparkles, CheckCircle2, Lock, Layers } from "lucide-react";
+import { ArrowLeft, FileText, Sparkles, CheckCircle2, Layers, Eye } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FlashcardPlayer } from "@/components/flashcard-player";
 import { NotebookSummaryView } from "./notebook-summary-view";
 import { NotebookQuizView } from "./notebook-quiz-view";
-
 import { AiTutorModal } from "./ai-tutor-modal";
+import { MirrorModal } from "@/components/mirror-modal";
 
 interface NotebookDetailProps {
   notebook: NotebookItem;
   onBack: () => void;
   onOpenPaywall: () => void;
   isPro?: boolean;
+  initialMode?: "grid" | "flashcards" | "fiche" | "quiz";
+  initialShowAiTutor?: boolean;
 }
 
 type NotebookMode = "grid" | "flashcards" | "fiche" | "quiz";
@@ -23,23 +23,26 @@ export function NotebookDetail({
   onBack,
   onOpenPaywall,
   isPro = false,
+  initialMode = "grid",
+  initialShowAiTutor = false,
 }: NotebookDetailProps) {
-  const [mode, setMode] = useState<NotebookMode>("grid");
-  const [showAiTutor, setShowAiTutor] = useState<boolean>(false);
+  const [mode, setMode] = useState<NotebookMode>(initialMode);
+  const [showAiTutor, setShowAiTutor] = useState<boolean>(initialShowAiTutor);
+  const [showMirrorModal, setShowMirrorModal] = useState<boolean>(false);
 
   return (
-    <div className="w-full flex-1 flex flex-col select-none pb-20">
+    <div className="w-full flex-1 flex flex-col select-none relative">
       {/* Header avec bouton retour contextuel & PRO */}
-      <header className="w-full pt-1 flex items-center justify-between h-12 border-b border-zinc-200 pb-2 mb-4">
+      <header className="w-full pt-1 flex items-center justify-between h-12 border-b border-zinc-200 pb-2 mb-3">
         <button
           onClick={() => {
             if (mode === "grid") onBack();
             else setMode("grid");
           }}
-          className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-black transition p-1 -ml-1"
+          className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-black transition p-1 -ml-1"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{mode === "grid" ? "Mes carnets" : "Menu du carnet"}</span>
+          <span>{mode === "grid" ? "Mes cours" : "Retour au cours"}</span>
         </button>
 
         {isPro ? (
@@ -56,99 +59,162 @@ export function NotebookDetail({
         )}
       </header>
 
-      {/* Titre & Matière du Carnet */}
-      <div className="space-y-1 mb-5 text-left">
-        <div className="text-xl font-bold tracking-tight text-black flex items-center gap-2">
-          <span>{notebook.emoji}</span>
-          <span className="truncate">{notebook.title}</span>
-        </div>
-        <p className="text-xs text-zinc-500">
-          {notebook.subject} • {notebook.deck.flashcards.length} fiches
-        </p>
-      </div>
-
-      {/* VUE 1 : GRILLE 2x2 (Menu principal du carnet) */}
+      {/* VUE 1 : ARTICLE DU COURS DÉTAILLÉ AVEC MODES EN STICKY BOTTOM */}
       {mode === "grid" && (
-        <div className="flex-1 flex flex-col justify-center space-y-4 my-auto py-2">
-          <div className="grid grid-cols-2 gap-3.5">
-            {/* TUILLE 1 : FLASHCARDS */}
-            <button
-              onClick={() => setMode("flashcards")}
-              className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-xs"
-            >
-              <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black">
-                <Layers className="w-5 h-5" />
+        <div className="flex-1 flex flex-col justify-between text-left">
+          {/* Contenu textuel riche & structuré (Page web classique) */}
+          <div className="space-y-4 pb-6">
+            {/* Titre principal & Badges */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-zinc-100 border border-zinc-200 text-zinc-700">
+                  {notebook.subject || "Général"}
+                </span>
+                <span className="text-xs text-zinc-400">
+                  {notebook.deck.flashcards.length} notions clés
+                </span>
               </div>
-              <div className="space-y-0.5">
-                <h3 className="text-sm font-bold text-black">Flashcards</h3>
-                <p className="text-[11px] text-zinc-500">
-                  {notebook.deck.flashcards.length} cartes • Swipe 3D
-                </p>
-              </div>
-            </button>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-black flex items-start gap-2">
+                <span className="text-2xl shrink-0">{notebook.emoji}</span>
+                <span>{notebook.title}</span>
+              </h1>
+            </div>
 
-            {/* TUILLE 2 : FICHE DE RÉVISION */}
-            <button
-              onClick={() => setMode("fiche")}
-              className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-xs"
-            >
-              <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black">
-                <FileText className="w-5 h-5" />
-              </div>
-              <div className="space-y-0.5">
-                <h3 className="text-sm font-bold text-black">Fiche révision</h3>
-                <p className="text-[11px] text-zinc-500">
-                  Synthèse essentielle du cours
-                </p>
-              </div>
-            </button>
-
-            {/* TUILLE 3 : QUIZ */}
-            <button
-              onClick={() => setMode("quiz")}
-              className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-xs"
-            >
-              <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <div className="space-y-0.5">
-                <h3 className="text-sm font-bold text-black">Quiz examen</h3>
-                <p className="text-[11px] text-zinc-500">
-                  Questions pièges &amp; score
-                </p>
-              </div>
-            </button>
-
-            {/* TUILLE 4 : ASSISTANT IA */}
-            <button
-              onClick={() => {
-                if (isPro) setShowAiTutor(true);
-                else onOpenPaywall();
-              }}
-              className="p-4 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex flex-col justify-between h-36 sm:h-40 group shadow-sm relative overflow-hidden"
-            >
-              <div className="flex items-center justify-between w-full">
-                <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
-                  <Sparkles className="w-5 h-5" />
+            {/* Bouton Proéminent : Consulter les cours originaux (Photos / PDFs) */}
+            {notebook.imageUrl ? (
+              <button
+                type="button"
+                onClick={() => setShowMirrorModal(true)}
+                className="w-full py-3 px-4 rounded-2xl bg-zinc-900 text-white hover:bg-black transition active:scale-[0.99] flex items-center justify-between shadow-sm"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center text-white">
+                    <Eye className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-bold text-white">Consulter le cours original</div>
+                    <div className="text-[10px] text-zinc-400">Photos scannées &amp; documents</div>
+                  </div>
                 </div>
-                {isPro ? (
-                  <span className="px-2 py-0.5 rounded-full bg-white text-black font-bold text-[10px] flex items-center gap-1">
-                    ACTIF
-                  </span>
-                ) : (
-                  <span className="px-2 py-0.5 rounded-full bg-white text-black font-bold text-[10px] flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    PRO
-                  </span>
-                )}
+                <span className="text-xs font-semibold text-zinc-300">Ouvrir →</span>
+              </button>
+            ) : (
+              <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-500 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-zinc-400" />
+                <span>Cours structuré par Loreno IA</span>
               </div>
-              <div className="space-y-0.5">
-                <h3 className="text-sm font-bold text-white">Assistant IA</h3>
-                <p className="text-[11px] text-zinc-400">
-                  {isPro ? "Tuteur d'examen 24/7" : "Débloquer le tuteur 24/7"}
-                </p>
-              </div>
-            </button>
+            )}
+
+            {/* Section : Synthèse rapide du cours */}
+            {notebook.deck.summary && (
+              <section className="space-y-1.5 pt-1">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  Synthèse du cours
+                </h2>
+                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs sm:text-sm text-zinc-700 leading-relaxed">
+                  <p className="whitespace-pre-line">{notebook.deck.summary}</p>
+                </div>
+              </section>
+            )}
+
+            {/* Section : Notions clés en résumé rapide */}
+            {notebook.deck.flashcards.length > 0 && (
+              <section className="space-y-1.5 pt-1">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  Notions essentielles ({notebook.deck.flashcards.length})
+                </h2>
+                <div className="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
+                  <ul className="space-y-1.5 text-xs text-zinc-700 list-disc list-inside">
+                    {notebook.deck.flashcards.slice(0, 6).map((card, idx) => (
+                      <li key={idx} className="leading-snug">
+                        <strong className="text-black font-semibold">{card.front}</strong> : {card.back}
+                      </li>
+                    ))}
+                  </ul>
+                  {notebook.deck.flashcards.length > 6 && (
+                    <p className="text-[11px] text-zinc-400 pt-1">
+                      + {notebook.deck.flashcards.length - 6} autres notions dans les flashcards
+                    </p>
+                  )}
+                </div>
+              </section>
+            )}
+
+          </div>
+
+          {/* STICKY BOTTOM : MODES D'ENTRAÎNEMENT (GRAND FORMAT) */}
+          <div className="sticky bottom-0 -mx-4 -mb-4 p-4 bg-white/95 backdrop-blur-md border-t border-zinc-200 z-30 shadow-2xl space-y-2.5">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-black">
+                Lancer un entraînement
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* 1. Flashcards */}
+              <button
+                onClick={() => setMode("flashcards")}
+                className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <div className="truncate">
+                  <div className="text-xs sm:text-sm font-bold text-black truncate">Flashcards</div>
+                  <div className="text-[10px] text-zinc-500">{notebook.deck.flashcards.length} cartes</div>
+                </div>
+              </button>
+
+              {/* 2. Fiche révision */}
+              <button
+                onClick={() => setMode("fiche")}
+                className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div className="truncate">
+                  <div className="text-xs sm:text-sm font-bold text-black truncate">Fiche révision</div>
+                  <div className="text-[10px] text-zinc-500">Synthèse</div>
+                </div>
+              </button>
+
+              {/* 3. Quiz examen */}
+              <button
+                onClick={() => setMode("quiz")}
+                className="p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-3 shadow-xs group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div className="truncate">
+                  <div className="text-xs sm:text-sm font-bold text-black truncate">Quiz examen</div>
+                  <div className="text-[10px] text-zinc-500">Test chrono</div>
+                </div>
+              </button>
+
+              {/* 4. Assistant IA */}
+              <button
+                onClick={() => {
+                  if (isPro) setShowAiTutor(true);
+                  else onOpenPaywall();
+                }}
+                className="p-3.5 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group"
+              >
+                <div className="flex items-center gap-2.5 truncate">
+                  <div className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shrink-0 shadow-2xs">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="truncate">
+                    <div className="text-xs sm:text-sm font-bold text-white truncate">Assistant IA</div>
+                    <div className="text-[10px] text-zinc-400">{isPro ? "Tuteur 24/7" : "Débloquer"}</div>
+                  </div>
+                </div>
+                <span className="px-1.5 py-0.5 rounded-md bg-white text-black font-bold text-[9px] shrink-0 ml-1">
+                  {isPro ? "IA" : "PRO"}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -187,70 +253,19 @@ export function NotebookDetail({
         />
       )}
 
-      {/* NAVBAR FIXE EN BAS DE PAGE */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200 max-w-md mx-auto">
-        <div className="flex items-center justify-around h-16 px-2">
-          <button
-            onClick={() => {
-              if (mode === "grid") onBack();
-              else setMode("grid");
-            }}
-            className="flex flex-col items-center justify-center w-16 h-full text-zinc-500 hover:text-black transition"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">
-              {mode === "grid" ? "Carnets" : "Menu"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setMode("flashcards")}
-            className={`flex flex-col items-center justify-center w-16 h-full transition ${
-              mode === "flashcards" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
-            }`}
-          >
-            <Layers className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">Fiches</span>
-          </button>
-
-          <button
-            onClick={() => setMode("fiche")}
-            className={`flex flex-col items-center justify-center w-16 h-full transition ${
-              mode === "fiche" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
-            }`}
-          >
-            <FileText className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">Synthèse</span>
-          </button>
-
-          <button
-            onClick={() => setMode("quiz")}
-            className={`flex flex-col items-center justify-center w-16 h-full transition ${
-              mode === "quiz" ? "text-black font-bold" : "text-zinc-500 hover:text-black"
-            }`}
-          >
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">Quiz</span>
-          </button>
-
-          <button
-            onClick={() => {
-              if (isPro) setShowAiTutor(true);
-              else onOpenPaywall();
-            }}
-            className="flex flex-col items-center justify-center w-16 h-full text-zinc-500 hover:text-black transition"
-          >
-            <Sparkles className="w-5 h-5" />
-            <span className="text-[10px] font-medium mt-1">{isPro ? "Tuteur" : "PRO"}</span>
-          </button>
-        </div>
-      </nav>
-
       {/* Modal Tuteur IA pour les membres ayant le Pack Fondateur */}
       <AiTutorModal
         isOpen={showAiTutor}
         onClose={() => setShowAiTutor(false)}
         notebook={notebook}
+      />
+
+      {/* Modal Miroir pour prévisualiser la note originale */}
+      <MirrorModal
+        isOpen={showMirrorModal}
+        onClose={() => setShowMirrorModal(false)}
+        imageUrl={notebook.imageUrl || null}
+        deckTitle={notebook.title}
       />
     </div>
   );

@@ -162,14 +162,27 @@ export async function POST(request: NextRequest) {
     let savedDeckId: string | undefined = undefined;
     try {
       const supabase = await createClient();
-      const { data: claimsData } = await supabase.auth.getClaims();
-      const user = claimsData?.claims;
+      let userId: string | undefined = undefined;
+      try {
+        const { data: claimsData } = await supabase.auth.getClaims();
+        userId = claimsData?.claims?.sub;
+      } catch {
+        // fallback
+      }
+      if (!userId) {
+        try {
+          const { data: userData } = await supabase.auth.getUser();
+          userId = userData?.user?.id;
+        } catch {
+          // ignore
+        }
+      }
 
-      if (user) {
+      if (userId) {
         const { data: deckData, error: deckError } = await supabase
           .from("decks")
           .insert({
-            user_id: user.sub,
+            user_id: userId,
             title: scanResult.title,
             subject: scanResult.subject,
             summary: scanResult.summary,

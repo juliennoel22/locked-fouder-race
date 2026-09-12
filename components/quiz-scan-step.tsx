@@ -87,13 +87,18 @@ export function QuizScanStep({
             </button>
 
             {onSkip && (
-              <button
-                type="button"
-                onClick={onSkip}
-                className="w-full text-center text-xs text-zinc-400 hover:text-black pt-3 underline transition block"
-              >
-                Je n&apos;ai pas mon cours sous la main (Passer)
-              </button>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={onSkip}
+                  className="w-full h-14 rounded-xl border border-zinc-300 hover:border-black bg-zinc-50 hover:bg-zinc-100 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xs"
+                >
+                  <span>⚡ Je n&apos;ai pas mon cours sous la main</span>
+                </button>
+                <p className="text-[11px] text-zinc-500 text-center mt-1.5">
+                  Teste immédiatement avec un exemple de cours
+                </p>
+              </div>
             )}
           </div>
         </div>

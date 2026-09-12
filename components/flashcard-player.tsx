@@ -6,7 +6,6 @@ import { Check, X, Eye, Flame } from "lucide-react";
 import { Flashcard } from "@/types/loreno";
 import { MirrorModal } from "./mirror-modal";
 import { PaywallModal } from "./paywall-modal";
-import { ExamTrapBox } from "./exam-trap-box";
 import { FlashcardCompleteView } from "./flashcard-complete-view";
 import { FlashcardCardItem } from "./flashcard-card-item";
 
@@ -168,27 +167,17 @@ export function FlashcardPlayer({
 
   return (
     <div className="w-full flex flex-col items-center select-none pb-6">
-      {/* Header : Streak, Index & Note originale */}
+      {/* Header : Streak & Index */}
       <div className="w-full flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-semibold">
             <Flame className="w-3.5 h-3.5 text-zinc-600" />
             <span>Série : {streak}</span>
           </div>
-          <span className="text-xs text-zinc-400 font-mono">
-            {currentIndex + 1} / {cards.length}
-          </span>
         </div>
-
-        {imageUrl && (
-          <button
-            onClick={() => setShowMirror(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-zinc-200 bg-zinc-100 text-xs text-zinc-700 hover:text-black transition"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Note originale</span>
-          </button>
-        )}
+        <span className="text-xs text-zinc-400 font-mono">
+          {currentIndex + 1} / {cards.length}
+        </span>
       </div>
 
       {/* Progress Bar */}
@@ -240,14 +229,6 @@ export function FlashcardPlayer({
           <span>Je sais (Swipe droite)</span>
         </button>
       </div>
-
-      {/* Question Piège d'Examen */}
-      <ExamTrapBox
-        initialQuestion={initialQuizQuestion}
-        subject={subject}
-        deckTitle={deckTitle}
-        onUnlock={() => setShowPaywall(true)}
-      />
 
       {/* Modales */}
       <MirrorModal

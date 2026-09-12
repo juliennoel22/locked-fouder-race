@@ -48,28 +48,56 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
-
-  // Seules les routes /protected nécessitent une authentification obligatoire
-  if (request.nextUrl.pathname.startsWith("/protected") && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth";
-    return NextResponse.redirect(url);
+  // Récupérer l'utilisateur de manière robuste
+  let user: { sub?: string; id?: string } | null = null;
+  try {
+    const { data: claimsData } = await supabase.auth.getClaims();
+    if (claimsData?.claims) {
+      user = claimsData.claims as { sub?: string; id?: string };
+    }
+  } catch {
+    // fallback
   }
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
+  if (!user) {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        user = userData.user as unknown as { sub?: string; id?: string };
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const pathname = request.nextUrl.pathname;
+  const isAuthPage =
+    pathname === "/auth" ||
+    pathname === "/auth/login" ||
+    pathname === "/auth/sign-up" ||
+    pathname === "/auth/forgot-password";
+
+  // 1. Rediriger les utilisateurs déjà connectés vers /dashboard depuis "/" ou les pages auth
+  if (user && (pathname === "/" || isAuthPage)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((c) => {
+      redirectResponse.cookies.set(c.name, c.value);
+    });
+    return redirectResponse;
+  }
+
+  // 2. Rediriger les utilisateurs non connectés vers /auth s'ils tentent d'accéder au dashboard ou /protected
+  if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/protected"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth";
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((c) => {
+      redirectResponse.cookies.set(c.name, c.value);
+    });
+    return redirectResponse;
+  }
 
   return supabaseResponse;
 }

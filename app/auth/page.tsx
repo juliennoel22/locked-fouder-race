@@ -157,12 +157,6 @@ export default function AuthPage() {
                 >
                   Déjà un compte ? Se connecter avec un code →
                 </Link>
-                <Link
-                  href="/dashboard"
-                  className="text-xs text-zinc-400 hover:text-zinc-600 transition"
-                >
-                  Passer et voir mes fiches tout de suite →
-                </Link>
               </div>
             </div>
           </div>
