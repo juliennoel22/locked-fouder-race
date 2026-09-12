@@ -145,12 +145,22 @@ export default function DashboardPage() {
     initDashboard();
   }, [initDashboard]);
 
-  const handleAddNewNotebook = (newNb: NotebookItem) => {
+  const handleAddNewNotebook = (
+    newNb: NotebookItem,
+    targetMode: "flashcards" | "quiz" | "tutor" | "grid" = "grid"
+  ) => {
     setNotebooks((prev) => [newNb, ...prev]);
     setSelectedNotebook(newNb);
-    setSelectedNotebookMode("grid");
-    setShowAiTutorDirect(false);
-    initDashboard();
+    if (targetMode === "flashcards" || targetMode === "quiz") {
+      setSelectedNotebookMode(targetMode);
+      setShowAiTutorDirect(false);
+    } else if (targetMode === "tutor") {
+      setSelectedNotebookMode("grid");
+      setShowAiTutorDirect(true);
+    } else {
+      setSelectedNotebookMode("grid");
+      setShowAiTutorDirect(false);
+    }
   };
 
   const handleDeleteNotebook = async (id: string) => {
@@ -201,13 +211,24 @@ export default function DashboardPage() {
           </div>
         ) : selectedNotebook ? (
           <NotebookDetail
+            key={`${selectedNotebook.id}-${selectedNotebookMode}-${showAiTutorDirect}`}
             notebook={selectedNotebook}
+            allNotebooks={notebooks}
+            onSelectNotebook={(nb) => {
+              setSelectedNotebook(nb);
+              setSelectedNotebookMode("grid");
+              setShowAiTutorDirect(false);
+            }}
             onBack={() => {
               setSelectedNotebook(null);
               setSelectedNotebookMode("grid");
               setShowAiTutorDirect(false);
             }}
             onOpenPaywall={() => setShowPaywall(true)}
+            onOpenScanModal={() => {
+              setScanTargetMode("grid");
+              setShowScanModal(true);
+            }}
             isPro={isPro}
             initialMode={selectedNotebookMode}
             initialShowAiTutor={showAiTutorDirect}
@@ -235,7 +256,7 @@ export default function DashboardPage() {
         {/* Barre flottante Caméra, Nouveau Cours & Avis dans la Thumb Zone */}
         {!selectedNotebook && !loading && (
           <FloatingScanBar
-            onNewNotebook={handleAddNewNotebook}
+            onNewNotebook={(nb) => handleAddNewNotebook(nb, "grid")}
             isRateLimited={!isPro && notebooks.length >= 2}
             onRateLimit={() => setShowPaywall(true)}
             onOpenFeedback={() => setShowFeedbackModal(true)}
@@ -250,32 +271,16 @@ export default function DashboardPage() {
         <ScanModal
           isOpen={showScanModal}
           onClose={() => setShowScanModal(false)}
-          onSuccess={(newDeck, targetMode) => {
-            handleAddNewNotebook(newDeck);
-            if (targetMode === "flashcards" || targetMode === "quiz") {
-              setSelectedNotebookMode(targetMode);
-            } else if (targetMode === "tutor") {
-              setSelectedNotebookMode("grid");
-              setShowAiTutorDirect(true);
-            }
-          }}
+          onSuccess={(newDeck, targetMode) => handleAddNewNotebook(newDeck, targetMode)}
           isPro={isPro}
           existingNotebooksCount={notebooks.length}
           onOpenPaywall={() => setShowPaywall(true)}
           targetMode={scanTargetMode}
         />
 
-        {/* Modal Paywall Stripe */}
-        <PaywallModal
-          isOpen={showPaywall}
-          onClose={() => setShowPaywall(false)}
-        />
-
-        {/* Modal Popup des Avis & Retours Étudiants */}
-        <FeedbackModal
-          isOpen={showFeedbackModal}
-          onClose={() => setShowFeedbackModal(false)}
-        />
+        {/* Modal Paywall Stripe & Feedback */}
+        <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+        <FeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
       </div>
     </main>
   );

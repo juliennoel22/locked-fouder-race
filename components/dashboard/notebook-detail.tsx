@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { ArrowLeft, FileText, Sparkles, CheckCircle2, Layers, Eye } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
+import { ArrowLeft, Sparkles, CheckCircle2, Layers, Eye } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FlashcardPlayer } from "@/components/flashcard-player";
 import { NotebookQuizView } from "./notebook-quiz-view";
@@ -13,6 +15,9 @@ interface NotebookDetailProps {
   isPro?: boolean;
   initialMode?: "grid" | "flashcards" | "quiz";
   initialShowAiTutor?: boolean;
+  allNotebooks?: NotebookItem[];
+  onSelectNotebook?: (nb: NotebookItem) => void;
+  onOpenScanModal?: () => void;
 }
 
 type NotebookMode = "grid" | "flashcards" | "quiz";
@@ -24,10 +29,23 @@ export function NotebookDetail({
   isPro = false,
   initialMode = "grid",
   initialShowAiTutor = false,
+  allNotebooks = [],
+  onSelectNotebook,
+  onOpenScanModal,
 }: NotebookDetailProps) {
   const [mode, setMode] = useState<NotebookMode>(initialMode);
   const [showAiTutor, setShowAiTutor] = useState<boolean>(initialShowAiTutor);
   const [showMirrorModal, setShowMirrorModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
+
+  useEffect(() => {
+    if (initialShowAiTutor) {
+      setShowAiTutor(true);
+    }
+  }, [initialShowAiTutor]);
 
   return (
     <div className="w-full flex-1 flex flex-col select-none relative">
@@ -61,7 +79,7 @@ export function NotebookDetail({
       {/* VUE 1 : ARTICLE DU COURS DÉTAILLÉ AVEC MODES EN STICKY BOTTOM */}
       {mode === "grid" && (
         <div className="flex-1 flex flex-col justify-between text-left">
-          {/* Contenu textuel riche & structuré (Page web classique) */}
+          {/* Contenu textuel structuré */}
           <div className="space-y-4 pb-6">
             {/* Titre principal & Badges */}
             <div className="space-y-2">
@@ -79,30 +97,25 @@ export function NotebookDetail({
               </h1>
             </div>
 
-            {/* Bouton Proéminent : Consulter les cours originaux (Photos / PDFs) */}
-            {notebook.imageUrl ? (
-              <button
-                type="button"
-                onClick={() => setShowMirrorModal(true)}
-                className="w-full py-3 px-4 rounded-2xl bg-zinc-900 text-white hover:bg-black transition active:scale-[0.99] flex items-center justify-between shadow-sm"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center text-white">
-                    <Eye className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs font-bold text-white">Consulter le cours original</div>
-                    <div className="text-[10px] text-zinc-400">Photos scannées &amp; documents</div>
+            {/* Bouton Proéminent : Consulter les cours originaux */}
+            <button
+              type="button"
+              onClick={() => setShowMirrorModal(true)}
+              className="w-full py-3 px-4 rounded-2xl bg-zinc-900 text-white hover:bg-black transition active:scale-[0.99] flex items-center justify-between shadow-sm"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center text-white">
+                  <Eye className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-white">Consulter le cours original</div>
+                  <div className="text-[10px] text-zinc-400">
+                    {notebook.imageUrl ? "Photos & documents scannés" : "Voir tous mes documents"}
                   </div>
                 </div>
-                <span className="text-xs font-semibold text-zinc-300">Ouvrir →</span>
-              </button>
-            ) : (
-              <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-500 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-zinc-400" />
-                <span>Cours structuré par Loreno IA</span>
               </div>
-            )}
+              <span className="text-xs font-semibold text-zinc-300">Ouvrir →</span>
+            </button>
 
             {/* Section : Synthèse rapide du cours */}
             {notebook.deck.summary && (
@@ -140,7 +153,7 @@ export function NotebookDetail({
             )}
           </div>
 
-          {/* STICKY BOTTOM : MODES D'ENTRAÎNEMENT (GRAND FORMAT) */}
+          {/* STICKY BOTTOM : MODES D'ENTRAÎNEMENT */}
           <div className="sticky bottom-0 -mx-4 -mb-4 p-4 bg-white/95 backdrop-blur-md border-t border-zinc-200 z-30 shadow-2xl space-y-2.5">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-black">
@@ -179,7 +192,7 @@ export function NotebookDetail({
                 </button>
               </div>
 
-              {/* 3. Assistant IA (Pleine Largeur) */}
+              {/* 3. Assistant IA */}
               <button
                 onClick={() => {
                   if (isPro) setShowAiTutor(true);
@@ -229,19 +242,21 @@ export function NotebookDetail({
         />
       )}
 
-      {/* Modal Tuteur IA pour les membres ayant le Pack Fondateur */}
+      {/* Modal Tuteur IA */}
       <AiTutorModal
         isOpen={showAiTutor}
         onClose={() => setShowAiTutor(false)}
         notebook={notebook}
       />
 
-      {/* Modal Miroir pour prévisualiser la note originale */}
+      {/* Modal Miroir pour prévisualiser les notes originales et basculer / ajouter un cours */}
       <MirrorModal
         isOpen={showMirrorModal}
         onClose={() => setShowMirrorModal(false)}
-        imageUrl={notebook.imageUrl || null}
-        deckTitle={notebook.title}
+        currentNotebook={notebook}
+        allNotebooks={allNotebooks}
+        onSelectNotebook={onSelectNotebook}
+        onAddNewCourse={onOpenScanModal}
       />
     </div>
   );
