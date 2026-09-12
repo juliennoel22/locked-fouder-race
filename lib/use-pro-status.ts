@@ -11,8 +11,23 @@ export function useProStatus() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // 1. Vérification paramètre URL de retour Stripe (?payment=success)
     const urlParams = new URLSearchParams(window.location.search);
+
+    // 0. Accès automatique en mode Développement local (localhost / 127.0.0.1 / dev flags)
+    const isDevEnv =
+      process.env.NODE_ENV === "development" ||
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      urlParams.get("dev") === "true" ||
+      urlParams.get("pro") === "true";
+
+    if (isDevEnv) {
+      setIsPro(true);
+      setIsLoading(false);
+      return;
+    }
+
+    // 1. Vérification paramètre URL de retour Stripe (?payment=success)
     const hasPaymentSuccess =
       urlParams.get("payment") === "success" ||
       urlParams.get("unlocked") === "true" ||
