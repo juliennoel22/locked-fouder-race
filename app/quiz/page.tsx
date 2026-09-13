@@ -54,15 +54,23 @@ export default function QuizPage() {
     };
   }, [unlockForm]);
 
-  // Récupérer l'étape sauvegardée en base si l'utilisateur est déjà connecté
+  // Si l'utilisateur est déjà connecté, valider l'onboarding et aller directement sur /dashboard
   useEffect(() => {
     const fetchSavedState = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const meta = user.user_metadata || {};
-          if (meta.onboarding_completed === true) {
-            router.replace("/dashboard");
+          if (meta.onboarding_completed === true || user.email) {
+            if (meta.onboarding_completed !== true) {
+              await supabase.auth.updateUser({
+                data: {
+                  onboarding_completed: true,
+                  onboarding_step: 5,
+                },
+              });
+            }
+            router.replace("/dashboard?onboard=true");
             return;
           }
           if (meta.study_level) setLevel(meta.study_level);
@@ -104,10 +112,12 @@ export default function QuizPage() {
         })
       );
 
+      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/dashboard?onboard=true")}`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard?onboard=true`,
+          redirectTo: redirectUrl,
         },
       });
       if (error) throw error;
@@ -122,7 +132,6 @@ export default function QuizPage() {
     setTimeout(() => {
       setStep((prev) => {
         const nextStep = prev + 1;
-        // Sauvegarde progressive en arrière-plan si session active
         supabase.auth.getUser().then(({ data: { user } }) => {
           if (user) {
             supabase.auth.updateUser({
