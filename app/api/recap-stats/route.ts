@@ -12,9 +12,9 @@ interface RecapLiveStats {
 export async function GET(request: Request): Promise<NextResponse> {
   let revenue = 59.94;
   let transactionsCount = 6;
-  let visitors = 138;
-  let pageviews = 422;
-  let signupsCount = 22;
+  let visitors = 148;
+  let pageviews = 452;
+  let signupsCount = 23;
 
   // 1. Fetch live Stripe charges
   try {

@@ -16,7 +16,7 @@
 | **Chiffre d'Affaires Encaissé (CA)** | **59,94 €** | **Stripe Live** (6 transactions réelles de 9,99 €) |
 | **Clients Payants** | **6 étudiants validés** | Edwin, Danial, Yanis, Emmanuel, Greg, Hugo |
 | **Comptes Étudiants Actifs** | **23 comptes réels** | Table `auth.users` Supabase (après purge des tests) |
-| **Visiteurs Uniques** | **138 visiteurs** (422 pages vues) | Vercel Analytics en direct |
+| **Visiteurs Uniques** | **148 visiteurs** (452 pages vues) | Vercel Analytics en direct |
 | **Code Promo Démo Jury** | **`FOUNDERRACE`** | 100% offert sur le Pass Fondateur Stripe Live |
 
 ---

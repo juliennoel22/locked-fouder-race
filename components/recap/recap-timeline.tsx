@@ -72,13 +72,13 @@ export const TIMELINE_STEPS: TimelineStep[] = [
     ],
   },
   {
-    time: "02:00 - 05:00",
-    title: "Sprint Final : Dev au Sol, Montage du Pitch & Récap (4h47)",
-    description: "Retour après le tournage : session de dev intense, finalisation des dernières fonctionnalités, montage de la vidéo de pitch et packaging de la page récapitulatif jury au sol à 4h47.",
+    time: "02:00 - 06:00",
+    title: "Sprint Final : Dev au Sol, Pitch & Dernier Commit à 06:00",
+    description: "Retour après le tournage : session de dev intense au sol, finalisation des dernières fonctionnalités, montage de la vidéo de pitch, audit complet et dernier commit de production à 06:00.",
     highlight: true,
     layout: "vertical-single",
     images: [
-      { src: "/recap/IMG_0450.jpg", alt: "Julien à 4h47 au sol sur son PC" },
+      { src: "/recap/IMG_0450.jpg", alt: "Julien sur son PC pendant le sprint final" },
     ],
   },
 ];

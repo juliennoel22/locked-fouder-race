@@ -30,9 +30,9 @@ interface LiveStats {
 const DEFAULT_STATS: LiveStats = {
   revenue: 59.94,
   transactionsCount: 6,
-  visitors: 138,
-  pageviews: 422,
-  signupsCount: 30,
+  visitors: 148,
+  pageviews: 452,
+  signupsCount: 23,
 };
 
 export default function RecapPage() {
