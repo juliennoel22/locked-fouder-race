@@ -88,8 +88,12 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // 2. Rediriger les utilisateurs non connectés vers /auth s'ils tentent d'accéder au dashboard ou /protected
-  if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/protected"))) {
+  const isJury =
+    request.cookies.get("loreno_pro")?.value === "true" ||
+    request.nextUrl.searchParams.get("jury") === "true";
+
+  // 2. Rediriger les utilisateurs non connectés vers /auth s'ils tentent d'accéder à /protected
+  if (!user && !isJury && pathname.startsWith("/protected")) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth";
     const redirectResponse = NextResponse.redirect(url);

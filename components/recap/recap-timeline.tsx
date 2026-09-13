@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { DollarSign, Rocket, Zap, MessageSquare, Video, Radio, ZoomIn, Flame, Megaphone } from "lucide-react";
+import { DollarSign, Rocket, Zap, MessageSquare, Radio, ZoomIn, Flame } from "lucide-react";
 
 export interface TimelineStep {
   time: string;
@@ -10,6 +10,7 @@ export interface TimelineStep {
   tag: string;
   icon: typeof Rocket;
   highlight?: boolean;
+  layout?: "vertical-grid" | "default";
   images?: Array<{ src: string; alt: string }>;
 }
 
@@ -39,6 +40,7 @@ export const TIMELINE_STEPS: TimelineStep[] = [
     description: "Micro-trottoirs avec les étudiants dans la ville pour tester le scan en direct et publication des vidéos sur TikTok.",
     tag: "Terrain & TikTok",
     icon: MessageSquare,
+    layout: "vertical-grid",
     images: [
       { src: "/recap/IMG_0417.png", alt: "Interview étudiant 1" },
       { src: "/recap/IMG_0418.png", alt: "Interview étudiant 2" },
@@ -74,12 +76,13 @@ export const TIMELINE_STEPS: TimelineStep[] = [
     tag: "Guerilla & Pitch",
     icon: Flame,
     highlight: true,
+    layout: "vertical-grid",
     images: [
       { src: "/recap/IMG_0436.jpg", alt: "Manger en codant au restaurant" },
-      { src: "/recap/IMG_0445.png", alt: "Affichage QR codes dans la ville et les bus" },
-      { src: "/recap/IMG_0446.png", alt: "Tournage vidéo pitch avec des inconnus" },
-      { src: "/recap/IMG_0447.png", alt: "Cri de guerre nocturne" },
-      { src: "/recap/IMG_0448.png", alt: "Recrutement d'inconnus en direct pour la comm" },
+      { src: "/recap/IMG_0445.png", alt: "Cri de guerre nocturne" },
+      { src: "/recap/IMG_0446.png", alt: "Affichage des QR codes dans la ville et les bus" },
+      { src: "/recap/IMG_0447.png", alt: "Recrutement d'inconnus dans la rue" },
+      { src: "/recap/IMG_0448.png", alt: "Tournage & comm terrain avec les étudiants" },
     ],
   },
 ];
@@ -93,6 +96,8 @@ export function RecapTimeline({ onPhotoClick }: RecapTimelineProps) {
     <div className="space-y-4">
       {TIMELINE_STEPS.map((step, idx) => {
         const Icon = step.icon;
+        const isVerticalGrid = step.layout === "vertical-grid";
+
         return (
           <div
             key={idx}
@@ -133,29 +138,37 @@ export function RecapTimeline({ onPhotoClick }: RecapTimelineProps) {
               {step.description}
             </p>
 
-            {/* Photos associées à l'étape en colonne avec zoom au clic */}
+            {/* Photos associées : Grille verticale 2x2 ou flux standard */}
             {step.images && step.images.length > 0 && (
-              <div className="mt-3 pl-8 flex flex-col gap-3">
+              <div
+                className={`mt-3 pl-8 ${
+                  isVerticalGrid
+                    ? "grid grid-cols-2 gap-2"
+                    : "flex flex-col gap-3"
+                }`}
+              >
                 {step.images.map((img, iIdx) => (
                   <div
                     key={iIdx}
                     onClick={() => onPhotoClick?.(img.src, img.alt)}
-                    className="relative aspect-video w-full rounded-xl overflow-hidden bg-zinc-900 border border-zinc-200/20 group shadow-xs cursor-pointer"
+                    className={`relative w-full rounded-xl overflow-hidden bg-zinc-900 border border-zinc-200/20 group shadow-xs cursor-pointer ${
+                      isVerticalGrid ? "aspect-[3/4]" : "aspect-video"
+                    }`}
                   >
                     <Image
                       src={img.src}
                       alt={img.alt}
                       fill
-                      className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                      className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
                       unoptimized
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-xs">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-xs shadow-md">
                         <ZoomIn className="w-3 h-3" />
                         <span>Agrandir</span>
                       </div>
                     </div>
-                    <span className="absolute bottom-1.5 left-1.5 right-1.5 px-2 py-1 rounded-md bg-black/75 text-[10px] text-white font-medium truncate backdrop-blur-xs">
+                    <span className="absolute bottom-1.5 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/80 text-[9px] text-white font-medium truncate backdrop-blur-xs">
                       {img.alt}
                     </span>
                   </div>

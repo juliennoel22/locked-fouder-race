@@ -18,7 +18,9 @@ import {
   Play, 
   Smartphone,
   Camera,
-  FileCheck
+  FileCheck,
+  Compass,
+  History
 } from "lucide-react";
 import { RecapTimeline } from "@/components/recap/recap-timeline";
 import { ImageLightboxModal } from "@/components/recap/image-lightbox-modal";
@@ -44,20 +46,20 @@ const DEFAULT_STATS: LiveStats = {
 const FEATURES = [
   { 
     step: "1", 
-    title: "Prends tes cours en photo (Vision < 2s)", 
-    desc: "Scan instantané de tes notes manuscrites analysées par Google Gemini 1.5 Flash.", 
+    title: "Scan Intelligent < 2s", 
+    desc: "Extraction instantanée des notes manuscrites et cours analysés par Google Gemini 1.5 Flash.", 
     icon: Camera,
   },
   { 
     step: "2", 
-    title: "Flashcards 3D & Quiz d'examen (/20)", 
-    desc: "Mode Deuxième Chance (Round 2), note prédictive et explications pédagogiques instantanées.", 
+    title: "Quiz 3D & Note /20", 
+    desc: "Mode Deuxième Chance (Round 2) ciblant les erreurs, note prédictive et explications pédagogiques.", 
     icon: Zap,
   },
   { 
     step: "3", 
-    title: "Tuteur d'Examen IA Interactif", 
-    desc: "Pose tes questions sur ton cours, débloque des questions pièges et retiens l'essentiel.", 
+    title: "Tuteur IA d'Examen", 
+    desc: "Dialogue en temps réel avec ton cours pour poser des questions et déjouer les pièges d'examen.", 
     icon: Bot,
   },
 ];
@@ -90,11 +92,11 @@ export default function RecapPage() {
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-zinc-200">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link
-            href="/dashboard"
+            href="/"
             className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-black transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Dashboard</span>
+            <span>Accueil</span>
           </Link>
 
           <Image
@@ -113,7 +115,7 @@ export default function RecapPage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 pt-5 space-y-7">
+      <main className="max-w-2xl mx-auto px-4 pt-5 space-y-8">
         {/* Hero Title */}
         <section className="text-center space-y-2 pt-1">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black text-white text-xs font-bold shadow-xs">
@@ -130,21 +132,46 @@ export default function RecapPage() {
           </p>
         </section>
 
-        {/* Espace Jury 1-Click Pro Access */}
-        <section>
-          <JuryPassCard />
+        {/* 1. Vidéo de Pitch en Format VERTICAL (9:16) */}
+        <section className="space-y-3 pt-2">
+          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/80">
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-black flex items-center gap-2">
+              <span className="w-5 h-5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-bold">1</span>
+              <span>Vidéo de Pitch du Projet</span>
+            </h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+              Format Vertical 9:16
+            </span>
+          </div>
+
+          <div className="w-full rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm flex flex-col items-center">
+            <div className="relative w-full max-w-[280px] sm:max-w-[310px] aspect-[9/16] rounded-2xl bg-zinc-950 border-2 border-zinc-800 overflow-hidden flex flex-col items-center justify-center text-white group shadow-xl">
+              <div className="absolute inset-0 bg-[radial-gradient(#333_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
+
+              <div className="w-14 h-14 rounded-full bg-white/10 group-hover:bg-white/20 border border-white/30 flex items-center justify-center transition-transform group-hover:scale-110 z-10 shadow-lg cursor-pointer">
+                <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+              </div>
+
+              <span className="text-xs font-bold text-zinc-200 mt-3 z-10">
+                Vidéo de Pitch Verticale
+              </span>
+              <span className="text-[10px] text-zinc-400 z-10 px-4 text-center mt-1">
+                Prêt pour l&apos;intégration (MP4 / Reel)
+              </span>
+            </div>
+          </div>
         </section>
 
-        {/* Métriques Clés en Direct (Stripe & Vercel) */}
-        <section className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-zinc-700" />
-              <span>Traction & Chiffres Live</span>
+        {/* 2. Métriques Clés en Direct (Stripe & Vercel) */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/80">
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-black flex items-center gap-2">
+              <span className="w-5 h-5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-bold">2</span>
+              <span>Traction & Chiffres Clés en Direct</span>
             </h2>
             <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Direct API
+              Stripe & Vercel Live
             </span>
           </div>
 
@@ -167,42 +194,17 @@ export default function RecapPage() {
           </div>
         </section>
 
-        {/* Vidéo de Pitch en Format VERTICAL (9:16) */}
-        <section className="space-y-2">
-          <div className="w-full rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm flex flex-col items-center">
-            <div className="w-full flex items-center justify-between px-1 mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-600 flex items-center gap-1.5">
-                <Smartphone className="w-3.5 h-3.5 text-black" />
-                <span>Vidéo de Pitch du Projet (Vertical 9:16)</span>
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 border border-zinc-200">
-                Format Jury
-              </span>
-            </div>
-
-            <div className="relative w-full max-w-[280px] sm:max-w-[310px] aspect-[9/16] rounded-2xl bg-zinc-950 border-2 border-zinc-800 overflow-hidden flex flex-col items-center justify-center text-white group shadow-xl">
-              <div className="absolute inset-0 bg-[radial-gradient(#333_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
-
-              <div className="w-14 h-14 rounded-full bg-white/10 group-hover:bg-white/20 border border-white/30 flex items-center justify-center transition-transform group-hover:scale-110 z-10 shadow-lg cursor-pointer">
-                <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-              </div>
-
-              <span className="text-xs font-bold text-zinc-200 mt-3 z-10">
-                Vidéo de Pitch Verticale
-              </span>
-              <span className="text-[10px] text-zinc-400 z-10 px-4 text-center mt-1">
-                Prêt pour l&apos;intégration (MP4 / Short / Reel)
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* Le Concept & Fonctionnalités Clés */}
+        {/* 3. Le Concept & Fonctionnalités Clés */}
         <section className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-zinc-700" />
-            <span>Le Concept en 3 Étapes & Démo de l&apos;App</span>
-          </h2>
+          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/80">
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-black flex items-center gap-2">
+              <span className="w-5 h-5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-bold">3</span>
+              <span>Le Concept & Démo de l&apos;Application</span>
+            </h2>
+            <span className="text-[10px] font-semibold text-zinc-500">
+              MVP 24H
+            </span>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {FEATURES.map((f, i) => {
@@ -251,31 +253,53 @@ export default function RecapPage() {
           </div>
         </section>
 
-        {/* Timeline 24H avec Photos Chronologiques */}
-        <section className="space-y-2.5">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-zinc-700" />
-            <span>Chronologie du Sprint 24H (Clique pour agrandir)</span>
-          </h2>
+        {/* 4. Bloc Action : Accès Évaluateur Jury */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/80">
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-black flex items-center gap-2">
+              <span className="w-5 h-5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-bold">4</span>
+              <span>Tester Loreno en Conditions Réelles</span>
+            </h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+              Accès Jury Illimité
+            </span>
+          </div>
+
+          <JuryPassCard />
+        </section>
+
+        {/* 5. Timeline 24H avec Photos Chronologiques */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/80">
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-black flex items-center gap-2">
+              <span className="w-5 h-5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-bold">5</span>
+              <span>Chronologie du Sprint 24H</span>
+            </h2>
+            <span className="text-[10px] text-zinc-500 font-medium">
+              Photos Terrain & Dev
+            </span>
+          </div>
 
           <RecapTimeline onPhotoClick={(src, alt) => setLightboxImg({ src, alt })} />
         </section>
 
-        {/* Section Preuves & Données Certifiées (À LA FIN) */}
-        <section className="space-y-3 pt-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
-              <FileCheck className="w-3.5 h-3.5 text-zinc-700" />
-              <span>Preuves & Données Certifiées (Stripe & Vercel)</span>
+        {/* 6. Section Preuves & Données Certifiées */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between pb-1 border-b border-zinc-200/80">
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-black flex items-center gap-2">
+              <span className="w-5 h-5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-bold">6</span>
+              <span>Preuves & Données Certifiées</span>
             </h2>
-            <span className="text-[10px] text-zinc-400 font-medium">Annexes Officielles</span>
+            <span className="text-[10px] font-bold text-zinc-600 bg-zinc-200/70 px-2 py-0.5 rounded-full">
+              Annexes Officielles
+            </span>
           </div>
 
           <RecapCharts onPhotoClick={(src, alt) => setLightboxImg({ src, alt })} />
         </section>
 
         {/* Footer */}
-        <footer className="pt-4 border-t border-zinc-200 text-center space-y-1.5">
+        <footer className="pt-6 border-t border-zinc-200 text-center space-y-1.5">
           <div className="inline-flex items-center gap-1.5 text-xs text-zinc-600 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>Julien Noel • FounderRace 2026</span>

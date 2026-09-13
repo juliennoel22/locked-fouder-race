@@ -16,12 +16,12 @@ export function JuryPassCard() {
     } catch (e) {
       console.error(e);
     }
-    router.push("/dashboard?jury=true");
+    router.push("/?jury=true");
   };
 
   const handleCopyLink = () => {
     if (typeof navigator !== "undefined") {
-      navigator.clipboard.writeText("https://www.loreno.app/dashboard?jury=true");
+      navigator.clipboard.writeText("https://www.loreno.app/?jury=true");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -37,13 +37,13 @@ export function JuryPassCard() {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-black text-black">Accès Jury FounderRace</h3>
+              <h3 className="text-sm font-black text-black">Tester Loreno en Mode Jury</h3>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                Pack Fondateur Offert (9,99 €)
+                Pack Pro 100% Débloqué
               </span>
             </div>
             <p className="text-xs text-zinc-600 mt-0.5">
-              Testez l&apos;application à 100% sans carte bancaire ni restriction.
+              Vivez le tunnel étudiant complet depuis l&apos;accueil, sans carte bancaire ni restriction.
             </p>
           </div>
         </div>
@@ -80,13 +80,13 @@ export function JuryPassCard() {
           className="w-full py-3.5 px-4 rounded-xl bg-black text-white font-bold text-xs sm:text-sm hover:bg-zinc-800 active:scale-[0.99] transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
         >
           <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>Activer le Pass Jury & Tester Loreno</span>
+          <span>Lancer le Test depuis l&apos;Accueil</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
         {/* Lien de secours copiable */}
         <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-0.5 px-1">
-          <span className="truncate">Lien direct : <code className="text-[10px] bg-zinc-100 px-1.5 py-0.5 rounded font-mono text-zinc-800 border border-zinc-200">loreno.app/dashboard?jury=true</code></span>
+          <span className="truncate">Lien direct : <code className="text-[10px] bg-zinc-100 px-1.5 py-0.5 rounded font-mono text-zinc-800 border border-zinc-200">loreno.app/?jury=true</code></span>
           <button
             onClick={handleCopyLink}
             className="flex items-center gap-1 text-zinc-700 hover:text-black font-semibold shrink-0 ml-2 cursor-pointer transition"

@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { User, Play, Sparkles, Trash2, Layers, FileText, CheckCircle2, Plus } from "lucide-react";
+import { User, Play, Sparkles, Trash2, Layers, CheckCircle2, Plus } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { UserProfileModal } from "./user-profile-modal";
+import { OnboardingTourBubble } from "./onboarding-tour-bubble";
 
 interface NotebookListViewProps {
   notebooks: NotebookItem[];
@@ -30,9 +31,24 @@ export function NotebookListView({
 }: NotebookListViewProps) {
   const router = useRouter();
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [showTour, setShowTour] = useState<boolean>(notebooks.length === 0);
+
+  const handleTriggerAction = (mode: "flashcards" | "quiz" | "tutor") => {
+    setShowTour(false);
+    onActionClick?.(mode);
+  };
 
   return (
     <div className="w-full flex-1 flex flex-col space-y-4 select-none pb-28">
+      {/* Overlay sombre de fond lorsque le tour d'onboarding est actif */}
+      {showTour && (
+        <div
+          onClick={() => setShowTour(false)}
+          className="fixed inset-0 bg-black/75 backdrop-blur-xs z-40 animate-in fade-in duration-200 cursor-pointer"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Header avec logo loreno.app horizontal */}
       <header className="w-full pt-1 flex items-center justify-between">
         <div className="flex items-center">
@@ -54,7 +70,7 @@ export function NotebookListView({
           ) : (
             <button
               onClick={onOpenPaywall}
-              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition"
+              className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition cursor-pointer"
             >
               PRO
             </button>
@@ -62,7 +78,7 @@ export function NotebookListView({
 
           <button
             onClick={() => setShowProfileModal(true)}
-            className="w-8 h-8 rounded-full border border-zinc-200 bg-zinc-100 flex items-center justify-center text-zinc-600 hover:text-black transition"
+            className="w-8 h-8 rounded-full border border-zinc-200 bg-zinc-100 flex items-center justify-center text-zinc-600 hover:text-black transition cursor-pointer"
             aria-label="Profil"
             title="Mon profil et compte"
           >
@@ -111,34 +127,53 @@ export function NotebookListView({
         </div>
 
         <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-2">
+          {/* Grille Flashcards & Quiz surélevée au-dessus de l'overlay sombre */}
+          <div className={`grid grid-cols-2 gap-2 ${showTour ? "relative z-50" : ""}`}>
             {/* TUILE 1 : FLASHCARDS */}
             <button
-              onClick={() => onActionClick?.("flashcards")}
-              className="p-3 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-xs group"
+              onClick={() => handleTriggerAction("flashcards")}
+              className="p-3 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-black transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-sm group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+              <div className="w-8 h-8 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
                 <Layers className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold text-black truncate">Flashcards</span>
+              <div className="truncate">
+                <span className="text-xs font-bold text-black truncate block">Flashcards</span>
+                <span className="text-[10px] text-zinc-500 truncate block">
+                  Mémorisation 3D
+                </span>
+              </div>
             </button>
 
             {/* TUILE 2 : QUIZ EXAMEN */}
             <button
-              onClick={() => onActionClick?.("quiz")}
-              className="p-3 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-xs group"
+              onClick={() => handleTriggerAction("quiz")}
+              className="p-3 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50 text-black transition active:scale-[0.98] text-left flex items-center gap-2.5 shadow-sm group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
+              <div className="w-8 h-8 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-black shrink-0 shadow-2xs">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold text-black truncate">Quiz examen</span>
+              <div className="truncate">
+                <span className="text-xs font-bold text-black truncate block">Quiz examen</span>
+                <span className="text-[10px] text-zinc-500 truncate block">
+                  Note sur /20
+                </span>
+              </div>
             </button>
           </div>
 
-          {/* TUILE 3 : ASSISTANT IA (Pleine Largeur) */}
+          {/* Bulle d'instruction flottante placée directement sous Flashcards/Quiz et au-dessus de l'overlay */}
+          {showTour && (
+            <div className="relative z-50">
+              <OnboardingTourBubble show={showTour} onDismiss={() => setShowTour(false)} />
+            </div>
+          )}
+
+
+          {/* TUILE 3 : ASSISTANT IA (Reste en dessous de la bulle d'onboarding) */}
           <button
-            onClick={() => onActionClick?.("tutor")}
-            className="w-full p-3 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group"
+            onClick={() => handleTriggerAction("tutor")}
+            className="w-full p-3 rounded-2xl border border-black bg-black text-white hover:bg-zinc-800 transition active:scale-[0.98] text-left flex items-center justify-between shadow-xs group cursor-pointer"
           >
             <div className="flex items-center gap-2.5 truncate">
               <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shrink-0 shadow-2xs">
@@ -171,14 +206,14 @@ export function NotebookListView({
                 if (onOpenScanModal) onOpenScanModal();
                 else router.push("/dashboard/new");
               }}
-              className="p-8 text-center text-zinc-500 text-xs border border-dashed border-zinc-300 rounded-2xl space-y-2 bg-zinc-50/70 hover:bg-zinc-100/80 hover:border-zinc-400 transition cursor-pointer active:scale-[0.99] group shadow-2xs"
+              className="p-6 text-center text-zinc-500 text-xs border border-dashed border-zinc-300 rounded-2xl space-y-2 bg-zinc-50/70 hover:bg-zinc-100/80 hover:border-zinc-400 transition cursor-pointer active:scale-[0.99] group shadow-2xs"
             >
               <div className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-black mx-auto group-hover:scale-110 transition shadow-xs">
                 <Plus className="w-5 h-5" />
               </div>
-              <p className="font-semibold text-black text-sm">Aucun cours pour le moment</p>
+              <p className="font-semibold text-black text-sm">Prendre une photo de cours</p>
               <p className="text-zinc-500 max-w-xs mx-auto">
-                Appuie ici pour scanner ton premier cours ou importer un document.
+                Appuie ici pour scanner ton premier cours manuscrit ou PDF.
               </p>
             </div>
           ) : (
@@ -213,7 +248,7 @@ export function NotebookListView({
                           onDeleteNotebook(nb.id);
                         }
                       }}
-                      className="w-8 h-8 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 hover:text-red-600 hover:border-red-200 transition"
+                      className="w-8 h-8 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 hover:text-red-600 hover:border-red-200 transition cursor-pointer"
                       title="Supprimer ce cours"
                       aria-label="Supprimer ce cours"
                     >

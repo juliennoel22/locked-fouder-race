@@ -33,7 +33,7 @@ export function FloatingScanBar({
   };
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 max-w-md mx-auto px-4 flex items-center justify-center gap-2.5 z-40 pointer-events-auto">
+    <div className="fixed bottom-6 left-0 right-0 max-w-md mx-auto px-4 flex items-center justify-center gap-2.5 z-30 pointer-events-auto">
       {/* Bouton Caméra */}
       <button
         onClick={handleScanClick}

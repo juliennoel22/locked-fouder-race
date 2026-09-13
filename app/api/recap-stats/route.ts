@@ -9,7 +9,7 @@ interface RecapLiveStats {
   lastUpdated: string;
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: Request): Promise<NextResponse> {
   let revenue = 59.94;
   let transactionsCount = 6;
   let visitors = 138;

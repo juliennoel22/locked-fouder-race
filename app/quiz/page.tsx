@@ -1,44 +1,70 @@
 "use client";
 
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { compressCourseImage } from "@/lib/image-compression";
-import { ScanApiResponse, ScanResult } from "@/types/loreno";
 import { createClient } from "@/lib/supabase/client";
-import { DEFAULT_SCAN_RESULT } from "@/lib/quiz-data";
-import { QuizLoadingOverlay } from "@/components/quiz-loading-overlay";
-import { QuizScanStep, ScannedPhotoItem } from "@/components/quiz-scan-step";
-import { FlashcardPlayer } from "@/components/flashcard-player";
 import { QuizStepsForm } from "@/components/quiz-steps-form";
+import { isInAppBrowser } from "@/lib/in-app-browser";
 
 export default function QuizPage() {
   const router = useRouter();
+  const supabase = createClient();
 
-  // 1: Level, 2: Goal, 3: Name, 4: Pain, 5: Upload
+  // 1: Level, 2: Goal, 3: Name, 4: Pain, 5: Email (Step 6/6 in overall flow)
   const [step, setStep] = useState<number>(1);
-  const totalSteps = 5;
-
   const [level, setLevel] = useState<string>("");
   const [goal, setGoal] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
   const [painPoint, setPainPoint] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
-  const [loading, setLoading] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [loadingMessage, setLoadingMessage] = useState("");
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showGoogleLogin, setShowGoogleLogin] = useState<boolean>(false);
 
-  const [selectedPhotos, setSelectedPhotos] = useState<ScannedPhotoItem[]>([]);
-  const [scanData, setScanData] = useState<ScanResult | null>(null);
-  const [scannedImageUrl, setScannedImageUrl] = useState<string | null>(null);
+  useEffect(() => {
+    // Activer Google OAuth uniquement sur les navigateurs standards (évite l'erreur 403 Google sur TikTok/Insta)
+    setShowGoogleLogin(!isInAppBrowser());
+  }, []);
 
   const handleBack = () => {
     if (step > 1) {
       setStep((prev) => prev - 1);
     } else {
       router.push("/");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsSubmittingEmail(true);
+    setErrorMessage(null);
+    try {
+      if (userName.trim()) {
+        localStorage.setItem("loreno_user_name", userName.trim());
+      }
+      localStorage.setItem(
+        "loreno_onboarding",
+        JSON.stringify({
+          level,
+          goal,
+          userName: userName.trim(),
+          painPoint,
+          completedAt: new Date().toISOString(),
+        })
+      );
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard?onboarding=complete`,
+        },
+      });
+      if (error) throw error;
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "Erreur de connexion Google");
+      setIsSubmittingEmail(false);
     }
   };
 
@@ -49,162 +75,84 @@ export default function QuizPage() {
     }, 150);
   };
 
-  const handleAddPhotos = (newFiles: File[]) => {
-    setErrorMessage(null);
-    const newItems: ScannedPhotoItem[] = newFiles.map((file) => ({
-      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }));
-    setSelectedPhotos((prev) => [...prev, ...newItems]);
-  };
+  const handleSubmitEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
 
-  const handleRemovePhoto = (id: string) => {
-    setSelectedPhotos((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const handleConfirmAndScan = async () => {
-    if (selectedPhotos.length === 0) {
-      setErrorMessage("Veuillez ajouter au moins une photo de votre cours.");
+    if (!cleanEmail || !cleanEmail.includes("@") || !cleanEmail.includes(".")) {
+      setErrorMessage("Veuillez entrer une adresse email valide.");
       return;
     }
 
+    setIsSubmittingEmail(true);
     setErrorMessage(null);
-    setLoading(true);
-    setLoadingProgress(15);
-    setLoadingMessage(
-      selectedPhotos.length > 1
-        ? `Compression optimisée de tes ${selectedPhotos.length} pages...`
-        : "Compression de ta note de cours..."
-    );
 
     try {
-      const compressedList = await Promise.all(
-        selectedPhotos.map((p) => compressCourseImage(p.file, 1600, 0.8))
-      );
-
-      setLoadingProgress(45);
-      setLoadingMessage(
-        selectedPhotos.length > 1
-          ? `Analyse multimodale de tes ${selectedPhotos.length} pages combinées...`
-          : "Analyse multimodale de ton cours..."
-      );
-
-      const imagesPayload = compressedList.map((c) => ({
-        base64: c.base64,
-        mimeType: "image/jpeg",
-        imageUrl: c.previewUrl,
-      }));
-
-      const res = await fetch("/api/scan", {
+      // 1. Enregistrement automatique et sécurisé côté serveur dans Supabase auth.users
+      const res = await fetch("/api/auth/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          images: imagesPayload,
-        }),
+        body: JSON.stringify({ email: cleanEmail }),
       });
 
-      const json: ScanApiResponse = await res.json();
-      const finalScanResult: ScanResult = json.data || DEFAULT_SCAN_RESULT;
+      const data = await res.json();
 
-      setLoadingProgress(100);
-      setLoadingMessage("Génération terminée !");
-
-      const primaryImageUrl = compressedList[0]?.previewUrl;
-
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem(
-          "loreno_scan_cache",
-          JSON.stringify({
-            scanData: finalScanResult,
-            imageUrl: primaryImageUrl,
-            pageCount: selectedPhotos.length,
-            userName,
-            level,
-            goal,
-          })
-        );
+      if (!res.ok || !data.success || !data.secret) {
+        throw new Error(data.error || "Impossible de se connecter.");
       }
 
-      setTimeout(() => {
-        setScanData(finalScanResult);
-        setScannedImageUrl(primaryImageUrl);
-        setLoading(false);
-      }, 400);
+      // 2. Établissement de la session Supabase client
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password: data.secret,
+      });
+
+      if (signInError) {
+        console.warn("Avertissement session client :", signInError.message);
+      }
+
+      // 3. Sauvegarde locale du profil et redirection vers le dashboard
+      localStorage.setItem("loreno_user_email", cleanEmail);
+      if (userName.trim()) {
+        localStorage.setItem("loreno_user_name", userName.trim());
+      }
+      localStorage.setItem(
+        "loreno_onboarding",
+        JSON.stringify({
+          level,
+          goal,
+          userName: userName.trim(),
+          painPoint,
+          completedAt: new Date().toISOString(),
+        })
+      );
+
+      // Mettre à jour les métadonnées de l'utilisateur si connecté
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            full_name: userName.trim() || undefined,
+            study_level: level || undefined,
+            study_goal: goal || undefined,
+          },
+        });
+      } catch (syncErr) {
+        console.warn("Sync metadata warning :", syncErr);
+      }
+
+      router.push("/dashboard?onboarding=complete");
     } catch (err) {
-      console.error("Erreur scan:", err);
-      const fallback = DEFAULT_SCAN_RESULT;
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem(
-          "loreno_scan_cache",
-          JSON.stringify({
-            scanData: fallback,
-            userName,
-            level,
-            goal,
-          })
-        );
+      console.error("Erreur connexion email :", err);
+      // Mode tolérant aux pannes : enregistrement local et redirection immédiate
+      localStorage.setItem("loreno_user_email", cleanEmail);
+      if (userName.trim()) {
+        localStorage.setItem("loreno_user_name", userName.trim());
       }
-      setScanData(fallback);
-      setLoading(false);
+      router.push("/dashboard?onboarding=complete");
     } finally {
-      setLoading(false);
+      setIsSubmittingEmail(false);
     }
   };
-
-  // Écran de Chargement / Traitement (Astra AI style original)
-  if (loading) {
-    return <QuizLoadingOverlay message={loadingMessage} progress={loadingProgress} />;
-  }
-
-  // Écran du Test Flashcards (dès la fin du scan, pas de paywall, swipe complet avant /auth)
-  if (scanData) {
-    return (
-      <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
-        <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
-          <div className="w-full pt-2 mb-2">
-            <div className="flex items-center justify-between h-9 mb-3">
-              <button
-                onClick={() => setScanData(null)}
-                className="p-2 -ml-2 text-zinc-400 hover:text-black transition"
-                aria-label="Retour"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <Image
-                src="/logo.png"
-                alt="loreno.app"
-                width={130}
-                height={32}
-                className="h-7 sm:h-8 w-auto object-contain"
-                priority
-              />
-              <span className="text-xs font-mono text-zinc-400">
-                Test en direct
-              </span>
-            </div>
-          </div>
-
-          <FlashcardPlayer
-            cards={scanData.flashcards}
-            deckTitle={scanData.title}
-            subject={scanData.subject}
-            imageUrl={scannedImageUrl}
-            initialQuizQuestion={scanData.initial_quiz_question}
-            summary={scanData.summary}
-            disablePaywall={true}
-            onComplete={() => {
-              router.push("/auth");
-            }}
-          />
-
-          <div className="py-2 text-center text-[11px] text-zinc-400">
-            Loreno
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
@@ -214,7 +162,7 @@ export default function QuizPage() {
           <div className="flex items-center justify-between h-9 mb-3">
             <button
               onClick={handleBack}
-              className="p-2 -ml-2 text-zinc-400 hover:text-black transition"
+              className="p-2 -ml-2 text-zinc-400 hover:text-black transition cursor-pointer"
               aria-label="Retour"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -241,46 +189,26 @@ export default function QuizPage() {
         </div>
 
         {/* Form Content Area */}
-        {step <= 4 ? (
-          <QuizStepsForm
-            step={step}
-            level={level}
-            setLevel={setLevel}
-            goal={goal}
-            setGoal={setGoal}
-            userName={userName}
-            setUserName={setUserName}
-            painPoint={painPoint}
-            setPainPoint={setPainPoint}
-            selectOptionAndAdvance={selectOptionAndAdvance}
-            onAdvanceToStep4={() => setStep(4)}
-          />
-        ) : (
-          <div className="flex-1 flex flex-col justify-center py-6">
-            <QuizScanStep
-              photos={selectedPhotos}
-              onAddPhotos={handleAddPhotos}
-              onRemovePhoto={handleRemovePhoto}
-              onConfirmAndScan={handleConfirmAndScan}
-              onSkip={() => {
-                const sample = DEFAULT_SCAN_RESULT;
-                if (typeof window !== "undefined") {
-                  sessionStorage.setItem(
-                    "loreno_scan_cache",
-                    JSON.stringify({
-                      scanData: sample,
-                      userName,
-                      level,
-                      goal,
-                    })
-                  );
-                }
-                setScanData(sample);
-              }}
-              errorMessage={errorMessage}
-            />
-          </div>
-        )}
+        <QuizStepsForm
+          step={step}
+          level={level}
+          setLevel={setLevel}
+          goal={goal}
+          setGoal={setGoal}
+          userName={userName}
+          setUserName={setUserName}
+          painPoint={painPoint}
+          setPainPoint={setPainPoint}
+          email={email}
+          setEmail={setEmail}
+          isSubmittingEmail={isSubmittingEmail}
+          errorMessage={errorMessage}
+          selectOptionAndAdvance={selectOptionAndAdvance}
+          onAdvanceToStep4={() => setStep(4)}
+          onSubmitEmail={handleSubmitEmail}
+          showGoogleLogin={showGoogleLogin}
+          onGoogleLogin={handleGoogleLogin}
+        />
 
         {/* Footer Minimalist */}
         <div className="py-2 text-center text-[11px] text-zinc-400">
