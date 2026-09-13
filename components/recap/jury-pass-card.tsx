@@ -79,7 +79,6 @@ export function JuryPassCard() {
           onClick={handleActivateAndLaunch}
           className="w-full py-3.5 px-4 rounded-xl bg-black text-white font-bold text-xs sm:text-sm hover:bg-zinc-800 active:scale-[0.99] transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
         >
-          <Sparkles className="w-4 h-4 text-amber-400" />
           <span>Lancer le Test depuis l&apos;Accueil</span>
           <ArrowRight className="w-4 h-4" />
         </button>

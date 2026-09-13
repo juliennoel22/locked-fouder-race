@@ -59,7 +59,6 @@ export function QuizLoadingOverlay({
       <div className="w-full max-w-xs space-y-3.5">
         <div className="relative w-10 h-10 mx-auto flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-black" />
-          <Sparkles className="w-3.5 h-3.5 text-amber-500 absolute -top-1 -right-1 animate-pulse" />
         </div>
 
         <div className="space-y-1 min-h-[50px] flex flex-col justify-center">

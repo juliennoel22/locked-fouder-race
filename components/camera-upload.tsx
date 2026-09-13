@@ -159,9 +159,6 @@ export function CameraUpload() {
           {loading ? (
             <div className="flex flex-col items-center space-y-4 py-6">
               <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/30 animate-pulse">
-                  <Sparkles className="w-8 h-8 text-amber-400 animate-spin" />
-                </div>
               </div>
               <div>
                 <h3 className="font-bold text-white text-base sm:text-lg">

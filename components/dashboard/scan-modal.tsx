@@ -33,6 +33,7 @@ export function ScanModal({
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [loadingMessage, setLoadingMessage] = useState<string>("");
+  const [cardCount, setCardCount] = useState<number>(8);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showTourBanner, setShowTourBanner] = useState<boolean>(true);
 
@@ -108,7 +109,7 @@ export function ScanModal({
       const res = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ images: imagesPayload }),
+        body: JSON.stringify({ images: imagesPayload, cardCount }),
       });
 
       const json: ScanApiResponse = await res.json();
@@ -241,6 +242,9 @@ export function ScanModal({
               onRemovePhoto={handleRemovePhoto}
               onConfirmAndScan={handleConfirmAndScan}
               errorMessage={errorMessage}
+              cardCount={cardCount}
+              onCardCountChange={setCardCount}
+              targetMode={targetMode}
             />
           )}
         </div>

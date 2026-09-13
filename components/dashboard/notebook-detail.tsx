@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sparkles, CheckCircle2, Layers, Eye } from "lucide-react";
+import { ArrowLeft, Bot, CheckCircle2, Layers, Eye } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FlashcardPlayer } from "@/components/flashcard-player";
 import { NotebookQuizView } from "./notebook-quiz-view";
@@ -186,9 +186,9 @@ export function NotebookDetail({
                 {/* 1. Flashcards */}
                 <button
                   onClick={() => setMode("flashcards")}
-                  className="p-3.5 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50/80 transition-all active:scale-[0.98] text-left flex items-center gap-3 shadow-2xs group cursor-pointer"
+                  className="p-3.5 rounded-2xl border border-zinc-200 bg-white hover:border-[#4457f4]/50 hover:shadow-xs transition-all active:scale-[0.98] text-left flex items-center gap-3 shadow-2xs group cursor-pointer"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-blue-50/90 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center text-[#4457f4] shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
                     <Layers className="w-4 h-4" />
                   </div>
                   <div className="truncate">
@@ -200,9 +200,9 @@ export function NotebookDetail({
                 {/* 2. Quiz examen */}
                 <button
                   onClick={() => setMode("quiz")}
-                  className="p-3.5 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50/80 transition-all active:scale-[0.98] text-left flex items-center gap-3 shadow-2xs group cursor-pointer"
+                  className="p-3.5 rounded-2xl border border-zinc-200 bg-white hover:border-[#4457f4]/50 hover:shadow-xs transition-all active:scale-[0.98] text-left flex items-center gap-3 shadow-2xs group cursor-pointer"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50/90 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center text-[#4457f4] shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div className="truncate">
@@ -212,29 +212,29 @@ export function NotebookDetail({
                 </button>
               </div>
 
-              {/* 3. Assistant IA (Smart Tech Loreno) */}
+              {/* 3. Assistant IA (#4457f4 Brand Accent) */}
               <button
                 onClick={() => {
                   if (isPro) setShowAiTutor(true);
                   else onOpenPaywall();
                 }}
-                className="w-full p-3.5 rounded-2xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50/70 via-blue-50/40 to-white text-black hover:border-indigo-300 hover:shadow-xs transition-all active:scale-[0.98] text-left flex items-center justify-between shadow-2xs group cursor-pointer"
+                className="w-full p-3.5 rounded-2xl border border-[#4457f4]/40 bg-zinc-950 text-white hover:border-[#4457f4] transition-all active:scale-[0.98] text-left flex items-center justify-between shadow-xs group cursor-pointer"
               >
                 <div className="flex items-center gap-3 truncate">
-                  <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-                    <Sparkles className="w-4 h-4 text-white" />
+                  <div className="w-9 h-9 rounded-xl bg-[#4457f4] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                    <Bot className="w-4 h-4 text-white" />
                   </div>
                   <div className="truncate">
-                    <div className="text-xs sm:text-sm font-bold text-zinc-900 truncate flex items-center gap-1.5">
+                    <div className="text-xs sm:text-sm font-bold text-white truncate flex items-center gap-1.5">
                       Assistant IA
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-indigo-600 text-white tracking-wide">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-[#4457f4] text-white tracking-wide">
                         IA
                       </span>
                     </div>
-                    <div className="text-[11px] text-zinc-600 truncate font-normal">{isPro ? "Tuteur 24/7" : "Débloquer"}</div>
+                    <div className="text-[11px] text-zinc-400 truncate">{isPro ? "Tuteur 24/7" : "Débloquer"}</div>
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-lg bg-indigo-100/90 text-indigo-700 font-bold text-[11px] shrink-0 ml-2 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                <span className="px-3 py-1.5 rounded-xl bg-[#4457f4] hover:bg-[#2536c9] text-white font-bold text-xs shrink-0 ml-2 transition">
                   {isPro ? "Ouvrir" : "PRO"}
                 </span>
               </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, Check, ArrowRight, ShieldCheck, X } from "lucide-react";
+import { Check, ArrowRight, ShieldCheck, X, Zap } from "lucide-react";
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -35,7 +35,7 @@ export function PaywallModal({
         {typeof retentionScore === "number" && (
           <div className="flex justify-start mb-3">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
+              <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
               <span>Score de rétention : {retentionScore}%</span>
             </div>
           </div>
@@ -81,7 +81,7 @@ export function PaywallModal({
               <div className="w-4 h-4 rounded-full bg-black text-white flex items-center justify-center shrink-0">
                 <Check className="w-3 h-3 stroke-[2.5]" />
               </div>
-              <span><strong>Tuteur IA d&apos;examen 24/7</strong> sur tes notes</span>
+              <span><strong>Tuteur IA d&apos;examen</strong> sur tes notes</span>
             </div>
           </div>
         </div>
@@ -92,10 +92,10 @@ export function PaywallModal({
             href={stripeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 h-13 py-3.5 px-6 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-sm transition active:scale-[0.99] shadow-md"
+            className="w-full flex items-center justify-center gap-2 h-13 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#4457f4] via-violet-600 to-indigo-700 hover:brightness-105 text-white font-bold text-sm transition active:scale-[0.99] shadow-lg shadow-[#4457f4]/25"
           >
             <span>Obtenir le Pack Premium (9,99 €)</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
           </a>
 
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">

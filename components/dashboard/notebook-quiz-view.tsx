@@ -141,7 +141,7 @@ export function NotebookQuizView({
               title="Ton 1er test est validé !"
               description="Découvre ta fiche de cours complète avec la synthèse et les options d'apprentissage."
               arrowDirection="down"
-              actionLabel="Valider mon onboarding →"
+              actionLabel="Passer à la suite →"
               onAction={handleValidateOnboarding}
               showDismiss={false}
             />

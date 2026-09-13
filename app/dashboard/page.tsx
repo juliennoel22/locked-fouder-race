@@ -15,6 +15,8 @@ import { ScanModal } from "@/components/dashboard/scan-modal";
 import { useProStatus } from "@/lib/use-pro-status";
 import { createClient } from "@/lib/supabase/client";
 
+import { showToast } from "@/lib/toast";
+
 export default function DashboardPage() {
   const router = useRouter();
   const [notebooks, setNotebooks] = useState<NotebookItem[]>([]);
@@ -40,7 +42,7 @@ export default function DashboardPage() {
     }
   }, [justUnlocked]);
 
-  // Célébration confettis à l'arrivée post-onboarding
+  // Toasts d'accueil connecté & fin d'onboarding
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
@@ -52,11 +54,26 @@ export default function DashboardPage() {
         urlParams.has("onboard");
 
       if (isOnboard) {
+        showToast({
+          title: "Bravo, votre espace est configuré ! 🎉",
+          description: "Tes cours et tes outils de révision sont prêts.",
+          type: "success",
+        });
         confetti({
           particleCount: 150,
           spread: 90,
           origin: { y: 0.5 },
         });
+      } else {
+        const hasShownLoginToast = sessionStorage.getItem("loreno_login_toast_shown");
+        if (!hasShownLoginToast) {
+          sessionStorage.setItem("loreno_login_toast_shown", "true");
+          showToast({
+            title: "Connecté avec succès 👋",
+            description: "Bienvenue sur ton espace Loreno.",
+            type: "success",
+          });
+        }
       }
     }
   }, []);
@@ -252,6 +269,9 @@ export default function DashboardPage() {
               setScanTargetMode("grid");
               setShowScanModal(true);
             }}
+            isPro={isPro}
+            notebooksCount={notebooks.length}
+            onOpenPaywall={() => setShowPaywall(true)}
           />
         )}
 

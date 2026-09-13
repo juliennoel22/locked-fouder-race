@@ -20,6 +20,9 @@
 # production
 /build
 
+# scratch & internal utilities
+/scratch
+
 # misc
 .DS_Store
 *.pem

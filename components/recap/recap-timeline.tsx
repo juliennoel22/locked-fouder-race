@@ -1,16 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { DollarSign, Rocket, Zap, MessageSquare, Radio, ZoomIn, Flame } from "lucide-react";
+import { ZoomIn } from "lucide-react";
 
 export interface TimelineStep {
   time: string;
   title: string;
   description: string;
-  tag: string;
-  icon: typeof Rocket;
   highlight?: boolean;
-  layout?: "vertical-grid" | "default";
+  layout?: "vertical-grid" | "vertical-single" | "default";
   images?: Array<{ src: string; alt: string }>;
 }
 
@@ -19,27 +17,21 @@ export const TIMELINE_STEPS: TimelineStep[] = [
     time: "09:00",
     title: "Setup Dev & Code Commando",
     description: "Démarrage du dev du MVP mobile-first : Next.js 15, compression Canvas côté client et intégration Gemini Vision.",
-    tag: "Build",
-    icon: Zap,
-    images: [{ src: "/recap/IMG_0416.png", alt: "Julien au poste de dev" }],
+    images: [{ src: "/recap/IMG_0416.png", alt: "Poste de dev" }],
   },
   {
     time: "12:00",
     title: "Story Instagram & Diffusion Discord",
-    description: "Publication de la story @baptiste__fry avec sticker loreno.app et partage dans plusieurs groupes Discord étudiants.",
-    tag: "Social",
-    icon: Rocket,
+    description: "Publication de la story @baptiste__fry et partage dans plusieurs groupes Discord étudiants.",
     images: [
-      { src: "/recap/IMG_0424.png", alt: "Story Instagram @baptiste__fry" },
+      { src: "/recap/IMG_0424.png", alt: "Story Instagram" },
       { src: "/recap/discord-share.png", alt: "Partage dans les groupes Discord" },
     ],
   },
   {
     time: "12:00 - 18:00",
-    title: "Acquisition Terrain à Nancy & Posts TikTok",
-    description: "Micro-trottoirs avec les étudiants dans la ville pour tester le scan en direct et publication des vidéos sur TikTok.",
-    tag: "Terrain & TikTok",
-    icon: MessageSquare,
+    title: "Acquisition Terrain à Nancy & TikTok",
+    description: "Micro-trottoirs avec les étudiants dans la ville pour tester le scan en direct et publication des vidéos.",
     layout: "vertical-grid",
     images: [
       { src: "/recap/IMG_0417.png", alt: "Interview étudiant 1" },
@@ -52,37 +44,41 @@ export const TIMELINE_STEPS: TimelineStep[] = [
     time: "16:00",
     title: "Point en Direct avec le Jury FounderRace",
     description: "Live paddock avec les organisateurs pour présenter l'avancée du produit et les premières réactions étudiants.",
-    tag: "Live Jury",
-    icon: Radio,
     images: [{ src: "/recap/founder-live.png", alt: "Live Paddock FounderRace" }],
   },
   {
     time: "18:00 - 21:00",
     title: "Montage, Dev Continu & Encaissement Stripe",
-    description: "Montage des Reels d'acquisition, déploiement des super-features de rétention et 59,94 € encaissés en direct.",
-    tag: "Traction",
-    icon: DollarSign,
+    description: "Montage des Reels d'acquisition, déploiement des fonctionnalités et 59,94 € encaissés en direct.",
     highlight: true,
     images: [
       { src: "/recap/IMG_0425.jpg", alt: "Montage vidéo Premiere Pro" },
       { src: "/recap/IMG_0426.jpg", alt: "Dashboard Stripe Live 59,94 €" },
-      { src: "/recap/IMG_0427.jpg", alt: "Vercel Analytics 104 visiteurs" },
+      { src: "/recap/IMG_0427.jpg", alt: "Vercel Analytics" },
     ],
   },
   {
     time: "21:00 - 02:00",
     title: "Guerilla Marketing Nocturne, Tournage Pitch & QR Codes",
-    description: "Session code au restaurant en mangeant, affichage massif de QR codes dans les rues de Nancy et dans les bus, tournage du pitch avec des inconnus, cri de guerre et recrutement comm en direct.",
-    tag: "Guerilla & Pitch",
-    icon: Flame,
+    description: "Session code, affichage de QR codes dans les rues de Nancy et dans les bus, tournage du pitch avec les étudiants.",
     highlight: true,
     layout: "vertical-grid",
     images: [
-      { src: "/recap/IMG_0436.jpg", alt: "Manger en codant au restaurant" },
-      { src: "/recap/IMG_0445.png", alt: "Cri de guerre nocturne" },
-      { src: "/recap/IMG_0446.png", alt: "Affichage des QR codes dans la ville et les bus" },
-      { src: "/recap/IMG_0447.png", alt: "Recrutement d'inconnus dans la rue" },
-      { src: "/recap/IMG_0448.png", alt: "Tournage & comm terrain avec les étudiants" },
+      { src: "/recap/IMG_0436.jpg", alt: "Session code" },
+      { src: "/recap/IMG_0445.png", alt: "Photo nocturne" },
+      { src: "/recap/IMG_0446.png", alt: "Affichage des QR codes" },
+      { src: "/recap/IMG_0447.png", alt: "Rencontre étudiants dans la rue" },
+      { src: "/recap/IMG_0448.png", alt: "Tournage & échanges terrain" },
+    ],
+  },
+  {
+    time: "02:00 - 05:00",
+    title: "Sprint Final : Dev au Sol, Montage du Pitch & Récap (4h47)",
+    description: "Retour après le tournage : session de dev intense, finalisation des dernières fonctionnalités, montage de la vidéo de pitch et packaging de la page récapitulatif jury au sol à 4h47.",
+    highlight: true,
+    layout: "vertical-single",
+    images: [
+      { src: "/recap/IMG_0450.jpg", alt: "Julien à 4h47 au sol sur son PC" },
     ],
   },
 ];
@@ -95,8 +91,8 @@ export function RecapTimeline({ onPhotoClick }: RecapTimelineProps) {
   return (
     <div className="space-y-4">
       {TIMELINE_STEPS.map((step, idx) => {
-        const Icon = step.icon;
         const isVerticalGrid = step.layout === "vertical-grid";
+        const isVerticalSingle = step.layout === "vertical-single";
 
         return (
           <div
@@ -107,41 +103,23 @@ export function RecapTimeline({ onPhotoClick }: RecapTimelineProps) {
                 : "bg-white text-zinc-900 border-zinc-200 shadow-xs"
             }`}
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${
-                    step.highlight ? "bg-amber-400 text-black" : "bg-zinc-100 text-zinc-800"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                </div>
-                <span className="font-mono text-xs font-bold opacity-75">{step.time}</span>
-                <h4 className="text-xs font-bold leading-snug">{step.title}</h4>
-              </div>
-              <span
-                className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
-                  step.highlight
-                    ? "bg-zinc-800 text-amber-300 border border-amber-400/30"
-                    : "bg-zinc-100 text-zinc-600 border border-zinc-200"
-                }`}
-              >
-                {step.tag}
-              </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold opacity-75">{step.time}</span>
+              <h4 className="text-xs font-bold leading-snug">{step.title}</h4>
             </div>
 
             <p
-              className={`text-[11px] leading-relaxed mt-2 pl-8 ${
+              className={`text-[11px] leading-relaxed mt-2 ${
                 step.highlight ? "text-zinc-300" : "text-zinc-600"
               }`}
             >
               {step.description}
             </p>
 
-            {/* Photos associées : Grille verticale 2x2 ou flux standard */}
+            {/* Photos associées : Grille verticale, photo portrait ou photo landscape pleine largeur */}
             {step.images && step.images.length > 0 && (
               <div
-                className={`mt-3 pl-8 ${
+                className={`mt-3 ${
                   isVerticalGrid
                     ? "grid grid-cols-2 gap-2"
                     : "flex flex-col gap-3"
@@ -152,7 +130,11 @@ export function RecapTimeline({ onPhotoClick }: RecapTimelineProps) {
                     key={iIdx}
                     onClick={() => onPhotoClick?.(img.src, img.alt)}
                     className={`relative w-full rounded-xl overflow-hidden bg-zinc-900 border border-zinc-200/20 group shadow-xs cursor-pointer ${
-                      isVerticalGrid ? "aspect-[3/4]" : "aspect-video"
+                      isVerticalGrid
+                        ? "aspect-[3/4]"
+                        : isVerticalSingle
+                        ? "aspect-[3/4] max-w-xs mx-auto"
+                        : "aspect-video w-full"
                     }`}
                   >
                     <Image
@@ -168,7 +150,7 @@ export function RecapTimeline({ onPhotoClick }: RecapTimelineProps) {
                         <span>Agrandir</span>
                       </div>
                     </div>
-                    <span className="absolute bottom-1.5 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/80 text-[9px] text-white font-medium truncate backdrop-blur-xs">
+                    <span className="absolute bottom-1.5 left-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/80 text-[9px] text-white font-medium truncate backdrop-blur-xs text-center">
                       {img.alt}
                     </span>
                   </div>

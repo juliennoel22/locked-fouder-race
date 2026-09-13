@@ -44,6 +44,12 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        loreno: {
+          DEFAULT: "#4457f4",
+          light: "rgba(68, 87, 244, 0.08)",
+          border: "rgba(68, 87, 244, 0.25)",
+          hover: "#3345de",
+        },
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",

@@ -1,7 +1,7 @@
 "use client";
 
 import { LEVEL_OPTIONS, GOAL_OPTIONS, PAIN_OPTIONS } from "@/lib/quiz-data";
-import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import { Loader2, ShieldCheck, Info, ArrowRight } from "lucide-react";
 
 interface QuizStepsFormProps {
   step: number;
@@ -55,7 +55,7 @@ export function QuizStepsForm({
               <button
                 key={opt.id}
                 onClick={() => selectOptionAndAdvance(setLevel, opt.id)}
-                className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] ${
+                className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] cursor-pointer ${
                   level === opt.id
                     ? "border-black bg-black text-white font-semibold"
                     : "border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-100"
@@ -77,7 +77,7 @@ export function QuizStepsForm({
               <button
                 key={opt.id}
                 onClick={() => selectOptionAndAdvance(setGoal, opt.id)}
-                className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] ${
+                className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] cursor-pointer ${
                   goal === opt.id
                     ? "border-black bg-black text-white font-semibold"
                     : "border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-100"
@@ -124,7 +124,7 @@ export function QuizStepsForm({
               <button
                 key={opt.id}
                 onClick={() => selectOptionAndAdvance(setPainPoint, opt.id)}
-                className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] ${
+                className={`w-full p-4 rounded-xl border text-left font-medium transition active:scale-[0.99] cursor-pointer ${
                   painPoint === opt.id
                     ? "border-black bg-black text-white font-semibold"
                     : "border-zinc-200 bg-zinc-50 text-zinc-800 hover:border-zinc-400 hover:bg-zinc-100"
@@ -137,7 +137,7 @@ export function QuizStepsForm({
         </div>
       )}
 
-      {/* STEP 5 (Dernière étape 6/6) : Connexion Google ou Email */}
+      {/* STEP 5: Connexion 1-Tap Immédiate */}
       {step === 5 && (
         <div className="space-y-5 text-center">
           <div className="space-y-2">
@@ -150,7 +150,6 @@ export function QuizStepsForm({
           </div>
 
           <div className="space-y-3 pt-1 text-left">
-            {/* Bouton Google Login (activé uniquement sur navigateur classique) */}
             {showGoogleLogin && onGoogleLogin && (
               <div className="space-y-3">
                 <button
@@ -227,21 +226,31 @@ export function QuizStepsForm({
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span>Accéder à mon espace ⚡</span>
+                    <span>Accéder à mes cours</span>
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
           </div>
 
+          {/* Note technique SMTP */}
+          <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-left text-[11px] text-zinc-500 space-y-1">
+            <div className="flex items-center gap-1.5 font-bold text-zinc-700">
+              <Info className="w-3.5 h-3.5 text-[#4457f4]" />
+              <span>Accès instantané 1-Tap</span>
+            </div>
+            <p className="leading-relaxed">
+              Création et connexion directe sans mot de passe pour garantir une expérience fluide sans limite d&apos;envoi SMTP sans mail pro.
+            </p>
+          </div>
+
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-400 pt-1">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Connexion instantanée sécurisée • Zéro mot de passe</span>
+            <span>Sécurisé Supabase • Zéro mot de passe à retenir</span>
           </div>
         </div>
       )}
     </div>
   );
 }
-

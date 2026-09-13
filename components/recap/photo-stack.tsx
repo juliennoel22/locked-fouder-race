@@ -64,7 +64,6 @@ export function PhotoStack() {
         })}
       </div>
       <p className="text-[11px] text-zinc-500 mt-2 font-medium flex items-center gap-1.5">
-        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
         <span>Paquet photo interactif • Tape pour faire défiler ({activeIdx + 1}/{REAL_PHOTOS.length})</span>
         <ArrowRight className="w-3 h-3 text-zinc-400" />
       </p>

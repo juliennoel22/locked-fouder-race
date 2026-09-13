@@ -17,6 +17,9 @@ interface QuizScanStepProps {
   onConfirmAndScan: () => void;
   onSkip?: () => void;
   errorMessage: string | null;
+  cardCount?: number;
+  onCardCountChange?: (count: number) => void;
+  targetMode?: "flashcards" | "quiz" | "tutor" | "grid";
 }
 
 export function QuizScanStep({
@@ -26,6 +29,9 @@ export function QuizScanStep({
   onConfirmAndScan,
   onSkip,
   errorMessage,
+  cardCount = 8,
+  onCardCountChange,
+  targetMode = "grid",
 }: QuizScanStepProps) {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -69,7 +75,38 @@ export function QuizScanStep({
             </p>
           </div>
 
-          <div className="space-y-3 pt-4">
+          {/* Configuration du nombre de fiches / questions (Slider 3 à 15) */}
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2.5 text-left">
+            <div className="flex items-center justify-between">
+              <label htmlFor="card-count-slider-1" className="text-xs font-bold text-zinc-900">
+                {targetMode === "flashcards"
+                  ? "Nombre de flashcards"
+                  : targetMode === "quiz"
+                  ? "Nombre de questions du quiz"
+                  : "Nombre de notions à générer"}
+              </label>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#4457f4] text-white text-xs font-black shadow-2xs">
+                {cardCount} {targetMode === "quiz" ? "questions" : "fiches"}
+              </span>
+            </div>
+            <input
+              id="card-count-slider-1"
+              type="range"
+              min={3}
+              max={15}
+              step={1}
+              value={cardCount}
+              onChange={(e) => onCardCountChange?.(Number(e.target.value))}
+              className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#4457f4]"
+            />
+            <div className="flex justify-between text-[10px] text-zinc-400 font-medium px-0.5">
+              <span>Rapide (3)</span>
+              <span>Recommandé (8)</span>
+              <span>Exhaustif (15)</span>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
             <button
               onClick={() => cameraInputRef.current?.click()}
               className="w-full h-16 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold flex items-center justify-center gap-3 active:scale-[0.98] transition shadow-md text-sm"
@@ -185,14 +222,45 @@ export function QuizScanStep({
             </button>
           </div>
 
+          {/* Configuration du nombre de fiches / questions (Slider 3 à 15) */}
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2.5 text-left">
+            <div className="flex items-center justify-between">
+              <label htmlFor="card-count-slider-2" className="text-xs font-bold text-zinc-900">
+                {targetMode === "flashcards"
+                  ? "Nombre de flashcards"
+                  : targetMode === "quiz"
+                  ? "Nombre de questions du quiz"
+                  : "Nombre de notions à générer"}
+              </label>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#4457f4] text-white text-xs font-black shadow-2xs">
+                {cardCount} {targetMode === "quiz" ? "questions" : "fiches"}
+              </span>
+            </div>
+            <input
+              id="card-count-slider-2"
+              type="range"
+              min={3}
+              max={15}
+              step={1}
+              value={cardCount}
+              onChange={(e) => onCardCountChange?.(Number(e.target.value))}
+              className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#4457f4]"
+            />
+            <div className="flex justify-between text-[10px] text-zinc-400 font-medium px-0.5">
+              <span>Rapide (3)</span>
+              <span>Recommandé (8)</span>
+              <span>Exhaustif (15)</span>
+            </div>
+          </div>
+
           {/* Actions de confirmation dans la zone du pouce */}
-          <div className="space-y-2.5 pt-2">
+          <div className="space-y-2.5 pt-1">
             <button
               type="button"
               onClick={onConfirmAndScan}
               className="w-full h-14 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md text-sm"
             >
-              <span>Générer mon cours ({photos.length} page{photos.length > 1 ? "s" : ""}) →</span>
+              <span>Générer {cardCount} {targetMode === "quiz" ? "questions" : "fiches"} ({photos.length} page{photos.length > 1 ? "s" : ""}) →</span>
             </button>
 
             <div className="flex gap-2">

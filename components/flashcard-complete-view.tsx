@@ -138,7 +138,7 @@ export function FlashcardCompleteView({
             title="Ton 1er test est réussi !"
             description="Découvre ta fiche de cours complète avec la synthèse et les options d'apprentissage."
             arrowDirection="down"
-            actionLabel="Valider mon onboarding →"
+            actionLabel="Passer à la suite →"
             onAction={onValidateOnboarding}
             showDismiss={false}
           />

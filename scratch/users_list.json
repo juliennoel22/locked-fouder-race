@@ -1,0 +1,562 @@
+[
+  {
+    "id": "d41ab056-db85-4cb3-8196-cea846d98a18",
+    "email": "theobauvier89@gmail.com",
+    "created_at": "2026-09-13T02:07:02.220949Z",
+    "last_sign_in_at": "2026-09-13T02:07:02.613258Z",
+    "is_pro": false,
+    "deck_count": 3,
+    "deck_titles": [
+      "L'impact de la crise de 1929 : de Wall Street à la Grande Dépression",
+      "La Crise de 1929 : Du Krach de Wall Street à la Grande Dépression",
+      "La Crise de 1929 : Du Krach de Wall Street à la Grande Dépression"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "full_name": "Théo",
+      "registered_at": "2026-09-13T02:07:01.362Z",
+      "registered_via": "email_only",
+      "study_goal": "grades",
+      "study_level": "lycee"
+    }
+  },
+  {
+    "id": "ff7dc331-bab2-4898-8ba8-2832161dc5fc",
+    "email": "jeanfds@gmail.com",
+    "created_at": "2026-09-13T01:29:05.002403Z",
+    "last_sign_in_at": "2026-09-13T01:29:05.213935Z",
+    "is_pro": false,
+    "deck_count": 2,
+    "deck_titles": [
+      "Optimisation des Profils et Marketing de la Séduction via l'IA",
+      "Optimisation des Profils et Marketing de la Séduction via l'IA"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "full_name": "jean",
+      "registered_at": "2026-09-13T01:29:05.860Z",
+      "registered_via": "email_only",
+      "study_goal": "retention",
+      "study_level": "college"
+    }
+  },
+  {
+    "id": "85bfa805-d6a3-4b03-8534-ef1c66bce626",
+    "email": "jeanjaques@gmail.com",
+    "created_at": "2026-09-13T01:19:28.477159Z",
+    "last_sign_in_at": "2026-09-13T01:30:59.773413Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "full_name": "jean",
+      "registered_at": "2026-09-13T01:19:28.415Z",
+      "registered_via": "email_only",
+      "study_goal": "retention",
+      "study_level": "lycee"
+    }
+  },
+  {
+    "id": "880b1e92-8f56-4b04-ae0f-5e777b02f019",
+    "email": "jeanjlkdqs@gmail.com",
+    "created_at": "2026-09-13T01:06:16.395303Z",
+    "last_sign_in_at": "2026-09-13T01:06:16.637666Z",
+    "is_pro": false,
+    "deck_count": 2,
+    "deck_titles": [
+      "La crise de 1929 : impact social et internationalisation",
+      "La crise de 1929 : impact social et internationalisation"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-13T01:06:17.329Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "130d317d-ed19-4632-bf2b-fbd568b1f9a0",
+    "email": "jean@gmail.com",
+    "created_at": "2026-09-13T01:05:54.813981Z",
+    "last_sign_in_at": "2026-09-13T03:17:17.552311Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "full_name": "jea",
+      "onboarding_step": 5,
+      "pain_point": "methods",
+      "registered_at": "2026-09-13T01:05:56.414Z",
+      "registered_via": "email_only",
+      "study_goal": "grades",
+      "study_level": "universite"
+    }
+  },
+  {
+    "id": "eb256a4b-e765-46cb-b2f3-f22b7e5e3ebc",
+    "email": "jerome@gmail.com",
+    "created_at": "2026-09-12T23:37:17.100283Z",
+    "last_sign_in_at": "2026-09-12T23:37:17.948762Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Aucune note de cours détectée"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T23:37:16.576Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "cd5cb2aa-fba7-4246-a205-d7054a75c4d8",
+    "email": "lorisbrochus66@gmail.com",
+    "created_at": "2026-09-12T23:31:08.035268Z",
+    "last_sign_in_at": "2026-09-12T23:31:08.731366Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T23:31:07.321Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "2392d390-38ea-4a02-9dd8-48c7a7b80752",
+    "email": "sousarosasousarafael@icloud.com",
+    "created_at": "2026-09-12T23:26:36.957169Z",
+    "last_sign_in_at": "2026-09-12T23:26:37.513058Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T23:26:36.587Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "956b280c-56ae-4750-a17b-16704fe48235",
+    "email": "denzeldenzelofficiel@gmail.com",
+    "created_at": "2026-09-12T23:26:23.887483Z",
+    "last_sign_in_at": "2026-09-12T23:26:24.397751Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T23:26:23.500Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "32c170a1-cc9f-4115-8d6b-62945589e9e7",
+    "email": "ferdii-b@live.fr",
+    "created_at": "2026-09-12T23:26:06.274532Z",
+    "last_sign_in_at": "2026-09-12T23:26:06.866541Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T23:26:05.628Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "84c5606b-4c9c-4129-8ff4-5218f8486e43",
+    "email": "toinoudc56@gmail.com",
+    "created_at": "2026-09-12T22:54:04.386937Z",
+    "last_sign_in_at": "2026-09-12T22:54:04.975575Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T22:54:03.780Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "5ade07cb-e5a8-462e-865d-22691ce1a87a",
+    "email": "lavalvictor2007@gmail.com",
+    "created_at": "2026-09-12T22:50:48.602456Z",
+    "last_sign_in_at": "2026-09-12T22:50:49.905783Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T22:50:47.900Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "db6b9649-244e-4e6b-8d8c-9b91ef96fc75",
+    "email": "eloi.rathgeber@gmail.com",
+    "created_at": "2026-09-12T22:28:18.268587Z",
+    "last_sign_in_at": "2026-09-12T22:28:18.902769Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Analyse systémique et archéologie Nomai dans Outer Wilds"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T22:28:17.804Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "d4093128-7d37-4dba-9e88-46840192cec9",
+    "email": "jen@gmail.com",
+    "created_at": "2026-09-12T20:17:02.637925Z",
+    "last_sign_in_at": "2026-09-12T20:17:03.596057Z",
+    "is_pro": false,
+    "deck_count": 3,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs",
+      "Typologie et Appareillage des Revêtements de Sol Urbains (Dallage et Pavage)",
+      "Typologie et Appareillage des Revêtements de Sol Urbains (Dallage et Pavage)"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T20:17:01.692Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "ff1bd492-3063-44e4-924a-f68cb2f4abd9",
+    "email": "anassbenayad59@gmail.com",
+    "created_at": "2026-09-12T19:09:23.433259Z",
+    "last_sign_in_at": "2026-09-12T19:09:24.763308Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T19:09:22.861Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "9c2a3819-f9c0-4fc5-b9dc-2d5ef655905e",
+    "email": "danychiesura@gmail.com",
+    "created_at": "2026-09-12T18:25:14.047673Z",
+    "last_sign_in_at": "2026-09-12T18:25:15.502277Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T18:25:13.605Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "dde3f62b-d790-40e4-abc8-ca1275cca33e",
+    "email": "jeantram@gmail.com",
+    "created_at": "2026-09-12T18:03:55.915491Z",
+    "last_sign_in_at": "2026-09-12T18:03:56.392306Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "La crise de 1929 : détresse sociale et mondialisation"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T18:03:55.346Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "294b32fb-0fc0-4f83-9ad6-41fa31dd0879",
+    "email": "ssc32302@laoia.com",
+    "created_at": "2026-09-12T17:31:27.683944Z",
+    "last_sign_in_at": "2026-09-12T17:31:28.147546Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T17:31:27.138Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "7e2779e0-7965-4c04-9d49-d086bc990a56",
+    "email": "gvbbhjkknkugjh@gmail.com",
+    "created_at": "2026-09-12T17:25:49.611506Z",
+    "last_sign_in_at": "2026-09-12T17:25:50.054368Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Droit Constitutionnel — Séparation des Pouvoirs"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T17:25:49.085Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "294cfbb3-918b-4b67-bef6-6b8553d60602",
+    "email": "lidena6575@gmail.com",
+    "created_at": "2026-09-12T15:48:08.142145Z",
+    "last_sign_in_at": "2026-09-12T15:52:57.66943Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T15:48:07.473Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "0ffdcf4c-e06e-4d07-be1e-58d1acef5c46",
+    "email": "bebe@gmail.com",
+    "created_at": "2026-09-12T15:22:22.172068Z",
+    "last_sign_in_at": "2026-09-12T15:22:22.762731Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T15:22:21.311Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "7a914a76-53d8-4438-9cc5-726d70de6e31",
+    "email": "hogo.couve01@gmail.com",
+    "created_at": "2026-09-12T15:04:57.722365Z",
+    "last_sign_in_at": "2026-09-12T15:15:43.712293Z",
+    "is_pro": true,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "is_pro": true,
+      "plan": "fondateur",
+      "registered_at": "2026-09-12T15:04:57.085Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "72155c9b-c606-4cb0-9c4e-a01d949d7fc6",
+    "email": "greg27.contact@gmail.com",
+    "created_at": "2026-09-12T14:56:06.547674Z",
+    "last_sign_in_at": "2026-09-12T14:56:07.004092Z",
+    "is_pro": true,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "is_pro": true,
+      "plan": "fondateur",
+      "registered_at": "2026-09-12T14:56:06.023Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "09f3283c-f1fc-4fc5-a89b-bd2b9a036264",
+    "email": "toxicchalado@gmail.com",
+    "created_at": "2026-09-12T14:45:42.301501Z",
+    "last_sign_in_at": "2026-09-12T14:45:43.145463Z",
+    "is_pro": true,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "is_pro": true,
+      "plan": "fondateur",
+      "registered_at": "2026-09-12T14:45:41.703Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "ec840eff-1de9-48cb-95bc-18eb3d70dab7",
+    "email": "clemencermd1@gmail.com",
+    "created_at": "2026-09-12T14:31:14.415683Z",
+    "last_sign_in_at": "2026-09-12T14:31:15.19629Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T14:31:14.049Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "3900f576-9f5f-4ca6-ae47-fc9234399241",
+    "email": "coulombe.timothee@gmail.com",
+    "created_at": "2026-09-12T14:31:02.830523Z",
+    "last_sign_in_at": "2026-09-12T14:31:04.038038Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T14:31:01.151Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "7a9a025b-a520-41ec-81f7-f6118d5daac9",
+    "email": "petitcaribou007@gmail.com",
+    "created_at": "2026-09-12T14:23:38.942729Z",
+    "last_sign_in_at": "2026-09-12T14:23:39.631664Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T14:23:38.306Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "1cf94187-ac44-4ac3-bf8c-28cbe13a23ee",
+    "email": "matheo.menzer114@gmail.com",
+    "created_at": "2026-09-12T14:18:41.933622Z",
+    "last_sign_in_at": "2026-09-12T14:18:42.486007Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T14:18:41.297Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "4a4be283-777a-4d30-a917-e8b5a1d812af",
+    "email": "yanisbldz54@gmail.com",
+    "created_at": "2026-09-12T13:56:45.031414Z",
+    "last_sign_in_at": "2026-09-12T13:56:45.728702Z",
+    "is_pro": true,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "is_pro": true,
+      "plan": "fondateur",
+      "registered_at": "2026-09-12T13:56:44.545Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "daefe1d7-0971-4b60-a4ce-bc3bc6134caa",
+    "email": "oscar.fouache@gmail.com",
+    "created_at": "2026-09-12T13:53:57.990017Z",
+    "last_sign_in_at": "2026-09-12T13:53:58.706178Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T13:53:57.375Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "2992e928-5675-4008-b3a4-923457936abb",
+    "email": "danialadam2005@gmail.com",
+    "created_at": "2026-09-12T13:49:35.654339Z",
+    "last_sign_in_at": "2026-09-12T13:49:36.237281Z",
+    "is_pro": true,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "is_pro": true,
+      "plan": "fondateur",
+      "registered_at": "2026-09-12T13:49:35.185Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "1c07a96e-91c4-4eb7-8dfe-f833666dc039",
+    "email": "nsimo3008@gmail.com",
+    "created_at": "2026-09-12T13:42:42.594649Z",
+    "last_sign_in_at": "2026-09-12T13:42:43.233932Z",
+    "is_pro": false,
+    "deck_count": 1,
+    "deck_titles": [
+      "Licence GPL et Caractéristiques de Linux"
+    ],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T13:42:42.164Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "217f2613-a75c-4af5-8b37-816423634805",
+    "email": "etudiant.test@loreno.app",
+    "created_at": "2026-09-12T13:41:36.220697Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email_verified": true,
+      "registered_at": "2026-09-12T13:41:35.370Z",
+      "registered_via": "email_only"
+    }
+  },
+  {
+    "id": "7224c84b-c26c-4ecf-a3ca-432d67b4ebfe",
+    "email": "julien.n2208@gmail.com",
+    "created_at": "2026-09-12T12:42:56.463465Z",
+    "last_sign_in_at": "2026-09-13T01:04:25.832089Z",
+    "is_pro": false,
+    "deck_count": 3,
+    "deck_titles": [
+      "La Grande Dépression des années 1930 : impact social et mondialisation de la crise",
+      "La crise de 1929 : impact social et internationalisation",
+      "La crise de 1929 : impact social et internationalisation"
+    ],
+    "metadata": {
+      "email": "julien.n2208@gmail.com",
+      "email_verified": true,
+      "phone_verified": false,
+      "sub": "7224c84b-c26c-4ecf-a3ca-432d67b4ebfe"
+    }
+  },
+  {
+    "id": "ac55be8b-9a18-4a42-a073-e0608c830f4c",
+    "email": "ghhh@ghh.gg",
+    "created_at": "2026-09-12T11:39:17.021216Z",
+    "is_pro": false,
+    "deck_count": 0,
+    "deck_titles": [],
+    "metadata": {
+      "email": "ghhh@ghh.gg",
+      "email_verified": false,
+      "phone_verified": false,
+      "sub": "ac55be8b-9a18-4a42-a073-e0608c830f4c"
+    }
+  }
+]

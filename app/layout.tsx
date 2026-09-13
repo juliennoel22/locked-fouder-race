@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -20,7 +21,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.loreno.app"),
   title: {
-    default: "Loreno ⚡ — Fiches de Révision & Tuteur IA d'Examen en 3s",
+    default: "LORENO - Fiches de Révision & Tuteur IA d'Examen en 3s",
     template: "%s | Loreno",
   },
   description:
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Loreno ⚡ — Fiches de Révision & Tuteur IA d'Examen en 3s",
+    title: "LORENO - Fiches de Révision & Tuteur IA d'Examen en 3s",
     description:
       "Prends en photo n'importe quel cours. Obtiens tes fiches mémo interactives et ton entraînement d'examen en 3 secondes.",
   },
@@ -148,6 +149,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
           <Analytics />
         </ThemeProvider>
       </body>

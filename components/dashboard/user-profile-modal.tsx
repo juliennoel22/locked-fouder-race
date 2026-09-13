@@ -1,6 +1,6 @@
 "use client";
 
-import { X, LogOut, ShieldCheck, Sparkles, BookOpen } from "lucide-react";
+import { X, LogOut, ShieldCheck, Zap, BookOpen, Crown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface UserProfileModalProps {
@@ -47,7 +47,7 @@ export function UserProfileModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 transition flex items-center justify-center text-zinc-600"
+            className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 transition flex items-center justify-center text-zinc-600 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -65,10 +65,10 @@ export function UserProfileModal({
           </div>
 
           <div className="pt-2 border-t border-zinc-200 flex items-center justify-between">
-            <span className="text-xs text-zinc-500">Statut de compte</span>
+            <span className="text-xs text-zinc-500">Statut du compte</span>
             {isPro ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-black text-white">
-                <Sparkles className="w-3 h-3 text-amber-400" /> Premium à vie
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#4457f4] text-white shadow-2xs">
+                <Crown className="w-3 h-3 text-amber-300" /> Premium Illimité
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-zinc-200 text-zinc-800">
@@ -102,26 +102,10 @@ export function UserProfileModal({
             }}
             className="w-full h-11 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
             <span>Passer Premium (9,99 € à vie)</span>
           </button>
         )}
-
-        {/* Bouton de test / bascule Free vs PRO */}
-        <button
-          type="button"
-          onClick={() => {
-            const nextProState = !isPro;
-            localStorage.setItem("loreno_pro", nextProState ? "true" : "false");
-            window.location.href = nextProState ? "/dashboard?pro=true" : "/dashboard?free=true";
-          }}
-          className="w-full py-2.5 px-3 rounded-xl border border-dashed border-zinc-300 hover:border-zinc-400 bg-zinc-50 text-[11px] font-semibold text-zinc-600 hover:text-black transition flex items-center justify-between cursor-pointer"
-        >
-          <span>🧪 Mode de test :</span>
-          <span className="font-bold underline text-black">
-            {isPro ? "Bascule en Gratuit (2 cours max)" : "Bascule en PRO (Illimité)"}
-          </span>
-        </button>
 
         {/* Bouton déconnexion */}
         <button

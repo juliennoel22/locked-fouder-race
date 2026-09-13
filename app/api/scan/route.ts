@@ -61,10 +61,14 @@ export async function POST(request: NextRequest) {
   try {
     const imagesList: Array<{ base64: string; mimeType: string; imageUrl?: string }> = [];
 
+    let targetCardCount = 8;
     const contentType = request.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
       const body = await request.json();
+      if (typeof body.cardCount === "number") {
+        targetCardCount = Math.min(15, Math.max(3, Math.round(body.cardCount)));
+      }
       if (Array.isArray(body.images) && body.images.length > 0) {
         for (const item of body.images) {
           const rawBase64 = (item.base64 || "").replace(/^data:[^;]+;base64,/, "");
@@ -85,6 +89,10 @@ export async function POST(request: NextRequest) {
       }
     } else if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
+      const countField = formData.get("cardCount");
+      if (countField && !isNaN(Number(countField))) {
+        targetCardCount = Math.min(15, Math.max(3, Math.round(Number(countField))));
+      }
       const files = formData.getAll("file") as File[];
       for (const file of files) {
         if (file) {
@@ -125,9 +133,11 @@ export async function POST(request: NextRequest) {
           };
         });
 
-        const promptText = imagesList.length > 1
-          ? `${SYSTEM_PROMPT}\n\nNOTE IMPORTANTE : Tu reçois ${imagesList.length} pages ou documents successifs d'un même cours. Analyse et combine TOUT en un seul jeu de fiches.`
-          : SYSTEM_PROMPT;
+        const promptText = `${SYSTEM_PROMPT}\n\nIMPORTANT : Génère EXACTEMENT ${targetCardCount} flashcards synthétiques et percutantes.${
+          imagesList.length > 1
+            ? `\nNOTE MULTI-PAGES : Tu reçois ${imagesList.length} pages ou documents d'un même cours. Combine tout intelligemment en un seul jeu de ${targetCardCount} fiches.`
+            : ""
+        }`;
 
         const interaction = await ai.interactions.create({
           model: "gemini-3.6-flash",

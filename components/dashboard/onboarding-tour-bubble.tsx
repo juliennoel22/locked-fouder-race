@@ -70,7 +70,6 @@ export function OnboardingTourBubble({
         )}
         {arrowDirection === "none" && (
           <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0 shadow-xs">
-            <Sparkles className="w-4 h-4 text-amber-300" />
           </div>
         )}
       </div>

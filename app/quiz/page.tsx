@@ -12,7 +12,7 @@ export default function QuizPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // 1: Level, 2: Goal, 3: Name, 4: Pain, 5: Email (Step 6/6 in overall flow)
+  // 1: Level, 2: Goal, 3: Name, 4: Pain, 5: Email (1-Tap Passwordless)
   const [step, setStep] = useState<number>(1);
   const [level, setLevel] = useState<string>("");
   const [goal, setGoal] = useState<string>("");
@@ -25,9 +25,34 @@ export default function QuizPage() {
   const [showGoogleLogin, setShowGoogleLogin] = useState<boolean>(false);
 
   useEffect(() => {
-    // Activer Google OAuth uniquement sur les navigateurs standards (évite l'erreur 403 Google sur TikTok/Insta)
     setShowGoogleLogin(!isInAppBrowser());
   }, []);
+
+  // Récupérer l'étape sauvegardée en base si l'utilisateur est déjà connecté
+  useEffect(() => {
+    const fetchSavedState = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const meta = user.user_metadata || {};
+          if (meta.onboarding_completed === true) {
+            router.replace("/dashboard");
+            return;
+          }
+          if (meta.study_level) setLevel(meta.study_level);
+          if (meta.study_goal) setGoal(meta.study_goal);
+          if (meta.full_name) setUserName(meta.full_name);
+          if (meta.pain_point) setPainPoint(meta.pain_point);
+          if (typeof meta.onboarding_step === "number" && meta.onboarding_step >= 1 && meta.onboarding_step <= 5) {
+            setStep(meta.onboarding_step);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch saved onboarding state", err);
+      }
+    };
+    fetchSavedState();
+  }, [router, supabase]);
 
   const handleBack = () => {
     if (step > 1) {
@@ -71,10 +96,41 @@ export default function QuizPage() {
   const selectOptionAndAdvance = (setter: (val: string) => void, value: string) => {
     setter(value);
     setTimeout(() => {
-      setStep((prev) => prev + 1);
+      setStep((prev) => {
+        const nextStep = prev + 1;
+        // Sauvegarde progressive en arrière-plan si session active
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          if (user) {
+            supabase.auth.updateUser({
+              data: {
+                onboarding_step: nextStep,
+                study_level: setter === setLevel ? value : level,
+                study_goal: setter === setGoal ? value : goal,
+                pain_point: setter === setPainPoint ? value : painPoint,
+              },
+            });
+          }
+        }).catch(() => {});
+        return nextStep;
+      });
     }, 150);
   };
 
+  const handleAdvanceToStep4 = () => {
+    setStep(4);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.auth.updateUser({
+          data: {
+            onboarding_step: 4,
+            full_name: userName.trim(),
+          },
+        });
+      }
+    }).catch(() => {});
+  };
+
+  // Connexion instantanée 1-Tap & Enregistrement Onboarding en base
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim().toLowerCase();
@@ -88,11 +144,21 @@ export default function QuizPage() {
     setErrorMessage(null);
 
     try {
-      // 1. Enregistrement automatique et sécurisé côté serveur dans Supabase auth.users
+      // 1. Enregistrement automatique et sécurisé côté serveur avec sauvegarde onboarding
       const res = await fetch("/api/auth/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: cleanEmail }),
+        body: JSON.stringify({
+          email: cleanEmail,
+          onboarding: {
+            step: 5,
+            level,
+            goal,
+            userName: userName.trim(),
+            painPoint,
+            completed: true,
+          },
+        }),
       });
 
       const data = await res.json();
@@ -127,23 +193,9 @@ export default function QuizPage() {
         })
       );
 
-      // Mettre à jour les métadonnées de l'utilisateur si connecté
-      try {
-        await supabase.auth.updateUser({
-          data: {
-            full_name: userName.trim() || undefined,
-            study_level: level || undefined,
-            study_goal: goal || undefined,
-          },
-        });
-      } catch (syncErr) {
-        console.warn("Sync metadata warning :", syncErr);
-      }
-
       router.push("/dashboard?onboard=true");
     } catch (err) {
       console.error("Erreur connexion email :", err);
-      // Mode tolérant aux pannes : enregistrement local et redirection immédiate
       localStorage.setItem("loreno_user_email", cleanEmail);
       if (userName.trim()) {
         localStorage.setItem("loreno_user_name", userName.trim());
@@ -157,7 +209,7 @@ export default function QuizPage() {
   return (
     <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
       <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black selection:bg-black selection:text-white">
-        {/* Top Header : Back Button, Logo & Progress Bar */}
+        {/* Top Header */}
         <div className="w-full pt-2">
           <div className="flex items-center justify-between h-9 mb-3">
             <button
@@ -170,9 +222,9 @@ export default function QuizPage() {
             <Image
               src="/logo.png"
               alt="loreno.app"
-              width={130}
-              height={32}
-              className="h-7 sm:h-8 w-auto object-contain"
+              width={160}
+              height={40}
+              className="h-9 sm:h-10 w-auto object-contain"
               priority
             />
             <span className="text-xs font-mono text-zinc-400">
@@ -204,15 +256,32 @@ export default function QuizPage() {
           isSubmittingEmail={isSubmittingEmail}
           errorMessage={errorMessage}
           selectOptionAndAdvance={selectOptionAndAdvance}
-          onAdvanceToStep4={() => setStep(4)}
+          onAdvanceToStep4={handleAdvanceToStep4}
           onSubmitEmail={handleSubmitEmail}
           showGoogleLogin={showGoogleLogin}
           onGoogleLogin={handleGoogleLogin}
         />
 
-        {/* Footer Minimalist */}
-        <div className="py-2 text-center text-[11px] text-zinc-400">
-          Loreno
+        {/* Footer Minimalist Powered by FounderRace */}
+        <div className="py-3 flex items-center justify-center">
+          <a
+            href="https://founderrace.com/en/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-xs sm:text-[13px] text-zinc-600 hover:text-black transition group opacity-90 hover:opacity-100"
+          >
+            <span className="font-medium text-zinc-500">Powered by</span>
+            <div className="flex items-center gap-1.5 font-bold text-black">
+              <Image
+                src="/founderrace-logo.svg"
+                alt="FounderRace"
+                width={20}
+                height={20}
+                className="w-5 h-5 rounded-[5px] shadow-2xs"
+              />
+              <span className="font-mono text-xs uppercase tracking-wider group-hover:underline">FounderRace</span>
+            </div>
+          </a>
         </div>
       </div>
     </main>

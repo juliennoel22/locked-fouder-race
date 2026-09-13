@@ -59,7 +59,6 @@ export function ExamTrapBox({
       <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3 relative overflow-hidden">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-black flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
             Fiches complètes détectées
           </span>
           <span className="text-[11px] text-zinc-500">Pack Premium</span>
