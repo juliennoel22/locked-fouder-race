@@ -83,26 +83,27 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Footer Minimalist Powered by FounderRace */}
-        <div className="py-3 flex items-center justify-center">
+        {/* Footer Minimalist Powered by FounderRace + Link to /recap */}
+        <div className="py-3 flex items-center justify-between gap-2 text-xs border-t border-zinc-100 mt-2">
           <a
             href="https://founderrace.com/en/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs sm:text-[13px] text-zinc-600 hover:text-black transition group opacity-90 hover:opacity-100"
+            className="inline-flex items-center gap-1.5 text-zinc-600 hover:text-black transition group opacity-90"
           >
-            <span className="font-medium text-zinc-500">Powered by</span>
-            <div className="flex items-center gap-1.5 font-bold text-black">
-              <Image
-                src="/founderrace-logo.svg"
-                alt="FounderRace"
-                width={20}
-                height={20}
-                className="w-5 h-5 rounded-[5px] shadow-2xs"
-              />
-              <span className="font-mono text-xs uppercase tracking-wider group-hover:underline">FounderRace</span>
+            <span className="font-medium text-zinc-400">Powered by</span>
+            <div className="flex items-center gap-1 font-bold text-black">
+              <Image src="/founderrace-logo.svg" alt="FounderRace" width={16} height={16} className="w-4 h-4 rounded-[4px]" />
+              <span className="font-mono text-[11px] uppercase tracking-wider group-hover:underline">FounderRace</span>
             </div>
           </a>
+
+          <Link
+            href="/recap"
+            className="text-[11px] font-bold text-[#4457f4] hover:underline transition"
+          >
+            Page Récap Jury →
+          </Link>
         </div>
       </div>
     </main>
