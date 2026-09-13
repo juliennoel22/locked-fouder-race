@@ -181,8 +181,8 @@ export function ScanModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md h-[92dvh] sm:h-auto sm:max-h-[85vh] bg-white border border-zinc-200 rounded-t-3xl sm:rounded-3xl flex flex-col shadow-2xl overflow-hidden">
+    <div className={`fixed inset-0 z-50 flex ${loading ? "items-center p-4" : "items-end sm:items-center p-0 sm:p-4"} justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200`}>
+      <div className={`relative w-full max-w-md ${loading ? "h-auto max-h-[85vh] rounded-3xl" : "h-[92dvh] sm:h-auto sm:max-h-[85vh] rounded-t-3xl sm:rounded-3xl"} bg-white border border-zinc-200 flex flex-col shadow-2xl overflow-hidden transition-all duration-300`}>
         {/* Header Modale */}
         <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/80">
           <div className="flex items-center gap-2">
@@ -201,20 +201,22 @@ export function ScanModal({
               </p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              setSelectedPhotos([]);
-              setErrorMessage(null);
-              onClose();
-            }}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-black hover:bg-zinc-100 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {!loading && (
+            <button
+              onClick={() => {
+                setSelectedPhotos([]);
+                setErrorMessage(null);
+                onClose();
+              }}
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-black hover:bg-zinc-100 transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Contenu Scan */}
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-start space-y-3">
+        <div className={`flex-1 overflow-y-auto ${loading ? "p-3 sm:p-4" : "p-4"} flex flex-col justify-start space-y-3`}>
           {/* Étape 2 de l'Onboarding */}
           {isTourActive && !loading && (
             <OnboardingTourBubble
@@ -229,7 +231,7 @@ export function ScanModal({
           )}
 
           {loading ? (
-            <div className="flex-1 flex items-center justify-center">
+            <div className="w-full flex items-center justify-center py-2">
               <QuizLoadingOverlay message={loadingMessage} progress={loadingProgress} />
             </div>
           ) : (

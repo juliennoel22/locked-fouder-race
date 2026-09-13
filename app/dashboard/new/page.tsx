@@ -143,7 +143,7 @@ export default function NewNotebookPage() {
   };
 
   if (loading) {
-    return <QuizLoadingOverlay message={loadingMessage} progress={loadingProgress} />;
+    return <QuizLoadingOverlay message={loadingMessage} progress={loadingProgress} fullScreen={true} />;
   }
 
   return (

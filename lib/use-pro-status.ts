@@ -31,24 +31,34 @@ export function useProStatus() {
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    // 0. Mode Jury / Démo / Évaluateur (Débloque immédiatement et persiste pour toute la navigation)
+    // Forçage explicite du mode gratuit via URL (?free=true ou ?pro=false)
+    const isExplicitFree =
+      urlParams.get("free") === "true" ||
+      urlParams.get("pro") === "false" ||
+      urlParams.get("mode") === "free";
+
+    if (isExplicitFree) {
+      localStorage.setItem("loreno_pro", "false");
+      localStorage.removeItem("loreno_jury_mode");
+      removeProCookie();
+      setIsPro(false);
+      setIsJuryMode(false);
+      setIsLoading(false);
+      return;
+    }
+
+    // Mode Jury / Démo
     const isJuryParam =
       urlParams.get("jury") === "true" ||
       urlParams.get("jury") === "1" ||
       urlParams.get("pass") === "jury" ||
       urlParams.get("demo") === "pro" ||
-      urlParams.get("demo") === "true" ||
-      urlParams.get("eval") === "true";
+      urlParams.get("demo") === "true";
 
-    // 1. Mode Développement local
-    const isDevEnv =
-      process.env.NODE_ENV === "development" ||
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1" ||
-      urlParams.get("dev") === "true" ||
-      urlParams.get("pro") === "true";
+    // Mode Pro forcé via URL
+    const isProParam = urlParams.get("pro") === "true" || urlParams.get("dev") === "true";
 
-    // 2. Vérification retour Stripe
+    // Retour Stripe Payant
     const hasPaymentSuccess =
       urlParams.get("paid") === "true" ||
       urlParams.get("payment") === "success" ||
@@ -56,7 +66,8 @@ export function useProStatus() {
       urlParams.get("success") === "true" ||
       Boolean(urlParams.get("session_id"));
 
-    const localPro = localStorage.getItem("loreno_pro") === "true" || hasProCookie();
+    const storedPro = localStorage.getItem("loreno_pro");
+    const localPro = storedPro === "true" || (storedPro === null && hasProCookie());
     const localJury = localStorage.getItem("loreno_jury_mode") === "true";
 
     if (isJuryParam) {
@@ -72,7 +83,6 @@ export function useProStatus() {
       setIsPro(true);
       setJustUnlocked(true);
 
-      // Sync user_metadata if logged in
       try {
         const supabase = createClient();
         supabase.auth.getUser().then(({ data: { user } }) => {
@@ -86,14 +96,19 @@ export function useProStatus() {
         console.error("Erreur sync statut pro Supabase :", err);
       }
 
-      // Clean URL params cleanly
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
-    } else if (isDevEnv || localPro) {
+    } else if (isProParam) {
+      localStorage.setItem("loreno_pro", "true");
+      setProCookie();
+      setIsPro(true);
+    } else if (storedPro === "false") {
+      setIsPro(false);
+    } else if (localPro) {
       setIsPro(true);
       if (localJury) setIsJuryMode(true);
     } else {
-      // Sync from Supabase metadata
+      // Vérification utilisateur Supabase
       try {
         const supabase = createClient();
         supabase.auth.getUser().then(({ data: { user } }) => {
@@ -118,12 +133,17 @@ export function useProStatus() {
   }, []);
 
   const deactivatePro = useCallback(() => {
-    localStorage.removeItem("loreno_pro");
+    localStorage.setItem("loreno_pro", "false");
     localStorage.removeItem("loreno_jury_mode");
     removeProCookie();
     setIsPro(false);
     setIsJuryMode(false);
   }, []);
+
+  const togglePro = useCallback(() => {
+    if (isPro) deactivatePro();
+    else activatePro();
+  }, [isPro, activatePro, deactivatePro]);
 
   const dismissCelebration = useCallback(() => {
     setJustUnlocked(false);
@@ -137,5 +157,7 @@ export function useProStatus() {
     dismissCelebration,
     activatePro,
     deactivatePro,
+    togglePro,
   };
 }
+

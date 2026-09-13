@@ -27,7 +27,6 @@ export default function DashboardPage() {
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [onboardingSuccess, setOnboardingSuccess] = useState<boolean>(false);
   const { isPro, justUnlocked, dismissCelebration } = useProStatus();
 
   // Célébration confettis lors du déblocage post-paiement
@@ -53,7 +52,6 @@ export default function DashboardPage() {
         urlParams.has("onboard");
 
       if (isOnboard) {
-        setOnboardingSuccess(true);
         confetti({
           particleCount: 150,
           spread: 90,
@@ -192,25 +190,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Bannière de célébration fin d'Onboarding Quiz */}
-        {onboardingSuccess && (
-          <div className="mb-3 p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-white flex items-center justify-between animate-in slide-in-from-top duration-300 shadow-md">
-            <div className="text-xs">
-              <div className="font-bold flex items-center gap-1.5 text-white">
-                <span>🎉</span> Profil d&apos;apprentissage configuré !
-              </div>
-              <p className="text-[11px] text-zinc-300 mt-0.5">
-                Choisis Flashcards ou Quiz ci-dessous pour démarrer.
-              </p>
-            </div>
-            <button
-              onClick={() => setOnboardingSuccess(false)}
-              className="text-[11px] font-bold px-2.5 py-1 bg-white text-black rounded-lg hover:bg-zinc-200 transition shrink-0 ml-2 cursor-pointer"
-            >
-              C&apos;est parti ⚡
-            </button>
-          </div>
-        )}
+
 
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center space-y-3 py-16">

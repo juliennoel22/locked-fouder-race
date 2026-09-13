@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { X, Send, Sparkles, Bot, User, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { X, Send, Sparkles, Bot, User, Loader2, Trash2 } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FormattedAiText } from "./formatted-ai-text";
 
@@ -18,16 +18,46 @@ interface Message {
 }
 
 export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "model",
-      text: `Salut ! Je suis ton tuteur IA pour **${notebook.title}**.\n\nPose-moi tes questions ou demande-moi une **question piège** pour t'entraîner !`,
-    },
-  ]);
+  const defaultGreeting: Message = {
+    role: "model",
+    text: `Salut ! Je suis ton tuteur IA pour **${notebook.title}**.\n\nPose-moi tes questions ou demande-moi une **question piège** pour t'entraîner !`,
+  };
+
+  const [messages, setMessages] = useState<Message[]>([defaultGreeting]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const streamTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const storageKey = `loreno_tutor_${notebook.id}`;
+
+  // Chargement de l'historique de discussion spécifique au cours
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return;
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+          return;
+        }
+      }
+    } catch {}
+    setMessages([defaultGreeting]);
+  }, [isOpen, notebook.id, storageKey]);
+
+  // Sauvegarde persistante des messages
+  const persistMessages = useCallback(
+    (newMessages: Message[]) => {
+      if (typeof window === "undefined") return;
+      try {
+        const clean = newMessages.map(({ role, text }) => ({ role, text }));
+        localStorage.setItem(storageKey, JSON.stringify(clean));
+      } catch {}
+    },
+    [storageKey]
+  );
 
   // Auto-scroll vers le bas
   useEffect(() => {
@@ -45,6 +75,16 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
 
   if (!isOpen) return null;
 
+  // Réinitialisation / Clear du chat
+  const handleClearChat = () => {
+    if (streamTimeoutRef.current) clearTimeout(streamTimeoutRef.current);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(storageKey);
+    }
+    setMessages([defaultGreeting]);
+    setLoading(false);
+  };
+
   // Effet de streaming mot par mot fluide
   const streamWordByWord = (fullText: string, baseMessages: Message[]) => {
     const words = fullText.split(" ");
@@ -55,18 +95,21 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
       const displayedText = words.slice(0, currentIdx).join(" ");
       const isDone = currentIdx >= words.length;
 
-      setMessages([
+      const updated = [
         ...baseMessages,
         {
-          role: "model",
+          role: "model" as const,
           text: displayedText,
           isStreaming: !isDone,
         },
-      ]);
+      ];
+
+      setMessages(updated);
 
       if (!isDone) {
         streamTimeoutRef.current = setTimeout(streamNext, 25);
       } else {
+        persistMessages(updated);
         setLoading(false);
       }
     };
@@ -82,6 +125,7 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
 
     const updatedUserMessages: Message[] = [...messages, { role: "user", text: textToSend }];
     setMessages(updatedUserMessages);
+    persistMessages(updatedUserMessages);
     setInput("");
     setLoading(true);
 
@@ -104,10 +148,12 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
         "Je n'ai pas pu formuler de réponse pour ce cours. Réessaie dans un instant.";
       streamWordByWord(reply, updatedUserMessages);
     } catch {
-      setMessages([
+      const fallbackMessages: Message[] = [
         ...updatedUserMessages,
         { role: "model", text: "Erreur de connexion. Vérifie ton réseau." },
-      ]);
+      ];
+      setMessages(fallbackMessages);
+      persistMessages(fallbackMessages);
       setLoading(false);
     }
   };
@@ -118,9 +164,6 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
         {/* Header */}
         <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/80">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
             <div>
               <div className="text-xs font-bold text-black flex items-center gap-1.5">
                 <span>Tuteur IA Partiels</span>
@@ -133,15 +176,31 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              if (streamTimeoutRef.current) clearTimeout(streamTimeoutRef.current);
-              onClose();
-            }}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-black hover:bg-zinc-100 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+
+          <div className="flex items-center gap-1">
+            {messages.length > 1 && (
+              <button
+                type="button"
+                onClick={handleClearChat}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                title="Vider la conversation"
+                aria-label="Vider la conversation"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                if (streamTimeoutRef.current) clearTimeout(streamTimeoutRef.current);
+                onClose();
+              }}
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-black hover:bg-zinc-100 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Message feed avec auto-scroll */}
@@ -191,32 +250,26 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
         <div className="px-3 py-1.5 border-t border-zinc-100 flex gap-1.5 overflow-x-auto no-scrollbar">
           <button
             onClick={() => handleSend("Pose-moi une question piège d'examen sur ce cours.")}
-            className="text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded-full whitespace-nowrap transition shrink-0"
+            className="text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded-full whitespace-nowrap transition shrink-0 cursor-pointer"
           >
             🎯 Question piège
           </button>
           <button
             onClick={() => handleSend("Donne-moi un moyen mnémotechnique pour retenir les définitions.")}
-            className="text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded-full whitespace-nowrap transition shrink-0"
+            className="text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded-full whitespace-nowrap transition shrink-0 cursor-pointer"
           >
             💡 Moyen mnémotechnique
           </button>
           <button
             onClick={() => handleSend("Résume les 3 points qui rapportent le plus de points à l'épreuve.")}
-            className="text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded-full whitespace-nowrap transition shrink-0"
+            className="text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded-full whitespace-nowrap transition shrink-0 cursor-pointer"
           >
             ⚡ 3 points clés
           </button>
         </div>
 
         {/* Input Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="p-3 border-t border-zinc-200 bg-white flex items-center gap-2"
-        >
+        <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="p-3 border-t border-zinc-200 bg-white flex items-center gap-2">
           <input
             type="text"
             value={input}
@@ -227,7 +280,7 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center disabled:opacity-40 transition active:scale-95 shrink-0"
+            className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center disabled:opacity-40 transition active:scale-95 shrink-0 cursor-pointer"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -236,3 +289,5 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
     </div>
   );
 }
+
+

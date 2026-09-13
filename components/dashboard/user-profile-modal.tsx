@@ -100,17 +100,33 @@ export function UserProfileModal({
               onClose();
               onOpenPaywall();
             }}
-            className="w-full h-11 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm"
+            className="w-full h-11 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Passer Premium (9,99 € à vie)</span>
           </button>
         )}
 
+        {/* Bouton de test / bascule Free vs PRO */}
+        <button
+          type="button"
+          onClick={() => {
+            const nextProState = !isPro;
+            localStorage.setItem("loreno_pro", nextProState ? "true" : "false");
+            window.location.href = nextProState ? "/dashboard?pro=true" : "/dashboard?free=true";
+          }}
+          className="w-full py-2.5 px-3 rounded-xl border border-dashed border-zinc-300 hover:border-zinc-400 bg-zinc-50 text-[11px] font-semibold text-zinc-600 hover:text-black transition flex items-center justify-between cursor-pointer"
+        >
+          <span>🧪 Mode de test :</span>
+          <span className="font-bold underline text-black">
+            {isPro ? "Bascule en Gratuit (2 cours max)" : "Bascule en PRO (Illimité)"}
+          </span>
+        </button>
+
         {/* Bouton déconnexion */}
         <button
           onClick={handleLogout}
-          className="w-full h-10 border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-red-600 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2"
+          className="w-full h-10 border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-red-600 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Se déconnecter</span>
