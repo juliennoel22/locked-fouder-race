@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, ArrowLeft, Mail, ShieldCheck, Info } from "lucide-react";
@@ -13,6 +13,32 @@ export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const unlockForm = useCallback(() => {
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    unlockForm();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        unlockForm();
+      }
+    };
+
+    window.addEventListener("pageshow", unlockForm);
+    window.addEventListener("focus", unlockForm);
+    window.addEventListener("popstate", unlockForm);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("pageshow", unlockForm);
+      window.removeEventListener("focus", unlockForm);
+      window.removeEventListener("popstate", unlockForm);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [unlockForm]);
 
   const handleInstantLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +100,7 @@ export default function LoginPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <span className="text-xs font-medium text-zinc-500">Connexion instantanée</span>
+          <span className="text-xs font-mono text-zinc-400">loreno.app</span>
         </div>
 
         {/* Form Container */}

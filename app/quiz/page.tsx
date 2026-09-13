@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -21,12 +21,38 @@ export default function QuizPage() {
   const [email, setEmail] = useState<string>("");
 
   const [isSubmittingEmail, setIsSubmittingEmail] = useState<boolean>(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showGoogleLogin, setShowGoogleLogin] = useState<boolean>(false);
 
+  // Débloquer immédiatement le formulaire si retour arrière navigateur / bfcache
+  const unlockForm = useCallback(() => {
+    setIsSubmittingEmail(false);
+    setIsGoogleLoading(false);
+  }, []);
+
   useEffect(() => {
     setShowGoogleLogin(!isInAppBrowser());
-  }, []);
+    unlockForm();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        unlockForm();
+      }
+    };
+
+    window.addEventListener("pageshow", unlockForm);
+    window.addEventListener("focus", unlockForm);
+    window.addEventListener("popstate", unlockForm);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("pageshow", unlockForm);
+      window.removeEventListener("focus", unlockForm);
+      window.removeEventListener("popstate", unlockForm);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [unlockForm]);
 
   // Récupérer l'étape sauvegardée en base si l'utilisateur est déjà connecté
   useEffect(() => {
@@ -63,7 +89,7 @@ export default function QuizPage() {
   };
 
   const handleGoogleLogin = async () => {
-    setIsSubmittingEmail(true);
+    setIsGoogleLoading(true);
     setErrorMessage(null);
     try {
       if (userName.trim()) {
@@ -89,7 +115,7 @@ export default function QuizPage() {
       if (error) throw error;
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : "Erreur de connexion Google");
-      setIsSubmittingEmail(false);
+      setIsGoogleLoading(false);
     }
   };
 
@@ -254,6 +280,7 @@ export default function QuizPage() {
           email={email}
           setEmail={setEmail}
           isSubmittingEmail={isSubmittingEmail}
+          isGoogleLoading={isGoogleLoading}
           errorMessage={errorMessage}
           selectOptionAndAdvance={selectOptionAndAdvance}
           onAdvanceToStep4={handleAdvanceToStep4}
