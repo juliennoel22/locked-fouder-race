@@ -25,6 +25,9 @@ export default function LoginPage() {
       const hash = window.location.hash;
       if (hash.includes("error")) {
         setErrorMessage("Connexion Google temporairement indisponible. Entre ton email ci-dessous pour accéder directement à tes cours en 1 clic !");
+        try {
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        } catch {}
       }
     }
 
