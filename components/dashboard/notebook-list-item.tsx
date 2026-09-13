@@ -13,17 +13,17 @@ export function NotebookListItem({ notebook, onSelect, onDelete }: NotebookListI
   return (
     <div
       onClick={() => onSelect(notebook)}
-      className="w-full p-4 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 transition flex items-center justify-between active:scale-[0.99] cursor-pointer"
+      className="w-full p-3.5 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50/90 transition-all flex items-center justify-between active:scale-[0.99] cursor-pointer shadow-2xs hover:border-zinc-300"
     >
       <div className="flex items-center gap-3.5 text-left truncate">
-        <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-lg shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center text-lg shrink-0 shadow-2xs">
           {notebook.emoji}
         </div>
         <div className="truncate space-y-0.5">
-          <h2 className="text-sm font-semibold text-black truncate max-w-[200px] sm:max-w-[240px]">
+          <h2 className="text-xs sm:text-sm font-bold text-zinc-900 truncate max-w-[190px] sm:max-w-[240px]">
             {notebook.title}
           </h2>
-          <p className="text-xs text-zinc-500">
+          <p className="text-[11px] text-zinc-500 font-medium">
             {notebook.sourceCount} fiches • {notebook.date}
           </p>
         </div>
@@ -39,15 +39,15 @@ export function NotebookListItem({ notebook, onSelect, onDelete }: NotebookListI
                 onDelete(notebook.id);
               }
             }}
-            className="w-8 h-8 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 hover:text-red-600 hover:border-red-200 transition cursor-pointer"
+            className="w-8 h-8 rounded-full border border-zinc-200 bg-zinc-50 flex items-center justify-center text-zinc-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition cursor-pointer"
             title="Supprimer ce cours"
             aria-label="Supprimer ce cours"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         )}
-        <div className="w-8 h-8 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-600 hover:text-black">
-          <Play className="w-3.5 h-3.5 fill-current" />
+        <div className="w-8 h-8 rounded-full border border-zinc-200 bg-zinc-50 flex items-center justify-center text-zinc-700 hover:text-black">
+          <Play className="w-3 h-3 fill-current" />
         </div>
       </div>
     </div>
