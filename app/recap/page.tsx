@@ -58,13 +58,13 @@ export default function RecapPage() {
   ];
 
   return (
-    <div className="min-h-[100dvh] bg-zinc-50 text-zinc-900 pb-16 selection:bg-black selection:text-white">
-      {/* Sticky Header épuré */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-zinc-200">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+    <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
+      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
+        {/* Top Header épuré */}
+        <header className="w-full pt-2 pb-3 flex items-center justify-between border-b border-zinc-100">
           <Link
             href="/"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-black transition"
+            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-black transition"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Accueil</span>
@@ -79,12 +79,11 @@ export default function RecapPage() {
             priority
           />
 
-          <div className="w-14" />
-        </div>
-      </header>
+          <div className="w-12" />
+        </header>
 
-      <main className="max-w-2xl mx-auto px-4 pt-5 space-y-8">
-        {/* Hero Title épuré */}
+        <div className="flex-1 space-y-6 pt-4 pb-8">
+          {/* Hero Title épuré */}
         <section className="text-center space-y-2 pt-1">
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-black">
             L&apos;Aventure Loreno en 24H
@@ -215,7 +214,8 @@ export default function RecapPage() {
             </a>
           </p>
         </footer>
-      </main>
+        </div>
+      </div>
 
       {/* Lightbox Modal */}
       <ImageLightboxModal
@@ -224,6 +224,6 @@ export default function RecapPage() {
         src={lightboxImg?.src || null}
         alt={lightboxImg?.alt || ""}
       />
-    </div>
+    </main>
   );
 }

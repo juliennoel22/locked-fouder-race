@@ -17,6 +17,8 @@
 | **Clients Payants** | **6 étudiants validés** | Edwin, Danial, Yanis, Emmanuel, Greg, Hugo |
 | **Comptes Étudiants Actifs** | **23 comptes réels** | Table `auth.users` Supabase (après purge des tests) |
 | **Visiteurs Uniques** | **148 visiteurs** (452 pages vues) | Vercel Analytics en direct |
+| **Traction TikTok** | **3 100+ vues cumulées** | Compte officiel `@loreno.app` (micro-trottoirs nancéiens) |
+| **SEO & Indexation Google** | **Position #1 sur `loreno app`** | Indexé et positionné au sommet sur Google |
 | **Code Promo Démo Jury** | **`FOUNDERRACE`** | 100% offert sur le Pass Fondateur Stripe Live |
 
 ---

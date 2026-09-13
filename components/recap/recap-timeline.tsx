@@ -30,14 +30,23 @@ export const TIMELINE_STEPS: TimelineStep[] = [
   },
   {
     time: "12:00 - 18:00",
-    title: "Acquisition Terrain à Nancy & TikTok",
-    description: "Micro-trottoirs avec les étudiants dans la ville pour tester le scan en direct et publication des vidéos.",
+    title: "Acquisition Terrain à Nancy & Micro-trottoirs",
+    description: "Micro-trottoirs avec les étudiants dans la ville de Nancy pour tester le scan en direct et valider l'intérêt produit.",
     layout: "vertical-grid",
     images: [
       { src: "/recap/IMG_0417.png", alt: "Interview étudiant 1" },
       { src: "/recap/IMG_0418.png", alt: "Interview étudiant 2" },
       { src: "/recap/IMG_0419.png", alt: "Interview étudiant 3" },
       { src: "/recap/IMG_0420.png", alt: "Interview groupe étudiants" },
+    ],
+  },
+  {
+    time: "15:00",
+    title: "Performance TikTok : 3 100+ Vues Cumulées",
+    description: "Publication des vidéos micro-trottoirs sur le compte officiel @loreno.app avec traction organique immédiate auprès de la cible étudiante.",
+    highlight: true,
+    images: [
+      { src: "/recap/tiktok-proof.png", alt: "Compte TikTok @loreno.app (3 100+ vues)" },
     ],
   },
   {
@@ -48,11 +57,12 @@ export const TIMELINE_STEPS: TimelineStep[] = [
   },
   {
     time: "18:00 - 21:00",
-    title: "Montage, Dev Continu & Encaissement Stripe",
-    description: "Montage des Reels d'acquisition, déploiement des fonctionnalités et 59,94 € encaissés en direct.",
+    title: "Montage, Dev Continu, SEO Google #1 & Encaissement Stripe",
+    description: "Montage des Reels d'acquisition, indexation Google en position #1 sur 'loreno app', déploiement des fonctionnalités et 59,94 € encaissés en direct.",
     highlight: true,
     images: [
       { src: "/recap/IMG_0425.jpg", alt: "Montage vidéo Premiere Pro" },
+      { src: "/recap/google-seo-proof.png", alt: "Indexation Google #1 sur 'loreno app'" },
       { src: "/recap/IMG_0426.jpg", alt: "Dashboard Stripe Live 59,94 €" },
       { src: "/recap/IMG_0427.jpg", alt: "Vercel Analytics" },
     ],
@@ -97,22 +107,22 @@ export function RecapTimeline({ onPhotoClick }: RecapTimelineProps) {
         return (
           <div
             key={idx}
-            className={`p-4 rounded-2xl border transition-all ${
+            className={`p-3.5 rounded-2xl border transition-all ${
               step.highlight
-                ? "bg-zinc-950 text-white border-zinc-800 shadow-md"
-                : "bg-white text-zinc-900 border-zinc-200 shadow-xs"
+                ? "bg-zinc-50 border-zinc-300 shadow-2xs"
+                : "bg-white text-zinc-900 border-zinc-200 shadow-2xs"
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold opacity-75">{step.time}</span>
-              <h4 className="text-xs font-bold leading-snug">{step.title}</h4>
+              <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                step.highlight ? "bg-black text-white" : "bg-zinc-100 text-zinc-700 border border-zinc-200"
+              }`}>
+                {step.time}
+              </span>
+              <h4 className="text-xs font-bold leading-snug text-zinc-900">{step.title}</h4>
             </div>
 
-            <p
-              className={`text-[11px] leading-relaxed mt-2 ${
-                step.highlight ? "text-zinc-300" : "text-zinc-600"
-              }`}
-            >
+            <p className="text-[11px] leading-relaxed mt-1.5 text-zinc-600">
               {step.description}
             </p>
 

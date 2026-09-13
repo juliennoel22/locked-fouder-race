@@ -44,14 +44,14 @@ export function RecapFeedbacks({ onPhotoClick }: RecapFeedbacksProps) {
         <span className="text-[10px] text-zinc-400 font-medium">Clique pour agrandir</span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-2 gap-2">
         {PROOF_CARDS.map((card, idx) => (
           <div
             key={idx}
             onClick={() => onPhotoClick(card.src, card.alt)}
-            className="rounded-2xl border border-zinc-200 bg-zinc-950 p-2 group cursor-pointer shadow-xs relative overflow-hidden flex flex-col justify-between hover:border-[#4457f4] transition-all duration-200"
+            className="rounded-2xl border border-zinc-200 bg-white p-2 group cursor-pointer shadow-2xs relative overflow-hidden flex flex-col justify-between hover:border-[#4457f4] transition-all duration-200"
           >
-            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
+            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-zinc-100 border border-zinc-200">
               <Image
                 src={card.src}
                 alt={card.alt}
@@ -65,10 +65,10 @@ export function RecapFeedbacks({ onPhotoClick }: RecapFeedbacksProps) {
             </div>
 
             <div className="pt-2 px-1">
-              <span className="text-[11px] font-bold text-zinc-100 block truncate">
+              <span className="text-[11px] font-bold text-zinc-900 block truncate">
                 {card.title}
               </span>
-              <span className="text-[10px] text-zinc-400 block truncate">
+              <span className="text-[10px] text-zinc-500 block truncate">
                 {card.subtitle}
               </span>
             </div>
