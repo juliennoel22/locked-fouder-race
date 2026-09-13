@@ -35,12 +35,7 @@ export default function QuizPage() {
     setShowGoogleLogin(!isInAppBrowser());
     unlockForm();
 
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        unlockForm();
-      }
-    };
-
+    const handleVisibility = () => { if (document.visibilityState === "visible") unlockForm(); };
     window.addEventListener("pageshow", unlockForm);
     window.addEventListener("focus", unlockForm);
     window.addEventListener("popstate", unlockForm);
@@ -63,12 +58,7 @@ export default function QuizPage() {
           const meta = user.user_metadata || {};
           if (meta.onboarding_completed === true || user.email) {
             if (meta.onboarding_completed !== true) {
-              await supabase.auth.updateUser({
-                data: {
-                  onboarding_completed: true,
-                  onboarding_step: 5,
-                },
-              });
+              await supabase.auth.updateUser({ data: { onboarding_completed: true, onboarding_step: 5 } });
             }
             router.replace("/dashboard?onboard=true");
             return;
@@ -98,28 +88,10 @@ export default function QuizPage() {
     setIsGoogleLoading(true);
     setErrorMessage(null);
     try {
-      if (userName.trim()) {
-        localStorage.setItem("loreno_user_name", userName.trim());
-      }
-      localStorage.setItem(
-        "loreno_onboarding",
-        JSON.stringify({
-          level,
-          goal,
-          userName: userName.trim(),
-          painPoint,
-          completedAt: new Date().toISOString(),
-        })
-      );
-
+      if (userName.trim()) localStorage.setItem("loreno_user_name", userName.trim());
+      localStorage.setItem("loreno_onboarding", JSON.stringify({ level, goal, userName: userName.trim(), painPoint, completedAt: new Date().toISOString() }));
       const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/dashboard?onboard=true")}`;
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: redirectUrl,
-        },
-      });
+      const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectUrl } });
       if (error) throw error;
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : "Erreur de connexion Google");
@@ -306,17 +278,11 @@ export default function QuizPage() {
             href="https://founderrace.com/en/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs sm:text-[13px] text-zinc-600 hover:text-black transition group opacity-90 hover:opacity-100"
+            className="inline-flex items-center gap-2 text-xs text-zinc-600 hover:text-black transition group opacity-90 hover:opacity-100"
           >
             <span className="font-medium text-zinc-500">Powered by</span>
             <div className="flex items-center gap-1.5 font-bold text-black">
-              <Image
-                src="/founderrace-logo.svg"
-                alt="FounderRace"
-                width={20}
-                height={20}
-                className="w-5 h-5 rounded-[5px] shadow-2xs"
-              />
+              <Image src="/founderrace-logo.svg" alt="FounderRace" width={20} height={20} className="w-5 h-5 rounded-[5px] shadow-2xs" />
               <span className="font-mono text-xs uppercase tracking-wider group-hover:underline">FounderRace</span>
             </div>
           </a>
