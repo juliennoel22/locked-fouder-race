@@ -11,6 +11,7 @@ interface NotebookQuizViewProps {
   deck: ScanResult;
   onOpenPaywall: () => void;
   onGoToFlashcards: () => void;
+  onComplete?: () => void;
   onValidateOnboarding?: () => void;
 }
 
@@ -25,6 +26,7 @@ interface McqQuestion {
 export function NotebookQuizView({
   deck,
   onGoToFlashcards,
+  onComplete,
   onValidateOnboarding,
 }: NotebookQuizViewProps) {
   const questions: McqQuestion[] = useMemo(() => {
@@ -149,27 +151,42 @@ export function NotebookQuizView({
         )}
 
         <div className="w-full space-y-2.5 pt-1">
+          {/* Bouton Principal : Sauvegarder et continuer (Retourne au cours) */}
           <button
             disabled={isTourActive}
-            onClick={onGoToFlashcards}
-            className={`w-full h-13 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-sm py-3.5 ${
+            onClick={onComplete || onGoToFlashcards}
+            className={`w-full h-13 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm py-3.5 cursor-pointer ${
               isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
             }`}
           >
-            <Layers className="w-4 h-4" />
-            <span>Réviser avec les Flashcards</span>
+            <span>Sauvegarder et continuer</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
 
-          <button
-            disabled={isTourActive}
-            onClick={handleRestart}
-            className={`w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 font-medium text-xs flex items-center justify-center gap-2 transition ${
-              isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
-            }`}
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Recommencer le QCM</span>
-          </button>
+          {/* Actions secondaires */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              disabled={isTourActive}
+              onClick={onGoToFlashcards}
+              className={`w-full h-11 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Flashcards</span>
+            </button>
+
+            <button
+              disabled={isTourActive}
+              onClick={handleRestart}
+              className={`w-full h-11 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 font-medium text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+              }`}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Recommencer</span>
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -267,4 +284,3 @@ export function NotebookQuizView({
     </div>
   );
 }
-

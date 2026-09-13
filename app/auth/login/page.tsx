@@ -21,6 +21,13 @@ export default function LoginPage() {
   useEffect(() => {
     unlockForm();
 
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash.includes("error")) {
+        setErrorMessage("Connexion Google temporairement indisponible. Entre ton email ci-dessous pour accéder directement à tes cours en 1 clic !");
+      }
+    }
+
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
         unlockForm();

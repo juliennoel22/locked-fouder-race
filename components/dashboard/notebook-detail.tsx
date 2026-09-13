@@ -268,6 +268,7 @@ export function NotebookDetail({
         <NotebookQuizView
           deck={notebook.deck}
           onOpenPaywall={onOpenPaywall}
+          onComplete={() => setMode("grid")}
           onGoToFlashcards={() => setMode("flashcards")}
           onValidateOnboarding={() => {
             setTourStep("click_course");
