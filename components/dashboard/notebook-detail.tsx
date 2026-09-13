@@ -7,6 +7,8 @@ import { FlashcardPlayer } from "@/components/flashcard-player";
 import { NotebookQuizView } from "./notebook-quiz-view";
 import { AiTutorModal } from "./ai-tutor-modal";
 import { MirrorModal } from "@/components/mirror-modal";
+import { OnboardingTourBubble } from "./onboarding-tour-bubble";
+import { getTourStep, setTourStep } from "@/lib/onboarding-tour-state";
 
 interface NotebookDetailProps {
   notebook: NotebookItem;
@@ -29,13 +31,11 @@ export function NotebookDetail({
   isPro = false,
   initialMode = "grid",
   initialShowAiTutor = false,
-  allNotebooks = [],
-  onSelectNotebook,
-  onOpenScanModal,
 }: NotebookDetailProps) {
   const [mode, setMode] = useState<NotebookMode>(initialMode);
   const [showAiTutor, setShowAiTutor] = useState<boolean>(initialShowAiTutor);
   const [showMirrorModal, setShowMirrorModal] = useState<boolean>(false);
+  const [tourStep, setTourStepState] = useState(getTourStep());
 
   useEffect(() => {
     setMode(initialMode);
@@ -46,6 +46,12 @@ export function NotebookDetail({
       setShowAiTutor(true);
     }
   }, [initialShowAiTutor]);
+
+  const handleValidateToDashboard = () => {
+    setTourStep("import_new");
+    setTourStepState("import_new");
+    onBack();
+  };
 
   return (
     <div className="w-full flex-1 flex flex-col select-none relative">
@@ -81,6 +87,20 @@ export function NotebookDetail({
         <div className="flex-1 flex flex-col justify-between text-left">
           {/* Contenu textuel structuré */}
           <div className="space-y-4 pb-6">
+            {/* Bannière d'onboarding : Découverte du cours complet */}
+            {tourStep === "inspect_course" && (
+              <OnboardingTourBubble
+                show={true}
+                badgeText="Voici ton cours 📖"
+                title="Détails du cours & Synthèse"
+                description="Retrouve ici ta synthèse complète, tes notions clés et tes modes d'apprentissage."
+                arrowDirection="none"
+                actionLabel="Suivant →"
+                onAction={handleValidateToDashboard}
+                showDismiss={false}
+              />
+            )}
+
             {/* Titre principal & Badges */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -229,6 +249,11 @@ export function NotebookDetail({
             initialQuizQuestion={notebook.deck.initial_quiz_question}
             summary={notebook.deck.summary}
             disablePaywall={true}
+            onComplete={() => setMode("grid")}
+            onValidateOnboarding={() => {
+              setTourStep("click_course");
+              onBack();
+            }}
           />
         </div>
       )}
@@ -239,6 +264,10 @@ export function NotebookDetail({
           deck={notebook.deck}
           onOpenPaywall={onOpenPaywall}
           onGoToFlashcards={() => setMode("flashcards")}
+          onValidateOnboarding={() => {
+            setTourStep("click_course");
+            onBack();
+          }}
         />
       )}
 
@@ -260,3 +289,4 @@ export function NotebookDetail({
     </div>
   );
 }
+

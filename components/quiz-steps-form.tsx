@@ -141,9 +141,6 @@ export function QuizStepsForm({
       {step === 5 && (
         <div className="space-y-5 text-center">
           <div className="space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center mx-auto text-xl shadow-xs">
-              ⚡
-            </div>
             <h2 className="text-xl font-bold text-black">
               {userName ? `Ravi de te rencontrer ${userName} !` : "Bienvenue sur Loreno !"}
             </h2>

@@ -3,8 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
-import { MessageSquare, Loader2 } from "lucide-react";
-import { NotebookItem, ScanResult } from "@/types/loreno";
+import { Loader2 } from "lucide-react";
+import { NotebookItem } from "@/types/loreno";
+import { formatDeckItem, RawDeckData } from "@/lib/format-deck";
 import { NotebookListView } from "@/components/dashboard/notebook-list-view";
 import { NotebookDetail } from "@/components/dashboard/notebook-detail";
 import { FloatingScanBar } from "@/components/dashboard/floating-scan-bar";
@@ -13,42 +14,6 @@ import { FeedbackModal } from "@/components/dashboard/feedback-modal";
 import { ScanModal } from "@/components/dashboard/scan-modal";
 import { useProStatus } from "@/lib/use-pro-status";
 import { createClient } from "@/lib/supabase/client";
-
-interface RawDeckData {
-  id: string;
-  title: string;
-  subject?: string | null;
-  summary?: string | null;
-  initial_quiz_question?: string | null;
-  image_url?: string | null;
-  created_at?: string;
-  flashcards?: Array<{ front: string; back: string; order_index?: number }>;
-}
-
-function formatDeckItem(deck: RawDeckData): NotebookItem {
-  const sortedCards = (deck.flashcards || []).sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
-  const scanData: ScanResult = {
-    title: deck.title,
-    subject: deck.subject || "Général",
-    summary: deck.summary || "",
-    initial_quiz_question: deck.initial_quiz_question || "",
-    flashcards: sortedCards.map((f) => ({ front: f.front, back: f.back })),
-  };
-  const createdDate = deck.created_at
-    ? new Date(deck.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
-    : "Récemment";
-
-  return {
-    id: deck.id,
-    title: deck.title,
-    subject: deck.subject || "Général",
-    emoji: "📝",
-    date: createdDate,
-    sourceCount: sortedCards.length || 5,
-    deck: scanData,
-    imageUrl: deck.image_url,
-  };
-}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -62,6 +27,7 @@ export default function DashboardPage() {
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [onboardingSuccess, setOnboardingSuccess] = useState<boolean>(false);
   const { isPro, justUnlocked, dismissCelebration } = useProStatus();
 
   // Célébration confettis lors du déblocage post-paiement
@@ -74,6 +40,28 @@ export default function DashboardPage() {
       });
     }
   }, [justUnlocked]);
+
+  // Célébration confettis à l'arrivée post-onboarding
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isOnboard =
+        urlParams.get("onboard") === "true" ||
+        urlParams.get("onboard") === "1" ||
+        urlParams.get("onboarding") === "complete" ||
+        urlParams.get("onboarding") === "true" ||
+        urlParams.has("onboard");
+
+      if (isOnboard) {
+        setOnboardingSuccess(true);
+        confetti({
+          particleCount: 150,
+          spread: 90,
+          origin: { y: 0.5 },
+        });
+      }
+    }
+  }, []);
 
   // Nettoyer automatiquement les hash résiduels dans l'URL
   useEffect(() => {
@@ -197,9 +185,29 @@ export default function DashboardPage() {
             </div>
             <button
               onClick={dismissCelebration}
-              className="text-[11px] font-bold px-2.5 py-1 bg-white text-black rounded-lg hover:bg-zinc-200 transition shrink-0 ml-2"
+              className="text-[11px] font-bold px-2.5 py-1 bg-white text-black rounded-lg hover:bg-zinc-200 transition shrink-0 ml-2 cursor-pointer"
             >
               C&apos;est parti
+            </button>
+          </div>
+        )}
+
+        {/* Bannière de célébration fin d'Onboarding Quiz */}
+        {onboardingSuccess && (
+          <div className="mb-3 p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-white flex items-center justify-between animate-in slide-in-from-top duration-300 shadow-md">
+            <div className="text-xs">
+              <div className="font-bold flex items-center gap-1.5 text-white">
+                <span>🎉</span> Profil d&apos;apprentissage configuré !
+              </div>
+              <p className="text-[11px] text-zinc-300 mt-0.5">
+                Choisis Flashcards ou Quiz ci-dessous pour démarrer.
+              </p>
+            </div>
+            <button
+              onClick={() => setOnboardingSuccess(false)}
+              className="text-[11px] font-bold px-2.5 py-1 bg-white text-black rounded-lg hover:bg-zinc-200 transition shrink-0 ml-2 cursor-pointer"
+            >
+              C&apos;est parti ⚡
             </button>
           </div>
         )}

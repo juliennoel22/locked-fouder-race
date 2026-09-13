@@ -58,7 +58,7 @@ export default function QuizPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard?onboarding=complete`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard?onboard=true`,
         },
       });
       if (error) throw error;
@@ -140,7 +140,7 @@ export default function QuizPage() {
         console.warn("Sync metadata warning :", syncErr);
       }
 
-      router.push("/dashboard?onboarding=complete");
+      router.push("/dashboard?onboard=true");
     } catch (err) {
       console.error("Erreur connexion email :", err);
       // Mode tolérant aux pannes : enregistrement local et redirection immédiate
@@ -148,7 +148,7 @@ export default function QuizPage() {
       if (userName.trim()) {
         localStorage.setItem("loreno_user_name", userName.trim());
       }
-      router.push("/dashboard?onboarding=complete");
+      router.push("/dashboard?onboard=true");
     } finally {
       setIsSubmittingEmail(false);
     }

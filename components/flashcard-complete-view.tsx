@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import confetti from "canvas-confetti";
 import { Trophy, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { Flashcard } from "@/types/loreno";
+import { OnboardingTourBubble } from "./dashboard/onboarding-tour-bubble";
 
 interface FlashcardCompleteViewProps {
   knownCount: number;
@@ -13,6 +14,8 @@ interface FlashcardCompleteViewProps {
   onReset?: () => void;
   onComplete?: () => void;
   isRound2?: boolean;
+  isTourActive?: boolean;
+  onValidateOnboarding?: () => void;
 }
 
 export function FlashcardCompleteView({
@@ -23,6 +26,8 @@ export function FlashcardCompleteView({
   onReset,
   onComplete,
   isRound2 = false,
+  isTourActive = false,
+  onValidateOnboarding,
 }: FlashcardCompleteViewProps) {
   const safeTotal = Math.max(1, totalCount);
   const safeKnown = Math.min(safeTotal, Math.max(0, knownCount));
@@ -77,7 +82,7 @@ export function FlashcardCompleteView({
   const feedback = getFeedback();
 
   return (
-    <div className="w-full py-4 flex flex-col items-center text-center space-y-5 select-none animate-in fade-in duration-300">
+    <div className="w-full py-4 flex flex-col items-center text-center space-y-4 select-none animate-in fade-in duration-300">
       {/* Badge et Note */}
       <div className="space-y-3">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-bold text-black">
@@ -124,18 +129,37 @@ export function FlashcardCompleteView({
         </div>
       </div>
 
-      {/* Actions 20/80 : Round 2 Deuxième Chance */}
-      <div className="w-full max-w-xs space-y-2.5 pt-2">
+      {/* Modale violette d'onboarding post-score */}
+      {isTourActive && (
+        <div className="w-full max-w-xs text-left">
+          <OnboardingTourBubble
+            show={true}
+            badgeText="Étape 3 validée 🎉"
+            title="Ton 1er test est réussi !"
+            description="Découvre ta fiche de cours complète avec la synthèse et les options d'apprentissage."
+            arrowDirection="down"
+            actionLabel="Valider mon onboarding →"
+            onAction={onValidateOnboarding}
+            showDismiss={false}
+          />
+        </div>
+      )}
+
+      {/* Actions 20/80 : désactivées pendant le tour pour forcer la validation */}
+      <div className="w-full max-w-xs space-y-2.5 pt-1">
         {hasFailedCards && reviewCount > 0 ? (
           <button
             type="button"
+            disabled={isTourActive}
             onClick={onRetryFailed}
-            className="w-full h-14 bg-black hover:bg-zinc-800 text-white font-bold rounded-xl active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm shadow-md"
+            className={`w-full h-14 bg-black hover:bg-zinc-800 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md ${
+              isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+            }`}
           >
             <RefreshCw className="w-4 h-4" />
             <span>Revoir les {failedCards.length} cartes ratées (Round 2)</span>
           </button>
-        ) : onComplete ? (
+        ) : !isTourActive && onComplete ? (
           <button
             type="button"
             onClick={onComplete}
@@ -149,8 +173,11 @@ export function FlashcardCompleteView({
         {onReset && (
           <button
             type="button"
+            disabled={isTourActive}
             onClick={onReset}
-            className="w-full h-12 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-2 transition active:scale-[0.98]"
+            className={`w-full h-12 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-2 transition ${
+              isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+            }`}
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Recommencer tout le cours ({safeTotal} cartes)</span>
@@ -160,3 +187,4 @@ export function FlashcardCompleteView({
     </div>
   );
 }
+

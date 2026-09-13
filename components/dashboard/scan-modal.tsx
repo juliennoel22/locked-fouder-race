@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { X, Sparkles } from "lucide-react";
+import { X } from "lucide-react";
 import { compressCourseImage } from "@/lib/image-compression";
 import { ScanApiResponse, ScanResult, NotebookItem } from "@/types/loreno";
 import { DEFAULT_SCAN_RESULT } from "@/lib/quiz-data";
 import { QuizScanStep, ScannedPhotoItem } from "@/components/quiz-scan-step";
 import { QuizLoadingOverlay } from "@/components/quiz-loading-overlay";
+import { OnboardingTourBubble } from "./onboarding-tour-bubble";
+import { isOnboardingCompleted, setTourStep } from "@/lib/onboarding-tour-state";
 
 interface ScanModalProps {
   isOpen: boolean;
@@ -32,8 +34,11 @@ export function ScanModal({
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showTourBanner, setShowTourBanner] = useState<boolean>(true);
 
   if (!isOpen) return null;
+
+  const isTourActive = showTourBanner && !isOnboardingCompleted();
 
   const handleAddPhotos = (newFiles: File[]) => {
     setErrorMessage(null);
@@ -160,6 +165,9 @@ export function ScanModal({
       setLoadingMessage("Terminé !");
 
       setTimeout(() => {
+        if (!isOnboardingCompleted()) {
+          setTourStep("test_training");
+        }
         setLoading(false);
         setSelectedPhotos([]);
         onSuccess(createdNotebook, targetMode);
@@ -178,9 +186,6 @@ export function ScanModal({
         {/* Header Modale */}
         <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/80">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
             <div>
               <h3 className="text-xs font-bold text-black uppercase tracking-wider">
                 Scanne ton cours
@@ -209,9 +214,24 @@ export function ScanModal({
         </div>
 
         {/* Contenu Scan */}
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-center">
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-start space-y-3">
+          {/* Étape 2 de l'Onboarding */}
+          {isTourActive && !loading && (
+            <OnboardingTourBubble
+              show={true}
+              onDismiss={() => setShowTourBanner(false)}
+              stepNumber={2}
+              totalSteps={3}
+              title="Prends ton cours en photo"
+              description="Ajoute une photo de tes notes ou un PDF pour que l'IA génère tes fiches de révision."
+              arrowDirection="down"
+            />
+          )}
+
           {loading ? (
-            <QuizLoadingOverlay message={loadingMessage} progress={loadingProgress} />
+            <div className="flex-1 flex items-center justify-center">
+              <QuizLoadingOverlay message={loadingMessage} progress={loadingProgress} />
+            </div>
           ) : (
             <QuizScanStep
               photos={selectedPhotos}
