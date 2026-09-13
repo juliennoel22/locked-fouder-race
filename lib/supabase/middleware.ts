@@ -74,7 +74,18 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // 2. Si l'utilisateur est connecté et va sur /quiz alors qu'il a déjà terminé l'onboarding
+  // 2. Si l'utilisateur est connecté mais n'a pas terminé son onboarding, bloquer l'accès à la landing page
+  if (user && !isOnboardingCompleted && !isJury && pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/quiz";
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((c) => {
+      redirectResponse.cookies.set(c.name, c.value);
+    });
+    return redirectResponse;
+  }
+
+  // 3. Si l'utilisateur est connecté et va sur /quiz alors qu'il a déjà terminé l'onboarding
   if (user && pathname === "/quiz" && isOnboardingCompleted) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
@@ -85,7 +96,7 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // 3. Bloquer l'accès à /dashboard ou /deck si non connecté ou si onboarding non terminé
+  // 4. Bloquer l'accès à /dashboard ou /deck si non connecté ou si onboarding non terminé
   const isProtectedPath =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/deck") ||

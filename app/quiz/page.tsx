@@ -83,8 +83,6 @@ export default function QuizPage() {
   const handleBack = () => {
     if (step > 1) {
       setStep((prev) => prev - 1);
-    } else {
-      router.push("/");
     }
   };
 
@@ -238,13 +236,17 @@ export default function QuizPage() {
         {/* Top Header */}
         <div className="w-full pt-2">
           <div className="flex items-center justify-between h-9 mb-3">
-            <button
-              onClick={handleBack}
-              className="p-2 -ml-2 text-zinc-400 hover:text-black transition cursor-pointer"
-              aria-label="Retour"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+            {step > 1 ? (
+              <button
+                onClick={handleBack}
+                className="p-2 -ml-2 text-zinc-400 hover:text-black transition cursor-pointer"
+                aria-label="Étape précédente"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            ) : (
+              <div className="w-9 h-9" />
+            )}
             <Image
               src="/logo.png"
               alt="loreno.app"
@@ -254,14 +256,14 @@ export default function QuizPage() {
               priority
             />
             <span className="text-xs font-mono text-zinc-400">
-              {step + 1} / 6
+              {step} / 5
             </span>
           </div>
 
           <div className="w-full bg-zinc-100 h-1 rounded-full overflow-hidden border border-zinc-200">
             <div
               className="bg-black h-full transition-all duration-300"
-              style={{ width: `${((step + 1) / 6) * 100}%` }}
+              style={{ width: `${(step / 5) * 100}%` }}
             />
           </div>
         </div>

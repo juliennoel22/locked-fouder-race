@@ -14,7 +14,6 @@ import { FeedbackModal } from "@/components/dashboard/feedback-modal";
 import { ScanModal } from "@/components/dashboard/scan-modal";
 import { useProStatus } from "@/lib/use-pro-status";
 import { createClient } from "@/lib/supabase/client";
-
 import { showToast } from "@/lib/toast";
 
 export default function DashboardPage() {
@@ -34,11 +33,7 @@ export default function DashboardPage() {
   // Célébration confettis lors du déblocage post-paiement
   useEffect(() => {
     if (justUnlocked) {
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 },
-      });
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     }
   }, [justUnlocked]);
 
@@ -46,12 +41,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
-      const isOnboard =
-        urlParams.get("onboard") === "true" ||
-        urlParams.get("onboard") === "1" ||
-        urlParams.get("onboarding") === "complete" ||
-        urlParams.get("onboarding") === "true" ||
-        urlParams.has("onboard");
+      const isOnboard = urlParams.get("onboard") === "true" || urlParams.has("onboard");
 
       if (isOnboard) {
         showToast({
@@ -59,29 +49,15 @@ export default function DashboardPage() {
           description: "Tes cours et tes outils de révision sont prêts.",
           type: "success",
         });
-        confetti({
-          particleCount: 150,
-          spread: 90,
-          origin: { y: 0.5 },
+        confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+      } else if (!sessionStorage.getItem("loreno_login_toast_shown")) {
+        sessionStorage.setItem("loreno_login_toast_shown", "true");
+        showToast({
+          title: "Connecté avec succès 👋",
+          description: "Bienvenue sur ton espace Loreno.",
+          type: "success",
         });
-      } else {
-        const hasShownLoginToast = sessionStorage.getItem("loreno_login_toast_shown");
-        if (!hasShownLoginToast) {
-          sessionStorage.setItem("loreno_login_toast_shown", "true");
-          showToast({
-            title: "Connecté avec succès 👋",
-            description: "Bienvenue sur ton espace Loreno.",
-            type: "success",
-          });
-        }
       }
-    }
-  }, []);
-
-  // Nettoyer automatiquement les hash résiduels dans l'URL
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash.includes("error")) {
-      window.history.replaceState(null, "", window.location.pathname);
     }
   }, []);
 
@@ -90,7 +66,18 @@ export default function DashboardPage() {
     try {
       const supabase = createClient();
       const { data: userData } = await supabase.auth.getUser();
-      if (userData?.user?.email) {
+      if (!userData?.user) {
+        router.replace("/auth/login?next=/dashboard");
+        return;
+      }
+
+      const meta = userData.user.user_metadata || {};
+      if (meta.onboarding_completed !== true && !isPro) {
+        router.replace("/quiz");
+        return;
+      }
+
+      if (userData.user.email) {
         setUserEmail(userData.user.email);
       }
 
@@ -109,12 +96,11 @@ export default function DashboardPage() {
         if (cached) {
           try {
             const parsed = JSON.parse(cached);
-            if (parsed.scanData && parsed.scanData.title) {
+            if (parsed.scanData?.title) {
               const alreadyExists = loadedNotebooks.some(
                 (n) => n.title.trim().toLowerCase() === parsed.scanData.title.trim().toLowerCase()
               );
-
-              if (!alreadyExists && userData?.user) {
+              if (!alreadyExists && userData.user) {
                 const { title, subject, summary, initial_quiz_question, flashcards } = parsed.scanData;
                 const saveRes = await fetch("/api/decks", {
                   method: "POST",
@@ -142,7 +128,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isPro, router]);
 
   useEffect(() => {
     initDashboard();
@@ -154,16 +140,8 @@ export default function DashboardPage() {
   ) => {
     setNotebooks((prev) => [newNb, ...prev]);
     setSelectedNotebook(newNb);
-    if (targetMode === "flashcards" || targetMode === "quiz") {
-      setSelectedNotebookMode(targetMode);
-      setShowAiTutorDirect(false);
-    } else if (targetMode === "tutor") {
-      setSelectedNotebookMode("grid");
-      setShowAiTutorDirect(true);
-    } else {
-      setSelectedNotebookMode("grid");
-      setShowAiTutorDirect(false);
-    }
+    setSelectedNotebookMode(targetMode === "flashcards" || targetMode === "quiz" ? targetMode : "grid");
+    setShowAiTutorDirect(targetMode === "tutor");
   };
 
   const handleDeleteNotebook = async (id: string) => {
@@ -178,16 +156,9 @@ export default function DashboardPage() {
     }
   };
 
-  const handleActionClick = (mode: "flashcards" | "quiz" | "tutor") => {
-    // Sur "Créer & Réviser", cliquer sur n'importe quel bouton ouvre la modale de scan configurée pour ce mode
-    setScanTargetMode(mode);
-    setShowScanModal(true);
-  };
-
   return (
     <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
       <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
-        {/* Bannière de célébration Pack Premium activé */}
         {justUnlocked && (
           <div className="mb-3 p-3.5 rounded-2xl bg-black text-white flex items-center justify-between animate-in slide-in-from-top duration-300 shadow-md">
             <div className="text-xs">
@@ -206,8 +177,6 @@ export default function DashboardPage() {
             </button>
           </div>
         )}
-
-
 
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center space-y-3 py-16">
@@ -250,7 +219,10 @@ export default function DashboardPage() {
             isPro={isPro}
             userEmail={userEmail}
             onDeleteNotebook={handleDeleteNotebook}
-            onActionClick={handleActionClick}
+            onActionClick={(mode) => {
+              setScanTargetMode(mode);
+              setShowScanModal(true);
+            }}
             onOpenScanModal={() => {
               setScanTargetMode("grid");
               setShowScanModal(true);
@@ -258,7 +230,6 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Barre flottante Caméra, Nouveau Cours & Avis dans la Thumb Zone */}
         {!selectedNotebook && !loading && (
           <FloatingScanBar
             onNewNotebook={(nb) => handleAddNewNotebook(nb, "grid")}
@@ -275,7 +246,6 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Modale de Scan Rapide de cours */}
         <ScanModal
           isOpen={showScanModal}
           onClose={() => setShowScanModal(false)}
@@ -286,7 +256,6 @@ export default function DashboardPage() {
           targetMode={scanTargetMode}
         />
 
-        {/* Modal Paywall Stripe & Feedback */}
         <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
         <FeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
       </div>
