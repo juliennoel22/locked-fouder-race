@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { DollarSign, Rocket, Zap, MessageSquare, Video, Radio, ZoomIn } from "lucide-react";
+import { DollarSign, Rocket, Zap, MessageSquare, Video, Radio, ZoomIn, Flame, Megaphone } from "lucide-react";
 
 export interface TimelineStep {
   time: string;
@@ -68,11 +68,19 @@ export const TIMELINE_STEPS: TimelineStep[] = [
     ],
   },
   {
-    time: "21:00 - 23:30",
-    title: "Round 2 & Note Prédictive /20",
-    description: "Mode Deuxième Chance sur les erreurs, note prédictive d'examen et explications pédagogiques instantanées par Gemini.",
-    tag: "Super-Features",
-    icon: Zap,
+    time: "21:00 - 02:00",
+    title: "Guerilla Marketing Nocturne, Tournage Pitch & QR Codes",
+    description: "Session code au restaurant en mangeant, affichage massif de QR codes dans les rues de Nancy et dans les bus, tournage du pitch avec des inconnus, cri de guerre et recrutement comm en direct.",
+    tag: "Guerilla & Pitch",
+    icon: Flame,
+    highlight: true,
+    images: [
+      { src: "/recap/IMG_0436.jpg", alt: "Manger en codant au restaurant" },
+      { src: "/recap/IMG_0445.png", alt: "Affichage QR codes dans la ville et les bus" },
+      { src: "/recap/IMG_0446.png", alt: "Tournage vidéo pitch avec des inconnus" },
+      { src: "/recap/IMG_0447.png", alt: "Cri de guerre nocturne" },
+      { src: "/recap/IMG_0448.png", alt: "Recrutement d'inconnus en direct pour la comm" },
+    ],
   },
 ];
 

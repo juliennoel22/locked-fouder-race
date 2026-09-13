@@ -15,9 +15,9 @@
 | :--- | :--- | :--- |
 | **Chiffre d'Affaires Encaissé (CA)** | **59,94 €** | **Stripe Live** (6 transactions réelles de 9,99 €) |
 | **Clients Payants** | **6 étudiants validés** | Edwin Holweck, Danial Adam, Yanis, Emmanuel Bombaka, Greg, Hugo Couve |
-| **Comptes Créés** | **19 étudiants inscrits** | Table `auth.users` Supabase |
-| **Visiteurs Uniques** | **104 visiteurs** (316 pages vues) | Vercel Analytics en direct |
-| **Acquisition Terrain** | **Micro-trottoirs à Nancy + TikTok/Instagram** | Tests réels en direct avec des étudiants (photos & vidéos sur `/recap`) |
+| **Comptes Créés** | **30 étudiants inscrits** | Table `auth.users` Supabase en direct |
+| **Visiteurs Uniques** | **138 visiteurs** (422 pages vues) | Vercel Analytics en direct |
+| **Acquisition Terrain & Guerilla** | **Micro-trottoirs à Nancy, bus, affichage QR codes & TikTok** | Tests réels en direct, campagne de stickers & vidéo pitch avec inconnus |
 
 ---
 
