@@ -51,8 +51,6 @@ export default function RecapPage() {
   }, []);
 
   const metrics = [
-    { label: "CA Encaissé", value: `${stats.revenue.toFixed(2).replace(".", ",")} €`, sub: `${stats.transactionsCount} ventes Stripe`, icon: CreditCard, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Clients Payants", value: `${stats.transactionsCount}`, sub: "Pass 9,99 € validés", icon: Trophy, color: "text-amber-600", bg: "bg-amber-50" },
     { label: "Visites Uniques", value: `${stats.visitors}`, sub: `${stats.pageviews} pages vues`, icon: Eye, color: "text-blue-600", bg: "bg-blue-50" },
     { label: "Inscriptions", value: `${stats.signupsCount}`, sub: "Comptes Supabase", icon: Users, color: "text-[#4457f4]", bg: "bg-indigo-50" },
   ];
@@ -190,14 +188,6 @@ export default function RecapPage() {
               <span>Accéder à Loreno.app</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </Link>
-
-            <div className="pt-1 flex items-center justify-center gap-2 text-[11px] text-zinc-400">
-              <span>Code promo démo :</span>
-              <span className="px-2 py-0.5 rounded-md bg-white/10 font-mono font-bold text-white border border-white/20">
-                FOUNDERRACE
-              </span>
-              <span>(100% offert)</span>
-            </div>
           </div>
         </section>
 
