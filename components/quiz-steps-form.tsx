@@ -163,14 +163,14 @@ export function QuizStepsForm({
               <div className="space-y-1.5">
                 <h2 className="text-xl font-bold text-black">Vérifie tes emails !</h2>
                 <p className="text-xs text-zinc-600 max-w-xs mx-auto leading-relaxed">
-                  Un lien de connexion et un code à 6 chiffres ont été envoyés à <strong className="text-black font-semibold">{email}</strong>.
+                  Un lien de connexion et un code de confirmation ont été envoyés à <strong className="text-black font-semibold">{email}</strong>.
                 </p>
               </div>
 
               <form onSubmit={onVerifyOtp} className="space-y-3 pt-2 text-left">
                 <div>
                   <label htmlFor="otp-code" className="block text-xs font-semibold text-zinc-700 mb-1.5 pl-0.5">
-                    Code de confirmation (6 chiffres)
+                    Code de confirmation
                   </label>
                   <input
                     id="otp-code"
@@ -194,7 +194,7 @@ export function QuizStepsForm({
 
                 <button
                   type="submit"
-                  disabled={isVerifyingOtp || !otpCode || otpCode.length < 6}
+                  disabled={isVerifyingOtp || !otpCode || otpCode.length < 6 || otpCode.length > 10}
                   className="w-full h-14 bg-black hover:bg-zinc-800 text-white font-bold rounded-xl active:scale-[0.98] transition flex items-center justify-center gap-2 mt-2 disabled:opacity-30 shadow-sm cursor-pointer text-sm"
                 >
                   {isVerifyingOtp ? (
