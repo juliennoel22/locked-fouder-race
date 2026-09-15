@@ -102,6 +102,9 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
+  other: {
+    "gridinsoft-key": "5b0cyolsqdc9g78xm62ou4e9kjafbfhc6jynsd56tebzrq3kxp90uo9glz3iu826",
+  },
 };
 
 const geistSans = Geist({
