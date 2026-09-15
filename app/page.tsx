@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
       <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
-        {/* Top Header : Logo & Étape */}
+        {/* Top Header : Logo & Connexion */}
         <div className="w-full pt-2">
           <div className="flex items-center justify-between h-9 mb-3">
             <Image
@@ -17,7 +17,12 @@ export default function Home() {
               className="h-8 sm:h-9 w-auto object-contain"
               priority
             />
-            <span className="text-xs font-mono font-semibold text-zinc-400">1 / 6</span>
+            <Link
+              href="/auth/login"
+              className="text-xs font-semibold text-zinc-600 hover:text-black bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded-full transition cursor-pointer"
+            >
+              Se connecter
+            </Link>
           </div>
           <div className="w-full bg-zinc-100 h-1 rounded-full overflow-hidden border border-zinc-200">
             <div className="bg-black h-full transition-all duration-300" style={{ width: "16.66%" }} />
@@ -67,7 +72,7 @@ export default function Home() {
           </div>
 
           {/* CTA Principal */}
-          <div className="pt-2 space-y-2">
+          <div className="pt-2 space-y-3">
             <Link
               href="/quiz"
               className="w-full h-13.5 py-3.5 px-6 bg-gradient-to-r from-[#3446eb] via-[#4457f4] to-indigo-600 hover:brightness-105 text-white font-bold text-sm rounded-2xl active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-lg shadow-[#4457f4]/25"
@@ -76,9 +81,17 @@ export default function Home() {
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </Link>
 
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Gratuit • Immédiat • Sans carte bancaire</span>
+            <div className="flex items-center justify-between text-[11px] px-1">
+              <div className="flex items-center gap-1 text-zinc-500">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Gratuit • Immédiat</span>
+              </div>
+              <Link
+                href="/auth/login"
+                className="text-zinc-500 hover:text-black font-medium underline underline-offset-2 transition"
+              >
+                Déjà un compte ? Connexion →
+              </Link>
             </div>
           </div>
         </div>

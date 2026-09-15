@@ -137,6 +137,11 @@ export default function QuizPage() {
   };
 
   // Connexion instantanée 1-Tap & Enregistrement Onboarding en base
+  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [otpCode, setOtpCode] = useState<string>("");
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState<boolean>(false);
+
+  // Connexion sécurisée Magic Link / OTP & Enregistrement Onboarding en base
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim().toLowerCase();
@@ -150,8 +155,8 @@ export default function QuizPage() {
     setErrorMessage(null);
 
     try {
-      // 1. Enregistrement automatique et sécurisé côté serveur avec sauvegarde onboarding
-      const res = await fetch("/api/auth/email", {
+      // 1. Pré-sauvegarde sécurisée de l'onboarding côté serveur
+      await fetch("/api/auth/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -167,27 +172,62 @@ export default function QuizPage() {
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success || !data.secret) {
-        throw new Error(data.error || "Impossible de se connecter.");
-      }
-
-      // 2. Établissement de la session Supabase client
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      // 2. Envoi natif du Magic Link / OTP via Supabase Auth
+      const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/dashboard?onboard=true")}`;
+      const { error: otpError } = await supabase.auth.signInWithOtp({
         email: cleanEmail,
-        password: data.secret,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            onboarding_completed: true,
+            full_name: userName.trim(),
+          },
+        },
       });
 
-      if (signInError) {
-        console.warn("Avertissement session client :", signInError.message);
-      }
+      if (otpError) throw otpError;
 
-      // 3. Sauvegarde locale du profil et redirection vers le dashboard
+      // 3. Passage à l'état de validation du code / vérification email
       localStorage.setItem("loreno_user_email", cleanEmail);
       if (userName.trim()) {
         localStorage.setItem("loreno_user_name", userName.trim());
       }
+      setOtpSent(true);
+    } catch (err: unknown) {
+      console.error("Erreur envoi OTP :", err);
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : "Impossible d'envoyer le code de connexion. Veuillez réessayer."
+      );
+    } finally {
+      setIsSubmittingEmail(false);
+    }
+  };
+
+  // Validation du code OTP à 6 chiffres entré par l'utilisateur
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = otpCode.trim();
+
+    if (!cleanCode || cleanCode.length < 6) {
+      setErrorMessage("Veuillez entrer le code à 6 chiffres reçu par email.");
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    setErrorMessage(null);
+
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: cleanCode,
+        type: "email",
+      });
+
+      if (verifyError) throw verifyError;
+
       localStorage.setItem(
         "loreno_onboarding",
         JSON.stringify({
@@ -200,15 +240,15 @@ export default function QuizPage() {
       );
 
       router.push("/dashboard?onboard=true");
-    } catch (err) {
-      console.error("Erreur connexion email :", err);
-      localStorage.setItem("loreno_user_email", cleanEmail);
-      if (userName.trim()) {
-        localStorage.setItem("loreno_user_name", userName.trim());
-      }
-      router.push("/dashboard?onboard=true");
+    } catch (err: unknown) {
+      console.error("Erreur vérification OTP :", err);
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : "Code invalide ou expiré. Veuillez vérifier votre boîte mail."
+      );
     } finally {
-      setIsSubmittingEmail(false);
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -271,6 +311,12 @@ export default function QuizPage() {
           onSubmitEmail={handleSubmitEmail}
           showGoogleLogin={showGoogleLogin}
           onGoogleLogin={handleGoogleLogin}
+          otpSent={otpSent}
+          otpCode={otpCode}
+          setOtpCode={setOtpCode}
+          isVerifyingOtp={isVerifyingOtp}
+          onVerifyOtp={handleVerifyOtp}
+          onResetOtp={() => setOtpSent(false)}
         />
 
       </div>

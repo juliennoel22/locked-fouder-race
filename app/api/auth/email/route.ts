@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto";
 
 interface OnboardingPayload {
   step?: number;
@@ -44,16 +43,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Mot de passe interne déterministe et sécurisé basé sur l'email et la clé secrète serveur
-    const secret =
-      crypto
-        .createHmac("sha256", serviceRoleKey)
-        .update(normalizedEmail)
-        .digest("hex")
-        .slice(0, 32) + "A1!";
-
     const initialMetadata: Record<string, string | number | boolean | null> = {
-      registered_via: "email_only",
+      registered_via: "email_otp",
       registered_at: new Date().toISOString(),
       onboarding_completed: onboarding?.completed ?? true,
       onboarding_step: onboarding?.step ?? 5,
@@ -65,16 +56,15 @@ export async function POST(request: NextRequest) {
 
     let userMetadata: Record<string, unknown> = initialMetadata;
 
-    // 1. Tenter la création immédiate avec email_confirm: true
+    // 1. Tenter la pré-création sécurisée de l'utilisateur avec metadata (sans mot de passe)
     const { data: createdUser, error: createError } =
       await admin.auth.admin.createUser({
         email: normalizedEmail,
-        password: secret,
-        email_confirm: true,
+        email_confirm: false,
         user_metadata: initialMetadata,
       });
 
-    // 2. Si l'utilisateur existe déjà, mettre à jour son mot de passe et synchroniser l'onboarding
+    // 2. Si l'utilisateur existe déjà, mettre à jour ses metadata d'onboarding
     if (createError) {
       const { data: listData } = await admin.auth.admin.listUsers();
       const existingUser = listData?.users?.find(
@@ -94,25 +84,17 @@ export async function POST(request: NextRequest) {
         };
 
         await admin.auth.admin.updateUserById(existingUser.id, {
-          password: secret,
-          email_confirm: true,
           user_metadata: userMetadata,
         });
-      } else {
-        console.error("Erreur création utilisateur Supabase :", createError);
-        return NextResponse.json(
-          { success: false, error: createError.message },
-          { status: 400 }
-        );
       }
     } else if (createdUser?.user?.user_metadata) {
       userMetadata = createdUser.user.user_metadata;
     }
 
+    // Réponse STRICTEMENT sécurisée : Aucun secret, token ou mot de passe retourné
     return NextResponse.json({
       success: true,
       email: normalizedEmail,
-      secret,
       metadata: userMetadata,
     });
   } catch (err) {
