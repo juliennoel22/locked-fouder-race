@@ -33,60 +33,32 @@ ALTER TABLE public.decks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.flashcards ENABLE ROW LEVEL SECURITY;
 
 -- Policies Decks
-CREATE POLICY "Users can manage their own decks"
-    ON public.decks
-    FOR ALL
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can select own decks" ON public.decks FOR SELECT TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own decks" ON public.decks FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own decks" ON public.decks FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own decks" ON public.decks FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- Policies Flashcards (via deck ownership)
-CREATE POLICY "Users can manage flashcards of their decks"
-    ON public.flashcards
-    FOR ALL
-    USING (
-        EXISTS (
-            SELECT 1 FROM public.decks
-            WHERE public.decks.id = public.flashcards.deck_id
-            AND public.decks.user_id = auth.uid()
-        )
-    )
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.decks
-            WHERE public.decks.id = public.flashcards.deck_id
-            AND public.decks.user_id = auth.uid()
-        )
-    );
+CREATE POLICY "Users can select own flashcards" ON public.flashcards FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.decks WHERE public.decks.id = public.flashcards.deck_id AND public.decks.user_id = auth.uid()));
+CREATE POLICY "Users can insert own flashcards" ON public.flashcards FOR INSERT TO authenticated WITH CHECK (EXISTS (SELECT 1 FROM public.decks WHERE public.decks.id = public.flashcards.deck_id AND public.decks.user_id = auth.uid()));
+CREATE POLICY "Users can update own flashcards" ON public.flashcards FOR UPDATE TO authenticated USING (EXISTS (SELECT 1 FROM public.decks WHERE public.decks.id = public.flashcards.deck_id AND public.decks.user_id = auth.uid()));
+CREATE POLICY "Users can delete own flashcards" ON public.flashcards FOR DELETE TO authenticated USING (EXISTS (SELECT 1 FROM public.decks WHERE public.decks.id = public.flashcards.deck_id AND public.decks.user_id = auth.uid()));
 
 -- 5. INDEXES DE PERFORMANCE
 CREATE INDEX IF NOT EXISTS idx_decks_user_id ON public.decks(user_id);
 CREATE INDEX IF NOT EXISTS idx_flashcards_deck_id ON public.flashcards(deck_id);
 
 -- ==============================================================================
--- 6. SUPABASE STORAGE (BUCKET PUBLIC 'course-scans')
+-- 6. SUPABASE STORAGE (BUCKET PRIVÉ 'course-scans')
 -- ==============================================================================
 
--- Création du bucket public pour stocker les photos de cours compressées
+-- Création du bucket privé pour stocker les photos de cours
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('course-scans', 'course-scans', true)
-ON CONFLICT (id) DO UPDATE SET public = true;
+VALUES ('course-scans', 'course-scans', false)
+ON CONFLICT (id) DO UPDATE SET public = false;
 
--- Lecture publique de toutes les photos scannées du bucket
-CREATE POLICY "Public Access course-scans"
-    ON storage.objects
-    FOR SELECT
-    USING (bucket_id = 'course-scans');
+-- Policies Storage Privé
+CREATE POLICY "Authenticated users read own course-scans" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Authenticated users upload own course-scans" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Authenticated users delete own course-scans" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);
 
--- Upload restreint aux utilisateurs connectés dans leur propre sous-dossier
-CREATE POLICY "Authenticated users can upload course-scans"
-    ON storage.objects
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);
-
--- Suppression autorisée par le propriétaire du fichier
-CREATE POLICY "Users can delete their own course-scans"
-    ON storage.objects
-    FOR DELETE
-    TO authenticated
-    USING (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);

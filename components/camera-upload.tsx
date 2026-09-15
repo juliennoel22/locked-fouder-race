@@ -60,10 +60,15 @@ export function CameraUpload() {
           });
 
         if (!uploadError && uploadData) {
-          const { data: publicUrlData } = supabase.storage
+          const { data: signedData, error: signedErr } = await supabase.storage
             .from("course-scans")
-            .getPublicUrl(uploadData.path);
-          uploadedPublicUrl = publicUrlData.publicUrl;
+            .createSignedUrl(uploadData.path, 3600);
+
+          if (!signedErr && signedData?.signedUrl) {
+            uploadedPublicUrl = signedData.signedUrl;
+          } else {
+            uploadedPublicUrl = uploadData.path;
+          }
         }
       } catch (storageErr) {
         console.warn("Storage upload fallback :", storageErr);
