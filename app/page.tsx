@@ -24,9 +24,6 @@ export default function Home() {
               Se connecter
             </Link>
           </div>
-          <div className="w-full bg-zinc-100 h-1 rounded-full overflow-hidden border border-zinc-200">
-            <div className="bg-black h-full transition-all duration-300" style={{ width: "16.66%" }} />
-          </div>
         </div>
 
         {/* Écran 1 : Hero structuré et épuré */}
@@ -96,6 +93,23 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Footer SEO & Trust Links */}
+        <footer className="pt-6 pb-2 text-center text-[11px] text-zinc-400 border-t border-zinc-100 space-y-2">
+          <div className="flex justify-center items-center gap-4 text-zinc-500 font-medium">
+            <Link href="/about" className="hover:text-black transition">
+              À propos &amp; Mission
+            </Link>
+            <span>•</span>
+            <Link href="/privacy" className="hover:text-black transition">
+              Confidentialité (RGPD)
+            </Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-black transition">
+              Conditions (CGU)
+            </Link>
+          </div>
+          <p className="text-[10px] text-zinc-400">© 2026 Loreno. Tous droits réservés.</p>
+        </footer>
       </div>
     </main>
   );
