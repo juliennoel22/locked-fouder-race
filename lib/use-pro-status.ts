@@ -29,101 +29,61 @@ export function useProStatus() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const urlParams = new URLSearchParams(window.location.search);
+    const checkProStatus = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
 
-    // Forçage explicite du mode gratuit via URL (?free=true ou ?pro=false)
-    const isExplicitFree =
-      urlParams.get("free") === "true" ||
-      urlParams.get("pro") === "false" ||
-      urlParams.get("mode") === "free";
+      // Mode Jury / Démo explicite
+      const isJuryParam =
+        urlParams.get("jury") === "true" ||
+        urlParams.get("jury") === "1" ||
+        urlParams.get("pass") === "jury" ||
+        urlParams.get("demo") === "pro";
 
-    if (isExplicitFree) {
-      localStorage.setItem("loreno_pro", "false");
-      localStorage.removeItem("loreno_jury_mode");
-      removeProCookie();
-      setIsPro(false);
-      setIsJuryMode(false);
-      setIsLoading(false);
-      return;
-    }
-
-    // Mode Jury / Démo
-    const isJuryParam =
-      urlParams.get("jury") === "true" ||
-      urlParams.get("jury") === "1" ||
-      urlParams.get("pass") === "jury" ||
-      urlParams.get("demo") === "pro" ||
-      urlParams.get("demo") === "true";
-
-    // Mode Pro forcé via URL
-    const isProParam = urlParams.get("pro") === "true" || urlParams.get("dev") === "true";
-
-    // Retour Stripe Payant
-    const hasPaymentSuccess =
-      urlParams.get("paid") === "true" ||
-      urlParams.get("payment") === "success" ||
-      urlParams.get("unlocked") === "true" ||
-      urlParams.get("success") === "true" ||
-      Boolean(urlParams.get("session_id"));
-
-    const storedPro = localStorage.getItem("loreno_pro");
-    const localPro = storedPro === "true" || (storedPro === null && hasProCookie());
-    const localJury = localStorage.getItem("loreno_jury_mode") === "true";
-
-    if (isJuryParam) {
-      localStorage.setItem("loreno_pro", "true");
-      localStorage.setItem("loreno_jury_mode", "true");
-      setProCookie();
-      setIsPro(true);
-      setIsJuryMode(true);
-      setJustUnlocked(true);
-    } else if (hasPaymentSuccess) {
-      localStorage.setItem("loreno_pro", "true");
-      setProCookie();
-      setIsPro(true);
-      setJustUnlocked(true);
-
-      try {
-        const supabase = createClient();
-        supabase.auth.getUser().then(({ data: { user } }) => {
-          if (user) {
-            supabase.auth.updateUser({
-              data: { is_pro: true, plan: "fondateur" },
-            });
-          }
-        });
-      } catch (err) {
-        console.error("Erreur sync statut pro Supabase :", err);
+      if (isJuryParam) {
+        setIsPro(true);
+        setIsJuryMode(true);
+        setJustUnlocked(true);
+        setIsLoading(false);
+        return;
       }
 
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
-    } else if (isProParam) {
-      localStorage.setItem("loreno_pro", "true");
-      setProCookie();
-      setIsPro(true);
-    } else if (storedPro === "false") {
-      setIsPro(false);
-    } else if (localPro) {
-      setIsPro(true);
-      if (localJury) setIsJuryMode(true);
-    } else {
-      // Vérification utilisateur Supabase
+      // Détection de retour de paiement Stripe
+      const hasPaymentReturn =
+        urlParams.get("payment") === "success" ||
+        urlParams.get("success") === "true" ||
+        Boolean(urlParams.get("session_id"));
+
       try {
         const supabase = createClient();
-        supabase.auth.getUser().then(({ data: { user } }) => {
-          if (user?.user_metadata?.is_pro) {
-            localStorage.setItem("loreno_pro", "true");
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+          const userIsPro = Boolean(user.user_metadata?.is_pro);
+          setIsPro(userIsPro);
+
+          if (userIsPro) {
             setProCookie();
-            setIsPro(true);
+          } else {
+            removeProCookie();
           }
-        });
-      } catch (err) {
-        console.error("Erreur lecture statut pro :", err);
-      }
-    }
 
-    setIsLoading(false);
+          if (hasPaymentReturn && userIsPro) {
+            setJustUnlocked(true);
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+          }
+        } else {
+          setIsPro(false);
+          removeProCookie();
+        }
+      } catch (err) {
+        console.error("Erreur vérification statut Pro Supabase :", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkProStatus();
   }, []);
 
   const activatePro = useCallback(() => {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { createClient } from "@/lib/supabase/server";
 
 interface TutorMessage {
   role: "user" | "model";
@@ -14,15 +15,26 @@ interface TutorRequest {
   messages: TutorMessage[];
 }
 
-/**
- * Conversational AI Exam Tutor Endpoint
- * Uses Gemini 1.5 Flash to tutor students on their scanned course notes.
- * Enforces active recall by concluding with a predictive exam question.
- */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Verification du statut Pro côté serveur (sauf mode démo 1ère question)
     const body: TutorRequest = await request.json();
     const { title, subject, summary, flashcards = [], messages = [] } = body;
+
+    const isProUser = Boolean(user?.user_metadata?.is_pro);
+    if (!isProUser && messages.length > 2) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Fonctionnalité réservée aux membres Premium. Débloque ton accès illimité !",
+          requiresPro: true,
+        },
+        { status: 403 }
+      );
+    }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {

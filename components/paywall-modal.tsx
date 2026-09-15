@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Check, ArrowRight, ShieldCheck, X, Zap } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -13,11 +15,40 @@ export function PaywallModal({
   onClose,
   retentionScore,
 }: PaywallModalProps) {
-  if (!isOpen) return null;
-
-  const stripeUrl =
+  const [stripeUrl, setStripeUrl] = useState<string>(
     process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
-    "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401";
+      "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401"
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const buildStripeLink = async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
+        "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401";
+
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+          const urlObj = new URL(baseUrl);
+          urlObj.searchParams.set("client_reference_id", user.id);
+          if (user.email) {
+            urlObj.searchParams.set("prefilled_email", user.email);
+          }
+          setStripeUrl(urlObj.toString());
+        }
+      } catch (e) {
+        console.warn("Could not build personalized Stripe payment link", e);
+      }
+    };
+
+    buildStripeLink();
+  }, [isOpen]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
