@@ -1,4 +1,4 @@
-# Loreno ⚡ (loreno.app) - Hackathon FounderRace 2026
+# Loreno  (loreno.app) - Hackathon FounderRace 2026
 
 > **Prends en photo tes notes de cours (même manuscrites ou brouillonnes) : obtiens tes fiches de révision 3D interactives, ton quiz noté sur /20 avec Round 2, et ton Tuteur d'Examen IA en moins de 2 secondes.**
 
@@ -56,7 +56,7 @@
 
 ---
 
-## ⚡ Fonctionnalités Clés du Produit
+##  Fonctionnalités Clés du Produit
 
 ### 📸 1. Scan Multimodal & Compression Client
 - Déclenchement instantané appareil photo (`capture="environment"`).
@@ -131,5 +131,5 @@ locked-founder-race/
 
 <div align="center">
   <sub>Développé avec passion en 24h chrono lors du Hackathon FounderRace 2026.</sub><br>
-  <strong>Loreno ⚡ - Révise tes partiels à la vitesse de l'éclair.</strong>
+  <strong>Loreno  - Révise tes partiels à la vitesse de l'éclair.</strong>
 </div>

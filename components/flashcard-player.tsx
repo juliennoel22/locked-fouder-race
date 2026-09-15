@@ -87,7 +87,7 @@ export function FlashcardPlayer({
     else setFailedCards((prev) => [...prev, currentCard]);
 
     if (known && newStreak >= 3) {
-      try { confetti({ particleCount: 45, spread: 60, origin: { y: 0.6 } }); } catch {}
+      try { confetti({ particleCount: 45, spread: 60, origin: { y: 0.6 } }); } catch { }
     }
 
     if (currentIndex + 1 < activeCards.length) {
@@ -101,7 +101,7 @@ export function FlashcardPlayer({
       setIsCompleted(true);
       setDragOffset(0);
       setExitDirection(null);
-      try { confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } }); } catch {}
+      try { confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } }); } catch { }
     }
   };
 
@@ -208,14 +208,13 @@ export function FlashcardPlayer({
       {/* Header : Dynamic Fiery Streak & Index */}
       <div className="w-full flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-            streak >= 5 ? "bg-black text-amber-300 border border-amber-400/40 shadow-md animate-pulse" :
-            streak >= 3 ? "bg-zinc-900 text-white shadow-xs" :
-            streak >= 2 ? "bg-zinc-100 border border-zinc-300 text-zinc-900" :
-            "bg-zinc-100 border border-zinc-200 text-zinc-700 font-medium"
-          }`}>
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${streak >= 5 ? "bg-black text-amber-300 border border-amber-400/40 shadow-md animate-pulse" :
+              streak >= 3 ? "bg-zinc-900 text-white shadow-xs" :
+                streak >= 2 ? "bg-zinc-100 border border-zinc-300 text-zinc-900" :
+                  "bg-zinc-100 border border-zinc-200 text-zinc-700 font-medium"
+            }`}>
             <Flame className={`w-3.5 h-3.5 ${streak >= 2 ? "text-amber-400 fill-amber-400" : "text-zinc-400"}`} />
-            <span>{streak >= 5 ? `⚡ x${streak} Maîtrise !` : streak >= 3 ? `🔥 x${streak} En feu !` : streak >= 2 ? `🔥 x${streak} Combo` : `Série : ${streak}`}</span>
+            <span>{streak >= 5 ? ` x${streak} Maîtrise !` : streak >= 3 ? `🔥 x${streak} En feu !` : streak >= 2 ? `🔥 x${streak} Combo` : `Série : ${streak}`}</span>
           </div>
           {isRound2 && <span className="px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-800 text-[10px] font-bold">Round 2</span>}
         </div>

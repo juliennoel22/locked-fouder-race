@@ -154,11 +154,10 @@ export function CameraUpload() {
       {/* Main Upload Zone */}
       <div
         onClick={() => !loading && fileInputRef.current?.click()}
-        className={`w-full relative group cursor-pointer overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ${
-          loading
+        className={`w-full relative group cursor-pointer overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ${loading
             ? "border-amber-500/50 bg-amber-500/5 p-8"
             : "border-zinc-800 hover:border-amber-500/50 bg-zinc-900/50 hover:bg-zinc-900/80 p-8 sm:p-12"
-        }`}
+          }`}
       >
         <div className="flex flex-col items-center justify-center text-center">
           {loading ? (
@@ -209,7 +208,7 @@ export function CameraUpload() {
 
       {/* Trust & Speed Guarantees */}
       <div className="flex items-center justify-center gap-6 mt-6 text-[11px] text-zinc-500 font-medium">
-        <span>⚡ Vision Gemini 1.5 Flash</span>
+        <span> Vision Gemini 1.5 Flash</span>
         <span>•</span>
         <span>📱 Compression Canvas &lt; 400 Ko</span>
         <span>•</span>

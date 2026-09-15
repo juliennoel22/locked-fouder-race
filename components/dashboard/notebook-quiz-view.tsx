@@ -88,7 +88,7 @@ export function NotebookQuizView({
     setSelectedOption(optIdx);
     if (optIdx === currentQ.correctIndex) {
       setScore((prev) => prev + 1);
-      try { confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } }); } catch {}
+      try { confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } }); } catch { }
     }
   };
 
@@ -98,7 +98,7 @@ export function NotebookQuizView({
       setSelectedOption(null);
     } else {
       setIsFinished(true);
-      try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } }); } catch {}
+      try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } }); } catch { }
     }
   };
 
@@ -117,11 +117,10 @@ export function NotebookQuizView({
 
     return (
       <div className="w-full py-6 flex flex-col items-center text-center space-y-4 select-none animate-in fade-in duration-300">
-        <div className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold ${
-          isTop ? "bg-emerald-50 text-emerald-900 border-emerald-200" : isPass ? "bg-amber-50 text-amber-900 border-amber-200" : "bg-red-50 text-red-900 border-red-200"
-        }`}>
+        <div className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold ${isTop ? "bg-emerald-50 text-emerald-900 border-emerald-200" : isPass ? "bg-amber-50 text-amber-900 border-amber-200" : "bg-red-50 text-red-900 border-red-200"
+          }`}>
           <MentionIcon className="w-3.5 h-3.5 shrink-0" />
-          <span>{note20 >= 16 ? `${note20}/20 : Mention Très Bien 🏆` : note20 >= 10 ? `${note20}/20 : Admis ⚡` : `${note20}/20 : Rattrapage 🚨`}</span>
+          <span>{note20 >= 16 ? `${note20}/20 : Mention Très Bien 🏆` : note20 >= 10 ? `${note20}/20 : Admis ` : `${note20}/20 : Rattrapage 🚨`}</span>
         </div>
 
         <div className="space-y-1">
@@ -155,9 +154,8 @@ export function NotebookQuizView({
           <button
             disabled={isTourActive}
             onClick={onComplete || onGoToFlashcards}
-            className={`w-full h-13 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm py-3.5 cursor-pointer ${
-              isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
-            }`}
+            className={`w-full h-13 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-sm py-3.5 cursor-pointer ${isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+              }`}
           >
             <span>Sauvegarder et continuer</span>
             <ArrowRight className="w-4 h-4" />
@@ -168,9 +166,8 @@ export function NotebookQuizView({
             <button
               disabled={isTourActive}
               onClick={onGoToFlashcards}
-              className={`w-full h-11 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
-                isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
-              }`}
+              className={`w-full h-11 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+                }`}
             >
               <Layers className="w-3.5 h-3.5" />
               <span>Flashcards</span>
@@ -179,9 +176,8 @@ export function NotebookQuizView({
             <button
               disabled={isTourActive}
               onClick={handleRestart}
-              className={`w-full h-11 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 font-medium text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
-                isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
-              }`}
+              className={`w-full h-11 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 font-medium text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${isTourActive ? "opacity-30 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+                }`}
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Recommencer</span>
@@ -244,9 +240,8 @@ export function NotebookQuizView({
               className={`w-full p-4 rounded-xl border text-left transition flex items-center justify-between gap-3 active:scale-[0.99] ${btnStyle}`}
             >
               <div className="flex items-center gap-3">
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                  hasAnswered && isCorrect ? "bg-white text-emerald-700" : hasAnswered && isSelected ? "bg-red-200 text-red-800" : "bg-zinc-100 text-zinc-700 border border-zinc-200"
-                }`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${hasAnswered && isCorrect ? "bg-white text-emerald-700" : hasAnswered && isSelected ? "bg-red-200 text-red-800" : "bg-zinc-100 text-zinc-700 border border-zinc-200"
+                  }`}>
                   {letter}
                 </span>
                 <span className="text-xs sm:text-sm leading-snug">{opt}</span>

@@ -44,7 +44,7 @@
 
 ---
 
-## ⚡ Doctrine d'Exécution Commando (Hackathon 24H)
+##  Doctrine d'Exécution Commando (Hackathon 24H)
 1. **Règle 80/20 Absolue** : Priorité totale à l'impact utilisateur et à l'encaissement Stripe. Pas de fioritures, pas de sur-ingénierie.
 2. **Modularité & Taille des Fichiers** : Tout fichier doit impérativement faire **moins de 300 lignes**. Découper en composants et sous-modules réutilisables.
 3. **TypeScript Strict** : Zéro `any`. Interfaces et types explicites pour toutes les structures (Flashcards, Deck, OCR, Chat).

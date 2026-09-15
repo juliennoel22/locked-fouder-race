@@ -1,4 +1,4 @@
-# LORENO ⚡ (loreno.app) - Technical Architecture & Engineering Specification
+# LORENO  (loreno.app) - Technical Architecture & Engineering Specification
 
 > Comprehensive system design, data flows, AI vision pipelines, middleware security, and fault-tolerance patterns for Loreno.
 

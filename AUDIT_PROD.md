@@ -1,6 +1,6 @@
 # 🚀 AUDIT COMPLET & ROADMAP PRODUCTION : LORENO (EX-SNAPSTUDY)
 
-> **Document de cadrage CTO & Product** — Passage du prototype gagnant Hackathon à un SaaS EdTech Production-Ready à fort cash-flow.
+> **Document de cadrage CTO & Product** — Passage du prototype gagnant Hackathon à un SaaS Production-Ready à fort cash-flow.
 
 ---
 

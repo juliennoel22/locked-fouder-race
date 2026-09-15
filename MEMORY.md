@@ -8,7 +8,7 @@
 
 ---
 
-## ⚡ Décisions Fondatrices 80/20 Validées
+##  Décisions Fondatrices 80/20 Validées
 1. **Gateway Auth Immédiate (Supabase)** : Inscription/Connexion obligatoire ou session invité. Chaque deck scanné est rattaché au `user_id`.
 2. **Compression Client + Supabase Storage (`course-scans`)** :
    - Compression Canvas HTML5 (max 1600px, JPEG 0.8) côté client : passage de 5 Mo à < 400 Ko pour un upload instantané.

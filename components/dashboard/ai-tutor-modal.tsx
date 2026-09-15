@@ -43,7 +43,7 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
           return;
         }
       }
-    } catch {}
+    } catch { }
     setMessages([defaultGreeting]);
   }, [isOpen, notebook.id, storageKey]);
 
@@ -54,7 +54,7 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
       try {
         const clean = newMessages.map(({ role, text }) => ({ role, text }));
         localStorage.setItem(storageKey, JSON.stringify(clean));
-      } catch {}
+      } catch { }
     },
     [storageKey]
   );
@@ -216,11 +216,10 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
                 </div>
               )}
               <div
-                className={`max-w-[85%] rounded-2xl p-3 ${
-                  m.role === "user"
+                className={`max-w-[85%] rounded-2xl p-3 ${m.role === "user"
                     ? "bg-black text-white rounded-br-none whitespace-pre-wrap leading-relaxed"
                     : "bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-bl-none shadow-2xs"
-                }`}
+                  }`}
               >
                 {m.role === "model" ? (
                   <FormattedAiText content={m.text} isStreaming={m.isStreaming} />
@@ -264,7 +263,7 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
             onClick={() => handleSend("Résume les 3 points qui rapportent le plus de points à l'épreuve.")}
             className="text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded-full whitespace-nowrap transition shrink-0 cursor-pointer"
           >
-            ⚡ 3 points clés
+            3 points clés
           </button>
         </div>
 

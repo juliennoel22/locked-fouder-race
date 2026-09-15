@@ -82,8 +82,8 @@ export function QuizScanStep({
                 {targetMode === "flashcards"
                   ? "Nombre de flashcards"
                   : targetMode === "quiz"
-                  ? "Nombre de questions du quiz"
-                  : "Nombre de notions à générer"}
+                    ? "Nombre de questions du quiz"
+                    : "Nombre de notions à générer"}
               </label>
               <span className="px-2.5 py-0.5 rounded-full bg-[#4457f4] text-white text-xs font-black shadow-2xs">
                 {cardCount} {targetMode === "quiz" ? "questions" : "fiches"}
@@ -130,7 +130,7 @@ export function QuizScanStep({
                   onClick={onSkip}
                   className="w-full h-14 rounded-xl border border-zinc-300 hover:border-black bg-zinc-50 hover:bg-zinc-100 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xs"
                 >
-                  <span>⚡ Je n&apos;ai pas mon cours sous la main</span>
+                  <span> Je n&apos;ai pas mon cours sous la main</span>
                 </button>
                 <p className="text-[11px] text-zinc-500 text-center mt-1.5">
                   Teste immédiatement avec un exemple de cours
@@ -165,7 +165,7 @@ export function QuizScanStep({
               >
                 {/* Image ou Carte Document PDF */}
                 {photo.file.type === "application/pdf" ||
-                photo.file.name.toLowerCase().endsWith(".pdf") ? (
+                  photo.file.name.toLowerCase().endsWith(".pdf") ? (
                   <div className="w-full h-full p-3 flex flex-col justify-between items-center text-center bg-zinc-50">
                     <div className="w-full flex justify-start items-center">
                       <span className="px-1.5 py-0.5 rounded bg-black text-white text-[9px] font-bold">
@@ -229,8 +229,8 @@ export function QuizScanStep({
                 {targetMode === "flashcards"
                   ? "Nombre de flashcards"
                   : targetMode === "quiz"
-                  ? "Nombre de questions du quiz"
-                  : "Nombre de notions à générer"}
+                    ? "Nombre de questions du quiz"
+                    : "Nombre de notions à générer"}
               </label>
               <span className="px-2.5 py-0.5 rounded-full bg-[#4457f4] text-white text-xs font-black shadow-2xs">
                 {cardCount} {targetMode === "quiz" ? "questions" : "fiches"}

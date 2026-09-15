@@ -17,7 +17,7 @@ export default function ProtectedLayout({
           <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
               <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                ⚡
+
               </span>
               <span>Loreno</span>
             </Link>
@@ -38,7 +38,7 @@ export default function ProtectedLayout({
         </div>
 
         <footer className="w-full flex items-center justify-center border-t border-border/40 text-xs text-muted-foreground gap-4 py-8">
-          <p>Loreno ⚡ (loreno.app) • Hackathon FounderRace 2026</p>
+          <p>Loreno  (loreno.app) • Hackathon FounderRace 2026</p>
         </footer>
       </div>
     </main>

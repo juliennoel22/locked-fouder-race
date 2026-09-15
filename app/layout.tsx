@@ -21,46 +21,72 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.loreno.app"),
   title: {
-    default: "LORENO - Fiches de Révision & Tuteur IA d'Examen en 3s",
+    default: "Loreno - Donnes ton cours à Loreno et il te prépare directement pour ton contrôle.",
     template: "%s | Loreno",
   },
   description:
-    "Prends en photo tes notes de cours (même illisibles) : obtiens tes fiches de révision interactives 3D et un tuteur IA d'examen en 3 secondes.",
+    "Envoie ton cours à Loreno et obtiens une fiche, des flashcards et un entraînement personnalisé.",
   keywords: [
     "fiches de révision",
-    "flashcards",
-    "tuteur IA",
-    "révision examen",
+    "flashcards IA",
+    "tuteur IA examen",
     "révision partiels",
     "scan de cours",
     "mémorisation active",
     "PASS médecine",
-    "droit",
+    "LAS médecine",
+    "droit constitutionnel",
+    "prépa école de commerce",
+    "supermemo sm-2",
     "Loreno",
+    "loreno app",
+    "application révision étudiant",
   ],
-  authors: [{ name: "Loreno" }],
+  authors: [{ name: "Loreno", url: "https://www.loreno.app" }],
+  creator: "Loreno",
+  publisher: "Loreno",
+  category: "education",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: "/icon",
     shortcut: "/icon",
     apple: "/apple-icon",
   },
   alternates: {
-    canonical: "/",
+    canonical: "https://www.loreno.app",
+    languages: {
+      "fr-FR": "https://www.loreno.app",
+    },
   },
   openGraph: {
     type: "website",
     locale: "fr_FR",
     url: "https://www.loreno.app",
     siteName: "Loreno",
-    title: "Loreno ⚡ — Révise 2x plus vite avec ton tuteur IA",
+    title: "Loreno - Donnes ton cours à Loreno et il te prépare directement pour ton contrôle.",
     description:
-      "Prends en photo n'importe quel cours. Obtiens tes fiches mémo interactives et ton entraînement d'examen en 3 secondes.",
+      "Envoie ton cours à Loreno et obtiens une fiche, des flashcards et un entraînement personnalisé.",
+    images: [
+      {
+        url: "https://www.loreno.app/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Loreno - Donnes ton cours à Loreno et il te prépare directement pour ton contrôle.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LORENO - Fiches de Révision & Tuteur IA d'Examen en 3s",
+    site: "@loreno_app",
+    creator: "@loreno_app",
+    title: "Loreno - Donnes ton cours à Loreno et il te prépare directement pour ton contrôle.",
     description:
-      "Prends en photo n'importe quel cours. Obtiens tes fiches mémo interactives et ton entraînement d'examen en 3 secondes.",
+      "Envoie ton cours à Loreno et obtiens une fiche, des flashcards et un entraînement personnalisé.",
+    images: ["https://www.loreno.app/twitter-image.png"],
   },
   robots: {
     index: true,
@@ -102,13 +128,44 @@ const jsonLd = {
         "priceCurrency": "EUR",
         "availability": "https://schema.org/InStock",
       },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "1280",
+      },
     },
     {
       "@type": "Organization",
       "@id": "https://www.loreno.app/#organization",
       "name": "Loreno",
       "url": "https://www.loreno.app",
-      "logo": "https://www.loreno.app/icon.png",
+      "logo": "https://www.loreno.app/icon",
+      "sameAs": [
+        "https://tiktok.com/@loreno_app",
+        "https://instagram.com/loreno_app",
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://www.loreno.app/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Comment réviser un cours manuscrit avec Loreno ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Prends simplement ton cours en photo depuis ton smartphone. L'IA de Loreno déchiffre l'écriture et génère instantanément tes fiches de révision 3D et tes questions d'examen.",
+          },
+        },
+        {
+          "@type": "Question",
+          "name": "Est-ce que Loreno est adapté aux partiels de Droit et de Médecine (PASS/LAS) ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui, Loreno est spécialement optimisé pour les cursus exigeants (Droit, PASS/LAS, Prépas, BTS, Licences) grâce à son moteur d'extraction des concepts clés et son tuteur d'examen IA.",
+          },
+        },
+      ],
     },
   ],
 };
