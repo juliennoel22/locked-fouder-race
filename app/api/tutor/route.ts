@@ -15,6 +15,8 @@ interface TutorRequest {
   messages: TutorMessage[];
 }
 
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = await createClient();
@@ -25,6 +27,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { title, subject, summary, flashcards = [], messages = [] } = body;
 
     const isProUser = Boolean(user?.user_metadata?.is_pro);
+
+    // Rate Limiting : 10 messages/10 min (Freemium/IP), 60 messages/10 min (Pro)
+    const identifier = getClientIdentifier(request, user?.id);
+    const rateLimitConfig = isProUser
+      ? { limit: 60, windowSeconds: 600 }
+      : { limit: 10, windowSeconds: 600 };
+
+    const rlResult = await checkRateLimit(identifier, "api_tutor", rateLimitConfig);
+    if (!rlResult.success) {
+      return rateLimitResponse(rlResult);
+    }
+
     if (!isProUser && messages.length > 2) {
       return NextResponse.json(
         {

@@ -57,8 +57,36 @@ Règles impératives :
 - Formulations directes et dynamiques.
 - Même si l'écriture manuscrite est difficile à lire, déduis logiquement le contexte académique.`;
 
+import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
+
 export async function POST(request: NextRequest) {
   try {
+    // 1. Identification utilisateur & Rate Limiting
+    let userId: string | null = null;
+    let isProUser = false;
+
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        userId = user.id;
+        isProUser = Boolean(user.user_metadata?.is_pro);
+      }
+    } catch (authErr) {
+      console.warn("Auth check optional warning in /api/scan:", authErr);
+    }
+
+    const identifier = getClientIdentifier(request, userId);
+    // Limite : 5 scans/10 min pour Freemium/IP, 30 scans/10 min pour Pro
+    const rateLimitConfig = isProUser
+      ? { limit: 30, windowSeconds: 600 }
+      : { limit: 5, windowSeconds: 600 };
+
+    const rlResult = await checkRateLimit(identifier, "api_scan", rateLimitConfig);
+    if (!rlResult.success) {
+      return rateLimitResponse(rlResult);
+    }
+
     const imagesList: Array<{ base64: string; mimeType: string; imageUrl?: string }> = [];
 
     let targetCardCount = 8;
