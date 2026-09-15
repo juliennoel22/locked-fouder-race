@@ -2,6 +2,7 @@
 
 import { X, LogOut, ShieldCheck, Zap, BookOpen, Crown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { DeleteAccountModal } from "@/components/delete-account-modal";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -115,6 +116,11 @@ export function UserProfileModal({
           <LogOut className="w-3.5 h-3.5" />
           <span>Se déconnecter</span>
         </button>
+
+        {/* Option RGPD Suppression du compte */}
+        <div className="pt-2 border-t border-zinc-100">
+          <DeleteAccountModal />
+        </div>
       </div>
     </div>
   );
