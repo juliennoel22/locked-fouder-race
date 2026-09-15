@@ -17,14 +17,25 @@ interface TutorRequest {
 
 import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
+import { tutorRequestSchema } from "@/lib/validations";
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Verification du statut Pro côté serveur (sauf mode démo 1ère question)
-    const body: TutorRequest = await request.json();
-    const { title, subject, summary, flashcards = [], messages = [] } = body;
+    const rawBody = await request.json().catch(() => ({}));
+    const parseResult = tutorRequestSchema.safeParse(rawBody);
+
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.issues[0]?.message || "Payload de requête Tuteur invalide";
+      return NextResponse.json(
+        { success: false, error: errorMsg },
+        { status: 400 }
+      );
+    }
+
+    const { title, subject, summary, flashcards, messages } = parseResult.data;
 
     const isProUser = Boolean(user?.user_metadata?.is_pro);
 

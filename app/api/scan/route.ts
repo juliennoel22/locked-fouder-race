@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/lib/supabase/server";
 import { ScanResult, ScanApiResponse } from "@/types/loreno";
+import { scanRequestSchema } from "@/lib/validations";
 
 const MOCK_SCAN_RESULT: ScanResult = {
   title: "Droit Constitutionnel — Séparation des Pouvoirs",
@@ -93,7 +94,17 @@ export async function POST(request: NextRequest) {
     const contentType = request.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
-      const body = await request.json();
+      const rawBody = await request.json().catch(() => ({}));
+      const parseResult = scanRequestSchema.safeParse(rawBody);
+
+      if (!parseResult.success) {
+        return NextResponse.json<ScanApiResponse>(
+          { success: false, error: "Format de la requête de scan invalide." },
+          { status: 400 }
+        );
+      }
+
+      const body = parseResult.data;
       if (typeof body.cardCount === "number") {
         targetCardCount = Math.min(15, Math.max(3, Math.round(body.cardCount)));
       }

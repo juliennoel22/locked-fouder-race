@@ -10,20 +10,22 @@ interface OnboardingPayload {
   completed?: boolean;
 }
 
+import { authEmailRequestSchema } from "@/lib/validations";
+
 export async function POST(request: NextRequest) {
   try {
-    const { email, onboarding } = (await request.json()) as {
-      email?: string;
-      onboarding?: OnboardingPayload;
-    };
+    const rawBody = await request.json().catch(() => ({}));
+    const parseResult = authEmailRequestSchema.safeParse(rawBody);
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
+    if (!parseResult.success) {
+      const firstIssue = parseResult.error.issues[0]?.message || "Payload d'authentification invalide";
       return NextResponse.json(
-        { success: false, error: "Adresse email invalide." },
+        { success: false, error: firstIssue },
         { status: 400 }
       );
     }
 
+    const { email, onboarding } = parseResult.data;
     const normalizedEmail = email.trim().toLowerCase();
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
