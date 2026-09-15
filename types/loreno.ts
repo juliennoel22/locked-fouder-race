@@ -26,6 +26,7 @@ export interface Deck {
   summary?: string | null;
   initial_quiz_question?: string | null;
   image_url?: string | null;
+  image_urls?: string[] | null;
   created_at?: string;
   updated_at?: string;
   flashcards?: Flashcard[];
@@ -53,6 +54,7 @@ export interface ScanApiResponse {
   deckId?: string;
   data?: ScanResult;
   imageUrl?: string;
+  imageUrls?: string[];
   error?: string;
 }
 
@@ -68,6 +70,7 @@ export interface NotebookItem {
   sourceCount: number;
   deck: ScanResult;
   imageUrl?: string | null;
+  imageUrls?: string[] | null;
 }
 
 /**

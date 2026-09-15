@@ -50,6 +50,14 @@ export function FlashcardPlayer({
   const [dragOffset, setDragOffset] = useState(0);
   const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null);
   const touchStartX = useRef<number | null>(null), touchStartY = useRef<number | null>(null), touchDeltaX = useRef(0), isDragging = useRef(false);
+  const lastFlipTime = useRef(0);
+
+  const triggerFlip = () => {
+    const now = Date.now();
+    if (now - lastFlipTime.current < 350) return;
+    lastFlipTime.current = now;
+    setIsFlipped((prev) => !prev);
+  };
 
   useEffect(() => {
     setActiveCards(cards);
@@ -125,7 +133,7 @@ export function FlashcardPlayer({
   const handleTouchEnd = () => {
     if (exitDirection) return;
     if (!isDragging.current || Math.abs(touchDeltaX.current) < 15) {
-      setIsFlipped((prev) => !prev);
+      triggerFlip();
     } else if (Math.abs(touchDeltaX.current) > 75) {
       handleNextCard(touchDeltaX.current > 0);
     } else {

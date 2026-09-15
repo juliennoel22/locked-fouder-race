@@ -15,6 +15,7 @@ interface MirrorModalProps {
   isOpen: boolean;
   onClose: () => void;
   imageUrl?: string | null;
+  imageUrls?: string[] | null;
   deckTitle?: string;
   currentNotebook?: NotebookItem;
 }
@@ -23,6 +24,7 @@ export function MirrorModal({
   isOpen,
   onClose,
   imageUrl,
+  imageUrls,
   deckTitle,
   currentNotebook,
 }: MirrorModalProps) {
@@ -31,28 +33,39 @@ export function MirrorModal({
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
 
   const title = currentNotebook?.title || deckTitle || "Cours original";
-  const primaryUrl = currentNotebook?.imageUrl || imageUrl;
 
-  // Initialisation des documents du cours
+  // Initialisation de l'ensemble des documents du cours
   useEffect(() => {
     if (!isOpen) return;
 
-    if (primaryUrl) {
-      const isPdf =
-        primaryUrl.startsWith("data:application/pdf") ||
-        primaryUrl.toLowerCase().includes(".pdf");
-      setDocuments([
-        {
-          id: "doc-1",
-          url: primaryUrl,
-          name: "Page 1",
+    const urlsList: string[] = [];
+    if (currentNotebook?.imageUrls && currentNotebook.imageUrls.length > 0) {
+      urlsList.push(...currentNotebook.imageUrls);
+    } else if (imageUrls && imageUrls.length > 0) {
+      urlsList.push(...imageUrls);
+    } else if (currentNotebook?.imageUrl) {
+      urlsList.push(currentNotebook.imageUrl);
+    } else if (imageUrl) {
+      urlsList.push(imageUrl);
+    }
+
+    if (urlsList.length > 0) {
+      const docsList: CourseDoc[] = urlsList.map((url, idx) => {
+        const isPdf =
+          url.startsWith("data:application/pdf") ||
+          url.toLowerCase().includes(".pdf");
+        return {
+          id: `doc-${idx + 1}-${url.slice(-10)}`,
+          url,
+          name: `Page ${idx + 1}`,
           isPdf,
-        },
-      ]);
+        };
+      });
+      setDocuments(docsList);
     } else {
       setDocuments([]);
     }
-  }, [primaryUrl, isOpen]);
+  }, [imageUrl, imageUrls, currentNotebook, isOpen]);
 
   if (!isOpen) return null;
 

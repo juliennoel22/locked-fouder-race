@@ -7,6 +7,7 @@ export interface RawDeckData {
   summary?: string | null;
   initial_quiz_question?: string | null;
   image_url?: string | null;
+  image_urls?: string[] | null;
   created_at?: string;
   flashcards?: Array<{ front: string; back: string; order_index?: number }>;
 }
@@ -24,6 +25,12 @@ export function formatDeckItem(deck: RawDeckData): NotebookItem {
     ? new Date(deck.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
     : "Récemment";
 
+  const allUrls = deck.image_urls && deck.image_urls.length > 0
+    ? deck.image_urls
+    : deck.image_url
+    ? [deck.image_url]
+    : [];
+
   return {
     id: deck.id,
     title: deck.title,
@@ -32,6 +39,7 @@ export function formatDeckItem(deck: RawDeckData): NotebookItem {
     date: createdDate,
     sourceCount: sortedCards.length || 5,
     deck: scanData,
-    imageUrl: deck.image_url,
+    imageUrl: deck.image_url || (allUrls.length > 0 ? allUrls[0] : null),
+    imageUrls: allUrls,
   };
 }
