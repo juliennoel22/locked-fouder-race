@@ -12,8 +12,12 @@ function getAdminClient() {
 
 async function getAuthUser(request: NextRequest, supabase: Awaited<ReturnType<typeof createClient>>) {
   try {
-    const { data: userData } = await supabase.auth.getUser();
+    const { data: userData, error } = await supabase.auth.getUser();
     if (userData?.user) return userData.user;
+    if (error && (error.status === 429 || (error as any)?.code === "over_request_rate_limit")) {
+      const { data: claimsData } = await supabase.auth.getClaims();
+      if (claimsData?.claims?.sub) return { id: claimsData.claims.sub } as { id: string; email?: string };
+    }
   } catch {}
 
   const authHeader = request.headers.get("Authorization");

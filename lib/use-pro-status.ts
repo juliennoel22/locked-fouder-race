@@ -65,7 +65,15 @@ export function useProStatus() {
 
       try {
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        let user = session?.user;
+
+        if (!user) {
+          try {
+            const { data: userData } = await supabase.auth.getUser();
+            user = userData?.user || undefined;
+          } catch {}
+        }
 
         const userIsPro = Boolean(user?.user_metadata?.is_pro) || isLocalPro;
         setIsPro(userIsPro);

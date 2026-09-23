@@ -12,6 +12,7 @@ import { FloatingScanBar } from "@/components/dashboard/floating-scan-bar";
 import { PaywallModal } from "@/components/paywall-modal";
 import { FeedbackModal } from "@/components/dashboard/feedback-modal";
 import { ScanModal } from "@/components/dashboard/scan-modal";
+import { ReferralModal } from "@/components/dashboard/referral-modal";
 import { useProStatus } from "@/lib/use-pro-status";
 import { createClient } from "@/lib/supabase/client";
 import { showToast } from "@/lib/toast";
@@ -22,6 +23,7 @@ export default function DashboardPage() {
   const [showScanModal, setShowScanModal] = useState<boolean>(false);
   const [showPaywall, setShowPaywall] = useState<boolean>(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
+  const [showReferralModal, setShowReferralModal] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { isPro, justUnlocked, dismissCelebration } = useProStatus();
@@ -196,6 +198,7 @@ export default function DashboardPage() {
             notebooks={notebooks}
             onSelectNotebook={handleSelectNotebook}
             onOpenPaywall={() => setShowPaywall(true)}
+            onOpenReferral={() => setShowReferralModal(true)}
             isPro={isPro}
             userEmail={userEmail}
             onDeleteNotebook={handleDeleteNotebook}
@@ -227,6 +230,7 @@ export default function DashboardPage() {
 
         <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
         <FeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
+        <ReferralModal isOpen={showReferralModal} onClose={() => setShowReferralModal(false)} />
       </div>
     </main>
   );

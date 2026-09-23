@@ -38,18 +38,29 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  const pathname = request.nextUrl.pathname;
+
+  // 0. Si c'est une route API, laisser les handlers gérér l'auth sans surcharger le Rate Limit Auth Supabase
+  if (pathname.startsWith("/api/")) {
+    return supabaseResponse;
+  }
+
   // Vérification de la session utilisateur Supabase
-  let user = null;
+  let user: any = null;
   try {
-    const { data: userData } = await supabase.auth.getUser();
+    const { data: userData, error } = await supabase.auth.getUser();
     if (userData?.user) {
       user = userData.user;
+    } else if (error) {
+      const { data: claimsData } = await supabase.auth.getClaims();
+      if (claimsData?.claims?.sub) {
+        user = { id: claimsData.claims.sub, user_metadata: claimsData.claims.user_metadata || {} };
+      }
     }
   } catch {
     user = null;
   }
 
-  const pathname = request.nextUrl.pathname;
   const isAuthPage =
     pathname === "/auth" ||
     pathname === "/auth/login" ||

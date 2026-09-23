@@ -89,3 +89,24 @@ export interface TutorChatMessage {
   text: string;
   isStreaming?: boolean;
 }
+
+/**
+ * User Referral & Cash Affiliate System contract
+ */
+export interface ReferralData {
+  referral_code: string;
+  referral_link: string;
+  invited_count: number;
+  pro_days_earned: number;
+  balance_cents: number;
+  total_earned_cents: number;
+  iban?: string | null;
+}
+
+export interface PayoutRequest {
+  id: string;
+  amount_cents: number;
+  iban: string;
+  status: "pending" | "paid" | "rejected";
+  created_at: string;
+}

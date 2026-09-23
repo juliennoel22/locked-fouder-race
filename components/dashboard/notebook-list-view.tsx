@@ -12,6 +12,7 @@ interface NotebookListViewProps {
   notebooks: NotebookItem[];
   onSelectNotebook: (nb: NotebookItem) => void;
   onOpenPaywall: () => void;
+  onOpenReferral?: () => void;
   isPro?: boolean;
   userEmail?: string | null;
   onDeleteNotebook?: (id: string) => void;
@@ -23,6 +24,7 @@ export function NotebookListView({
   notebooks,
   onSelectNotebook,
   onOpenPaywall,
+  onOpenReferral,
   isPro = false,
   userEmail,
   onDeleteNotebook,
@@ -67,11 +69,12 @@ export function NotebookListView({
 
   return (
     <div className="w-full flex-1 flex flex-col space-y-4 select-none pb-28">
-      {/* Header unifié avec Pastille PRO dorée & Profil */}
+      {/* Header unifié avec Pastille PRO dorée, Affiliation & Profil */}
       <Header
         showProfile={true}
         onOpenProfile={() => setShowProfileModal(true)}
         onOpenPaywall={onOpenPaywall}
+        onOpenReferral={onOpenReferral}
       />
 
       {/* Barre de Recherche en temps réel */}

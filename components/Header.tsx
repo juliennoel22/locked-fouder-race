@@ -12,6 +12,7 @@ interface HeaderProps {
   showProfile?: boolean;
   onOpenProfile?: () => void;
   onOpenPaywall?: () => void;
+  onOpenReferral?: () => void;
   rightElement?: React.ReactNode;
 }
 
@@ -22,6 +23,7 @@ export function Header({
   showProfile = false,
   onOpenProfile,
   onOpenPaywall,
+  onOpenReferral,
   rightElement,
 }: HeaderProps) {
   const { isPro } = useProStatus();
@@ -72,6 +74,18 @@ export function Header({
       {/* Côté Droit : Pastille PRO, Éléments personnalisés & Profil */}
       <div className="flex items-center gap-2">
         {rightElement}
+
+        {onOpenReferral && (
+          <button
+            type="button"
+            onClick={onOpenReferral}
+            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 transition active:scale-95 cursor-pointer shadow-2xs flex items-center gap-1"
+            title="Affiliation & Parrainage : Gagne des jours Pro et du Cash"
+          >
+            <span>🎁</span>
+            <span className="hidden sm:inline">Affiliation</span>
+          </button>
+        )}
 
         {/* Pastille PRO dorée permanente si abonné, sinon bouton PRO */}
         {isPro ? (
