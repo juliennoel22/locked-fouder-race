@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Sparkles } from "lucide-react";
@@ -24,6 +24,7 @@ export default function NewNotebookPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [existingNotebooksCount, setExistingNotebooksCount] = useState(0);
+  const isSubmittingRef = useRef<boolean>(false);
 
   // Vérifier la limite de 2 projets gratuits via la base de données
   useEffect(() => {
@@ -60,6 +61,9 @@ export default function NewNotebookPage() {
       setErrorMessage("Ajoute au moins une photo de ton cours.");
       return;
     }
+
+    if (isSubmittingRef.current || loading) return;
+    isSubmittingRef.current = true;
 
     // Blocage si la limite de 2 projets est atteinte (comptes gratuits uniquement)
     if (!isPro && existingNotebooksCount >= 2) {
@@ -139,6 +143,7 @@ export default function NewNotebookPage() {
       console.error("Erreur scan:", err);
       setErrorMessage("Une erreur est survenue lors de l'analyse du cours.");
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

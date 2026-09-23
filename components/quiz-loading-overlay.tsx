@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface QuizLoadingOverlayProps {
   message?: string;
@@ -10,11 +10,10 @@ interface QuizLoadingOverlayProps {
 }
 
 const DOPAMINE_STEPS = [
-  { min: 0, max: 28, text: "Lecture haute précision de tes notes...", sub: "Analyse visuelle et déchiffrage" },
-  { min: 28, max: 58, text: "Extraction des notions clés d'examen...", sub: "Sélection des concepts essentiels" },
-  { min: 58, max: 82, text: "Génération de tes fiches de révision...", sub: "Création des cartes mémoires 3D" },
-  { min: 82, max: 98, text: "Création de ton quiz prédictif...", sub: "Calcul des questions et pièges" },
-  { min: 98, max: 100, text: "Finalisation de ton cours...", sub: "Tout est prêt pour réviser !" },
+  { min: 0, max: 30, text: "Lecture haute précision de tes supports...", sub: "Analyse visuelle et déchiffrage du document" },
+  { min: 30, max: 65, text: "Extraction des définitions & notions clés...", sub: "Structuration méthodique des concepts" },
+  { min: 65, max: 95, text: "Rédaction de ta fiche de cours complète...", sub: "Mise en page Markdown hyper-détaillée" },
+  { min: 95, max: 100, text: "Finalisation de ta fiche de révision...", sub: "Ton cours est prêt à être consulté !" },
 ];
 
 export function QuizLoadingOverlay({

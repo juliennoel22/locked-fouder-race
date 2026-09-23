@@ -5,9 +5,11 @@ export interface RawDeckData {
   title: string;
   subject?: string | null;
   summary?: string | null;
+  detailed_content?: string | null;
   initial_quiz_question?: string | null;
   image_url?: string | null;
   image_urls?: string[] | null;
+  progress_percent?: number | null;
   created_at?: string;
   flashcards?: Array<{ front: string; back: string; order_index?: number }>;
 }
@@ -18,6 +20,7 @@ export function formatDeckItem(deck: RawDeckData): NotebookItem {
     title: deck.title,
     subject: deck.subject || "Général",
     summary: deck.summary || "",
+    detailed_content: deck.detailed_content || "",
     initial_quiz_question: deck.initial_quiz_question || "",
     flashcards: sortedCards.map((f) => ({ front: f.front, back: f.back })),
   };
@@ -39,6 +42,8 @@ export function formatDeckItem(deck: RawDeckData): NotebookItem {
     date: createdDate,
     sourceCount: sortedCards.length || 5,
     deck: scanData,
+    detailed_content: deck.detailed_content || null,
+    progress_percent: typeof deck.progress_percent === "number" ? deck.progress_percent : 0,
     imageUrl: deck.image_url || (allUrls.length > 0 ? allUrls[0] : null),
     imageUrls: allUrls,
   };

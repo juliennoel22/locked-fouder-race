@@ -13,9 +13,10 @@ const TAGS = [
 interface FeedbackFormProps {
   onClose?: () => void;
   hideHeader?: boolean;
+  onMessageChange?: (message: string) => void;
 }
 
-export function FeedbackForm({ onClose, hideHeader = false }: FeedbackFormProps = {}) {
+export function FeedbackForm({ onClose, hideHeader = false, onMessageChange }: FeedbackFormProps = {}) {
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [rating, setRating] = useState<number>(5);
@@ -166,7 +167,10 @@ export function FeedbackForm({ onClose, hideHeader = false }: FeedbackFormProps 
         <div>
           <textarea
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              onMessageChange?.(e.target.value);
+            }}
             placeholder="Dis-nous ce que tu penses de l'app, ce qui t'aide ou ce qu'on peut améliorer..."
             rows={3}
             required

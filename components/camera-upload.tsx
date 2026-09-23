@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, ChangeEvent } from "react";
-import { Camera, Upload, Sparkles, Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { Camera, Upload, Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { compressCourseImage } from "@/lib/image-compression";
 import { FlashcardPlayer } from "./flashcard-player";
@@ -20,10 +20,12 @@ export function CameraUpload() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const isSubmittingRef = useRef<boolean>(false);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || isSubmittingRef.current || loading) return;
+    isSubmittingRef.current = true;
 
     setErrorMessage(null);
     setLoading(true);
@@ -103,6 +105,7 @@ export function CameraUpload() {
     } finally {
       setLoading(false);
       setLoadingStep("");
+      isSubmittingRef.current = false;
     }
   };
 

@@ -6,8 +6,8 @@ import confetti from "canvas-confetti";
 import { Loader2 } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { formatDeckItem, RawDeckData } from "@/lib/format-deck";
+import { DEMO_NOTEBOOK_ITEM } from "@/lib/demo-deck";
 import { NotebookListView } from "@/components/dashboard/notebook-list-view";
-import { NotebookDetail } from "@/components/dashboard/notebook-detail";
 import { FloatingScanBar } from "@/components/dashboard/floating-scan-bar";
 import { PaywallModal } from "@/components/paywall-modal";
 import { FeedbackModal } from "@/components/dashboard/feedback-modal";
@@ -19,11 +19,7 @@ import { showToast } from "@/lib/toast";
 export default function DashboardPage() {
   const router = useRouter();
   const [notebooks, setNotebooks] = useState<NotebookItem[]>([]);
-  const [selectedNotebook, setSelectedNotebook] = useState<NotebookItem | null>(null);
-  const [selectedNotebookMode, setSelectedNotebookMode] = useState<"grid" | "flashcards" | "quiz">("grid");
-  const [showAiTutorDirect, setShowAiTutorDirect] = useState<boolean>(false);
   const [showScanModal, setShowScanModal] = useState<boolean>(false);
-  const [scanTargetMode, setScanTargetMode] = useState<"flashcards" | "quiz" | "tutor" | "grid">("grid");
   const [showPaywall, setShowPaywall] = useState<boolean>(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -101,18 +97,25 @@ export default function DashboardPage() {
                 (n) => n.title.trim().toLowerCase() === parsed.scanData.title.trim().toLowerCase()
               );
               if (!alreadyExists && userData.user) {
-                const { title, subject, summary, initial_quiz_question, flashcards } = parsed.scanData;
+                const { title, subject, summary, detailed_content, initial_quiz_question, flashcards } = parsed.scanData;
                 const saveRes = await fetch("/api/decks", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ title, subject, summary, initial_quiz_question, image_url: parsed.imageUrl, flashcards }),
+                  body: JSON.stringify({
+                    title,
+                    subject,
+                    summary,
+                    detailed_content,
+                    initial_quiz_question,
+                    image_url: parsed.imageUrl,
+                    flashcards,
+                  }),
                 });
                 const saveJson = await saveRes.json();
                 if (saveJson.success && saveJson.deck) {
                   const savedNb = formatDeckItem(saveJson.deck);
                   loadedNotebooks = [savedNb, ...loadedNotebooks];
                   sessionStorage.removeItem("loreno_scan_cache");
-                  setSelectedNotebook(savedNb);
                 }
               }
             }
@@ -120,6 +123,11 @@ export default function DashboardPage() {
             console.error("Erreur sync cache scan:", e);
           }
         }
+      }
+
+      // 3. Option A : Injection du cours démo pré-chargé si aucun cours
+      if (loadedNotebooks.length === 0) {
+        loadedNotebooks = [DEMO_NOTEBOOK_ITEM];
       }
 
       setNotebooks(loadedNotebooks);
@@ -134,23 +142,23 @@ export default function DashboardPage() {
     initDashboard();
   }, [initDashboard]);
 
-  const handleAddNewNotebook = (
-    newNb: NotebookItem,
-    targetMode: "flashcards" | "quiz" | "tutor" | "grid" = "grid"
-  ) => {
-    setNotebooks((prev) => [newNb, ...prev]);
-    setSelectedNotebook(newNb);
-    setSelectedNotebookMode(targetMode === "flashcards" || targetMode === "quiz" ? targetMode : "grid");
-    setShowAiTutorDirect(targetMode === "tutor");
+  const handleSelectNotebook = (nb: NotebookItem) => {
+    router.push(`/deck/${nb.id}`);
+  };
+
+  const handleAddNewNotebook = (newNb: NotebookItem) => {
+    setNotebooks((prev) => [newNb, ...prev.filter((n) => !n.isDemo)]);
+    router.push(`/deck/${newNb.id}`);
   };
 
   const handleDeleteNotebook = async (id: string) => {
+    if (id === DEMO_NOTEBOOK_ITEM.id) return;
     try {
       await fetch(`/api/decks?id=${id}`, { method: "DELETE" });
-      setNotebooks((prev) => prev.filter((n) => n.id !== id));
-      if (selectedNotebook?.id === id) {
-        setSelectedNotebook(null);
-      }
+      setNotebooks((prev) => {
+        const remaining = prev.filter((n) => n.id !== id);
+        return remaining.length === 0 ? [DEMO_NOTEBOOK_ITEM] : remaining;
+      });
     } catch (err) {
       console.error("Erreur suppression cours :", err);
     }
@@ -183,65 +191,27 @@ export default function DashboardPage() {
             <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
             <p className="text-xs text-zinc-500 font-medium">Chargement de tes cours...</p>
           </div>
-        ) : selectedNotebook ? (
-          <NotebookDetail
-            key={`${selectedNotebook.id}-${selectedNotebookMode}-${showAiTutorDirect}`}
-            notebook={selectedNotebook}
-            allNotebooks={notebooks}
-            onSelectNotebook={(nb) => {
-              setSelectedNotebook(nb);
-              setSelectedNotebookMode("grid");
-              setShowAiTutorDirect(false);
-            }}
-            onBack={() => {
-              setSelectedNotebook(null);
-              setSelectedNotebookMode("grid");
-              setShowAiTutorDirect(false);
-            }}
-            onOpenPaywall={() => setShowPaywall(true)}
-            onOpenScanModal={() => {
-              setScanTargetMode("grid");
-              setShowScanModal(true);
-            }}
-            isPro={isPro}
-            initialMode={selectedNotebookMode}
-            initialShowAiTutor={showAiTutorDirect}
-          />
         ) : (
           <NotebookListView
             notebooks={notebooks}
-            onSelectNotebook={(nb) => {
-              setSelectedNotebook(nb);
-              setSelectedNotebookMode("grid");
-              setShowAiTutorDirect(false);
-            }}
+            onSelectNotebook={handleSelectNotebook}
             onOpenPaywall={() => setShowPaywall(true)}
             isPro={isPro}
             userEmail={userEmail}
             onDeleteNotebook={handleDeleteNotebook}
-            onActionClick={(mode) => {
-              setScanTargetMode(mode);
-              setShowScanModal(true);
-            }}
-            onOpenScanModal={() => {
-              setScanTargetMode("grid");
-              setShowScanModal(true);
-            }}
+            onOpenScanModal={() => setShowScanModal(true)}
           />
         )}
 
-        {!selectedNotebook && !loading && (
+        {!loading && (
           <FloatingScanBar
-            onNewNotebook={(nb) => handleAddNewNotebook(nb, "grid")}
-            isRateLimited={!isPro && notebooks.length >= 2}
+            onNewNotebook={handleAddNewNotebook}
+            isRateLimited={!isPro && notebooks.filter((n) => !n.isDemo).length >= 2}
             onRateLimit={() => setShowPaywall(true)}
             onOpenFeedback={() => setShowFeedbackModal(true)}
-            onOpenScanModal={() => {
-              setScanTargetMode("grid");
-              setShowScanModal(true);
-            }}
+            onOpenScanModal={() => setShowScanModal(true)}
             isPro={isPro}
-            notebooksCount={notebooks.length}
+            notebooksCount={notebooks.filter((n) => !n.isDemo).length}
             onOpenPaywall={() => setShowPaywall(true)}
           />
         )}
@@ -249,11 +219,10 @@ export default function DashboardPage() {
         <ScanModal
           isOpen={showScanModal}
           onClose={() => setShowScanModal(false)}
-          onSuccess={(newDeck, targetMode) => handleAddNewNotebook(newDeck, targetMode)}
+          onSuccess={(newDeck) => handleAddNewNotebook(newDeck)}
           isPro={isPro}
-          existingNotebooksCount={notebooks.length}
+          existingNotebooksCount={notebooks.filter((n) => !n.isDemo).length}
           onOpenPaywall={() => setShowPaywall(true)}
-          targetMode={scanTargetMode}
         />
 
         <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
@@ -262,3 +231,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+

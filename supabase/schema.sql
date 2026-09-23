@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS public.decks (
     subject TEXT,
     summary TEXT,
     initial_quiz_question TEXT,
+    detailed_content TEXT, -- Fiche de cours complète générée en Markdown
+    progress_percent INTEGER DEFAULT 0, -- Progression de maîtrise gamifiée (0-100%)
     image_url TEXT, -- Lien direct vers la photo originale compressée dans Supabase Storage
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL

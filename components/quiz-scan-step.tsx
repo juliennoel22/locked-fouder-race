@@ -35,6 +35,16 @@ export function QuizScanStep({
 }: QuizScanStepProps) {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const isSubmittingRef = useRef<boolean>(false);
+
+  const handleConfirm = () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    onConfirmAndScan();
+    setTimeout(() => {
+      isSubmittingRef.current = false;
+    }, 2500);
+  };
 
   const handleFiles = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -69,41 +79,10 @@ export function QuizScanStep({
       {photos.length === 0 ? (
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight text-black">Scanne ton cours</h2>
-            <p className="text-sm text-zinc-600 max-w-xs mx-auto">
-              Prends en photo une ou plusieurs pages de tes notes. L&apos;IA combine tout en un seul cours de révision.
+            <h2 className="text-2xl font-black tracking-tight text-black">Nouveau cours</h2>
+            <p className="text-xs text-zinc-500 max-w-xs mx-auto font-medium">
+              Prends en photo tes notes ou importe un document PDF. L&apos;IA génère la fiche de cours et le parcours de révision.
             </p>
-          </div>
-
-          {/* Configuration du nombre de fiches / questions (Slider 3 à 15) */}
-          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2.5 text-left">
-            <div className="flex items-center justify-between">
-              <label htmlFor="card-count-slider-1" className="text-xs font-bold text-zinc-900">
-                {targetMode === "flashcards"
-                  ? "Nombre de flashcards"
-                  : targetMode === "quiz"
-                    ? "Nombre de questions du quiz"
-                    : "Nombre de notions à générer"}
-              </label>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#4457f4] text-white text-xs font-black shadow-2xs">
-                {cardCount} {targetMode === "quiz" ? "questions" : "fiches"}
-              </span>
-            </div>
-            <input
-              id="card-count-slider-1"
-              type="range"
-              min={3}
-              max={15}
-              step={1}
-              value={cardCount}
-              onChange={(e) => onCardCountChange?.(Number(e.target.value))}
-              className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#4457f4]"
-            />
-            <div className="flex justify-between text-[10px] text-zinc-400 font-medium px-0.5">
-              <span>Rapide (3)</span>
-              <span>Recommandé (8)</span>
-              <span>Exhaustif (15)</span>
-            </div>
           </div>
 
           <div className="space-y-3 pt-2">
@@ -222,45 +201,14 @@ export function QuizScanStep({
             </button>
           </div>
 
-          {/* Configuration du nombre de fiches / questions (Slider 3 à 15) */}
-          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2.5 text-left">
-            <div className="flex items-center justify-between">
-              <label htmlFor="card-count-slider-2" className="text-xs font-bold text-zinc-900">
-                {targetMode === "flashcards"
-                  ? "Nombre de flashcards"
-                  : targetMode === "quiz"
-                    ? "Nombre de questions du quiz"
-                    : "Nombre de notions à générer"}
-              </label>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#4457f4] text-white text-xs font-black shadow-2xs">
-                {cardCount} {targetMode === "quiz" ? "questions" : "fiches"}
-              </span>
-            </div>
-            <input
-              id="card-count-slider-2"
-              type="range"
-              min={3}
-              max={15}
-              step={1}
-              value={cardCount}
-              onChange={(e) => onCardCountChange?.(Number(e.target.value))}
-              className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#4457f4]"
-            />
-            <div className="flex justify-between text-[10px] text-zinc-400 font-medium px-0.5">
-              <span>Rapide (3)</span>
-              <span>Recommandé (8)</span>
-              <span>Exhaustif (15)</span>
-            </div>
-          </div>
-
           {/* Actions de confirmation dans la zone du pouce */}
           <div className="space-y-2.5 pt-1">
             <button
               type="button"
-              onClick={onConfirmAndScan}
-              className="w-full h-14 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md text-sm"
+              onClick={handleConfirm}
+              className="w-full h-14 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md text-sm cursor-pointer"
             >
-              <span>Générer {cardCount} {targetMode === "quiz" ? "questions" : "fiches"} ({photos.length} page{photos.length > 1 ? "s" : ""}) →</span>
+              <span>Lancer l&apos;analyse du cours ({photos.length} document{photos.length > 1 ? "s" : ""}) →</span>
             </button>
 
             <div className="flex gap-2">

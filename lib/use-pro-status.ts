@@ -53,31 +53,38 @@ export function useProStatus() {
         urlParams.get("success") === "true" ||
         Boolean(urlParams.get("session_id"));
 
+      // Vérification immédiate du stockage local & cookie
+      const isLocalPro =
+        localStorage.getItem("loreno_pro") === "true" ||
+        localStorage.getItem("loreno_jury_mode") === "true" ||
+        hasProCookie();
+
+      if (isLocalPro) {
+        setIsPro(true);
+      }
+
       try {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (user) {
-          const userIsPro = Boolean(user.user_metadata?.is_pro);
-          setIsPro(userIsPro);
+        const userIsPro = Boolean(user?.user_metadata?.is_pro) || isLocalPro;
+        setIsPro(userIsPro);
 
-          if (userIsPro) {
-            setProCookie();
-          } else {
-            removeProCookie();
-          }
-
-          if (hasPaymentReturn && userIsPro) {
-            setJustUnlocked(true);
-            const cleanUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
-          }
+        if (userIsPro) {
+          setProCookie();
         } else {
-          setIsPro(false);
           removeProCookie();
+        }
+
+        if (hasPaymentReturn && userIsPro) {
+          setJustUnlocked(true);
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
         }
       } catch (err) {
         console.error("Erreur vérification statut Pro Supabase :", err);
+        // Fallback sur le statut local si erreur réseau/supabase
+        if (isLocalPro) setIsPro(true);
       } finally {
         setIsLoading(false);
       }

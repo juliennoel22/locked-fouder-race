@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { X } from "lucide-react";
 import { compressCourseImage } from "@/lib/image-compression";
 import { ScanApiResponse, ScanResult, NotebookItem } from "@/types/loreno";
@@ -36,6 +36,7 @@ export function ScanModal({
   const [cardCount, setCardCount] = useState<number>(8);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showTourBanner, setShowTourBanner] = useState<boolean>(true);
+  const isSubmittingRef = useRef<boolean>(false);
 
   if (!isOpen) return null;
 
@@ -60,6 +61,9 @@ export function ScanModal({
       setErrorMessage("Ajoute au moins une photo ou un document de ton cours.");
       return;
     }
+
+    if (isSubmittingRef.current || loading) return;
+    isSubmittingRef.current = true;
 
     // Limite de 2 projets gratuits pour les non-pro
     if (!isPro && existingNotebooksCount >= 2) {
@@ -115,48 +119,50 @@ export function ScanModal({
       const json: ScanApiResponse = await res.json();
       const finalScanResult: ScanResult = json.data || DEFAULT_SCAN_RESULT;
 
-      setLoadingProgress(85);
-      setLoadingMessage("Sauvegarde de ton cours...");
+      setLoadingProgress(90);
+      setLoadingMessage("Fiche de cours prête !");
 
       const primaryImageUrl = compressedList[0]?.previewUrl || null;
+      const savedDeckId = json.deckId;
 
-      // Sauvegarde automatique dans la base Supabase
-      const saveRes = await fetch("/api/decks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: finalScanResult.title,
-          subject: finalScanResult.subject,
-          summary: finalScanResult.summary,
-          initial_quiz_question: finalScanResult.initial_quiz_question,
-          image_url: primaryImageUrl,
-          flashcards: finalScanResult.flashcards,
-        }),
-      });
-
-      const saveJson = await saveRes.json();
       let createdNotebook: NotebookItem;
 
-      if (saveJson.success && saveJson.deck) {
-        const d = saveJson.deck;
+      if (savedDeckId) {
         createdNotebook = {
-          id: d.id,
-          title: d.title,
-          subject: d.subject || "Général",
+          id: savedDeckId,
+          title: finalScanResult.title,
+          subject: finalScanResult.subject || "Général",
           emoji: "📝",
           date: "Aujourd'hui",
-          sourceCount: d.flashcards?.length || finalScanResult.flashcards.length,
+          sourceCount: 0,
           deck: finalScanResult,
           imageUrl: primaryImageUrl,
         };
       } else {
+        // Fallback si non connecté ou non sauvegardé
+        const saveRes = await fetch("/api/decks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: finalScanResult.title,
+            subject: finalScanResult.subject,
+            summary: finalScanResult.summary,
+            detailed_content: finalScanResult.detailed_content,
+            image_url: primaryImageUrl,
+            flashcards: [],
+          }),
+        });
+
+        const saveJson = await saveRes.json();
+        const deckId = saveJson?.deck?.id || `local-${Date.now()}`;
+
         createdNotebook = {
-          id: `local-${Date.now()}`,
+          id: deckId,
           title: finalScanResult.title,
-          subject: finalScanResult.subject,
+          subject: finalScanResult.subject || "Général",
           emoji: "📝",
           date: "Aujourd'hui",
-          sourceCount: finalScanResult.flashcards.length,
+          sourceCount: 0,
           deck: finalScanResult,
           imageUrl: primaryImageUrl,
         };
@@ -170,6 +176,7 @@ export function ScanModal({
           setTourStep("test_training");
         }
         setLoading(false);
+        isSubmittingRef.current = false;
         setSelectedPhotos([]);
         onSuccess(createdNotebook, targetMode);
         onClose();
@@ -178,6 +185,7 @@ export function ScanModal({
       console.error("Erreur scan:", err);
       setErrorMessage("Une erreur est survenue lors de l'analyse du cours.");
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

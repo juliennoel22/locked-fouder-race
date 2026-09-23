@@ -1,15 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import confetti from "canvas-confetti";
-import { User, Bot, Layers, CheckCircle2, Plus, ArrowRight } from "lucide-react";
+import { Search, Plus, X } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
+import { Header } from "@/components/Header";
 import { UserProfileModal } from "./user-profile-modal";
-import { OnboardingTourBubble } from "./onboarding-tour-bubble";
-import { getTourStep, setTourStep, completeOnboardingTour, isOnboardingCompleted } from "@/lib/onboarding-tour-state";
-import { showToast } from "@/lib/toast";
 import { NotebookListItem } from "./notebook-list-item";
 
 interface NotebookListViewProps {
@@ -30,170 +26,117 @@ export function NotebookListView({
   isPro = false,
   userEmail,
   onDeleteNotebook,
-  onActionClick,
   onOpenScanModal,
 }: NotebookListViewProps) {
   const router = useRouter();
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
-  const currentTourStep = getTourStep();
-  const [tourStep, setLocalTourStep] = useState(currentTourStep);
-  const isTourActive = !isOnboardingCompleted() && tourStep !== "completed";
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedSubject, setSelectedSubject] = useState<string>("all");
 
-  const handleCompleteFinalTour = () => {
-    completeOnboardingTour();
-    setLocalTourStep("completed");
-    showToast({
-      title: "Bravo, votre espace est configuré ! 🎉",
-      description: "Tes cours et outils de révision sont prêts.",
-      type: "success",
+  // Liste dynamique des matières pour les filtres
+  const subjects = useMemo(() => {
+    const set = new Set<string>();
+    notebooks.forEach((nb) => {
+      if (nb.subject?.trim()) set.add(nb.subject.trim());
     });
-    try {
-      confetti({ particleCount: 160, spread: 90, origin: { y: 0.5 } });
-      setTimeout(() => confetti({ particleCount: 100, angle: 60, spread: 60, origin: { x: 0, y: 0.7 } }), 200);
-    } catch {}
+    return Array.from(set);
+  }, [notebooks]);
+
+  // Filtrage en temps réel
+  const filteredNotebooks = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return notebooks.filter((nb) => {
+      const matchSubject =
+        selectedSubject === "all" ||
+        nb.subject?.toLowerCase() === selectedSubject.toLowerCase();
+      const matchQuery =
+        !q ||
+        nb.title.toLowerCase().includes(q) ||
+        (nb.subject && nb.subject.toLowerCase().includes(q));
+      return matchSubject && matchQuery;
+    });
+  }, [notebooks, searchQuery, selectedSubject]);
+
+  const handleScanAction = () => {
+    if (onOpenScanModal) {
+      onOpenScanModal();
+    } else {
+      router.push("/quiz");
+    }
   };
 
   return (
     <div className="w-full flex-1 flex flex-col space-y-4 select-none pb-28">
-      {/* Overlay sombre léger lorsque le tour d'onboarding est actif */}
-      {isTourActive && (
-        <div
-          onClick={handleCompleteFinalTour}
-          className="fixed inset-0 bg-black/75 backdrop-blur-[2px] z-40 animate-in fade-in duration-300 cursor-pointer"
-          aria-hidden="true"
+      {/* Header unifié avec Pastille PRO dorée & Profil */}
+      <Header
+        showProfile={true}
+        onOpenProfile={() => setShowProfileModal(true)}
+        onOpenPaywall={onOpenPaywall}
+      />
+
+      {/* Barre de Recherche en temps réel */}
+      <div className="relative w-full">
+        <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Rechercher un cours ou une matière..."
+          className="w-full h-11 pl-10 pr-9 rounded-xl border border-zinc-200 bg-zinc-50/70 focus:bg-white focus:border-black text-xs text-black placeholder:text-zinc-400 focus:outline-none transition shadow-2xs"
+          style={{ fontSize: "16px" }}
         />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-black p-1"
+            aria-label="Effacer la recherche"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Filtres par Matière (Pills horizontaux) */}
+      {subjects.length > 0 && (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <button
+            type="button"
+            onClick={() => setSelectedSubject("all")}
+            className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition cursor-pointer ${
+              selectedSubject === "all"
+                ? "bg-black text-white shadow-2xs"
+                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+            }`}
+          >
+            Tous ({notebooks.length})
+          </button>
+          {subjects.map((subj) => {
+            const count = notebooks.filter((n) => n.subject === subj).length;
+            const isSelected = selectedSubject.toLowerCase() === subj.toLowerCase();
+            return (
+              <button
+                key={subj}
+                type="button"
+                onClick={() => setSelectedSubject(subj)}
+                className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition cursor-pointer ${
+                  isSelected
+                    ? "bg-black text-white shadow-2xs font-bold"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                }`}
+              >
+                {subj} ({count})
+              </button>
+            );
+          })}
+        </div>
       )}
 
-      {/* Header avec logo loreno.app horizontal & bouton profil */}
-      <header className="w-full pt-1 pb-1 flex items-center justify-between">
-        <div className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="loreno.app"
-            width={160}
-            height={38}
-            className="h-8 sm:h-9 w-auto object-contain"
-            priority
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowProfileModal(true)}
-            className="w-9 h-9 rounded-full border border-zinc-200 bg-white flex items-center justify-center text-zinc-600 hover:text-black transition cursor-pointer shadow-2xs"
-            aria-label="Profil"
-            title="Mon profil et compte"
-          >
-            <User className="w-4 h-4" />
-          </button>
-        </div>
-      </header>
-
-      {/* SECTION 1 : CRÉER & RÉVISER (ENCADRÉ DANS UNE CARTE COHÉRENTE) */}
-      <section className="relative rounded-3xl border border-[#4457f4]/25 bg-gradient-to-b from-[#4457f4]/[0.08] via-[#4457f4]/[0.03] to-transparent p-4 sm:p-5 shadow-xs space-y-3">
-        {/* En-tête épuré Créer & Réviser */}
-        <div className="flex items-center justify-between px-0.5">
-          <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-zinc-900">
-            Créer &amp; Réviser
-          </h2>
-        </div>
-
-        {/* Bulle Onboarding if active */}
-        {isTourActive && tourStep === "choose_mode" && (
-          <div className="relative z-50">
-            <OnboardingTourBubble show={true} onDismiss={handleCompleteFinalTour} />
-          </div>
-        )}
-
-        {/* Grille Flashcards & Quiz examen */}
-        <div className={`grid grid-cols-2 gap-2.5 ${isTourActive && tourStep === "choose_mode" ? "relative z-50" : ""}`}>
-          {/* TUILE 1 : FLASHCARDS */}
-          <button
-            onClick={() => onActionClick?.("flashcards")}
-            className="p-4 rounded-2xl border border-zinc-200/90 bg-white hover:border-[#4457f4] hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-[0.98] text-left flex flex-col justify-between gap-3 group cursor-pointer shadow-xs"
-          >
-            <div className="w-10 h-10 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center text-[#4457f4] shrink-0 group-hover:scale-105 group-hover:bg-[#4457f4] group-hover:text-white transition-all">
-              <Layers className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-zinc-900 group-hover:text-[#4457f4] transition-colors block">Flashcards</span>
-              <span className="text-xs text-zinc-500 block font-medium mt-0.5">Mémorisation 3D</span>
-            </div>
-          </button>
-
-          {/* TUILE 2 : QUIZ EXAMEN */}
-          <button
-            onClick={() => onActionClick?.("quiz")}
-            className="p-4 rounded-2xl border border-zinc-200/90 bg-white hover:border-[#4457f4] hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-[0.98] text-left flex flex-col justify-between gap-3 group cursor-pointer shadow-xs"
-          >
-            <div className="w-10 h-10 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center text-[#4457f4] shrink-0 group-hover:scale-105 group-hover:bg-[#4457f4] group-hover:text-white transition-all">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-zinc-900 group-hover:text-[#4457f4] transition-colors block">Quiz examen</span>
-              <span className="text-xs text-zinc-500 block font-medium mt-0.5">Note sur /20</span>
-            </div>
-          </button>
-        </div>
-
-        {/* TUILE 3 : ASSISTANT IA PERSONNEL (FOND VIOLET PLUS FONCÉ HARMONIEUX) */}
-        <button
-          onClick={() => onActionClick?.("tutor")}
-          className="w-full p-4 rounded-2xl border border-[#4457f4] bg-gradient-to-r from-[#2433bb] via-[#3243cc] to-[#4457f4] text-white hover:brightness-105 hover:shadow-md transition-all active:scale-[0.98] text-left flex items-center justify-between shadow-xs group cursor-pointer"
-        >
-          <div className="flex items-center gap-3.5 truncate">
-            <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-              <Bot className="w-5 h-5 text-white" />
-            </div>
-            <div className="truncate">
-              <div className="text-sm font-bold text-white truncate">
-                Assistant IA Personnel
-              </div>
-              <div className="text-xs text-indigo-100/90 truncate mt-0.5 font-medium">Pose toutes tes questions sur tes cours</div>
-            </div>
-          </div>
-          <span className="px-3.5 py-1.5 rounded-xl bg-white text-[#2433bb] hover:bg-zinc-100 font-bold text-xs shrink-0 ml-2 transition flex items-center gap-1 shadow-xs">
-            {isPro ? "Ouvrir" : "PRO"}
-            <ArrowRight className="w-3.5 h-3.5" />
-          </span>
-        </button>
-      </section>
-
-      {/* SECTION 2 : MES COURS (TITRE EN NOIR) */}
-      <section className="space-y-2 pt-2 flex-1 flex flex-col min-h-0">
-        {/* Bulle d'instruction Étape 4 */}
-        {isTourActive && tourStep === "click_course" && (
-          <div className="relative z-50">
-            <OnboardingTourBubble
-              show={true}
-              badgeText="Ton cours est prêt 📖"
-              title="Ouvre ton premier cours"
-              description="Clique sur ton cours ci-dessous pour découvrir ta synthèse détaillée et tes options !"
-              arrowDirection="down"
-              showDismiss={false}
-            />
-          </div>
-        )}
-
-        {/* Bulle d'instruction Étape 5 */}
-        {isTourActive && tourStep === "import_new" && (
-          <div className="relative z-50">
-            <OnboardingTourBubble
-              show={true}
-              badgeText="Tout est prêt 🚀"
-              title="Ajoute d'autres cours à tout moment"
-              description="Appuie sur Nouveau cours (+) en bas pour scanner tes prochains cours manuscrits ou PDF !"
-              arrowDirection="down"
-              actionLabel="J'ai compris 🚀"
-              onAction={handleCompleteFinalTour}
-              showDismiss={false}
-            />
-          </div>
-        )}
-
+      {/* SECTION MES COURS */}
+      <section className="space-y-2.5 flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between px-0.5">
           <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-black">
-            Mes cours ({notebooks.length})
+            Mes cours ({filteredNotebooks.length})
           </span>
           {isPro && (
             <span className="text-[10px] font-bold text-[#4457f4] bg-[#4457f4]/10 border border-[#4457f4]/30 px-2 py-0.5 rounded-lg">
@@ -203,40 +146,23 @@ export function NotebookListView({
         </div>
 
         <div className="space-y-2.5 pb-20">
-          {notebooks.length === 0 ? (
-            <div
-              onClick={() => {
-                if (onOpenScanModal) onOpenScanModal();
-                else router.push("/dashboard/new");
-              }}
-              className="p-7 text-center text-zinc-500 text-xs border border-dashed border-zinc-300 rounded-2xl space-y-2.5 bg-zinc-50/60 hover:bg-zinc-100/70 hover:border-[#4457f4]/50 transition-all cursor-pointer active:scale-[0.99] group shadow-2xs"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center text-zinc-800 mx-auto group-hover:scale-110 group-hover:text-[#4457f4] group-hover:border-[#4457f4]/30 transition-all shadow-xs">
-                <Plus className="w-5 h-5" />
-              </div>
-              <p className="font-bold text-zinc-900 text-sm">Prendre une photo de cours</p>
-              <p className="text-zinc-500 text-xs max-w-xs mx-auto">
-                Appuie ici pour scanner ton premier cours manuscrit ou PDF.
+          {filteredNotebooks.length === 0 ? (
+            <div className="p-8 text-center text-zinc-500 text-xs border border-dashed border-zinc-300 rounded-2xl space-y-2 bg-zinc-50/50">
+              <p className="font-semibold text-zinc-700">Aucun cours trouvé</p>
+              <p className="text-[11px] text-zinc-400">
+                {searchQuery
+                  ? `Aucun cours ne correspond à "${searchQuery}".`
+                  : "Scanne un nouveau cours pour commencer."}
               </p>
             </div>
           ) : (
-            notebooks.map((nb, idx) => (
-              <div
+            filteredNotebooks.map((nb) => (
+              <NotebookListItem
                 key={nb.id}
-                className={isTourActive && tourStep === "click_course" && idx === 0 ? "relative z-50 ring-2 ring-[#4457f4] rounded-2xl shadow-xl animate-in zoom-in-95 duration-200" : ""}
-              >
-                <NotebookListItem
-                  notebook={nb}
-                  onSelect={(item) => {
-                    if (isTourActive && tourStep === "click_course") {
-                      setTourStep("inspect_course");
-                      setLocalTourStep("inspect_course");
-                    }
-                    onSelectNotebook(item);
-                  }}
-                  onDelete={onDeleteNotebook}
-                />
-              </div>
+                notebook={nb}
+                onSelect={(item) => onSelectNotebook(item)}
+                onDelete={onDeleteNotebook}
+              />
             ))
           )}
         </div>
@@ -253,3 +179,4 @@ export function NotebookListView({
     </div>
   );
 }
+
