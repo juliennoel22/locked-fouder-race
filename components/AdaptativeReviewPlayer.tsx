@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { Zap } from "lucide-react";
 import { ReviewErrorModal } from "./review/review-error-modal";
 import { ReviewCompletedModal } from "./review/review-completed-modal";
 import {
@@ -200,6 +201,33 @@ export function AdaptativeReviewPlayer({
 
   return (
     <div className="w-full flex-1 flex flex-col justify-between py-2 select-none">
+      {/* Barre Mode Test Rapidité en Jeu */}
+      <div className="w-full mb-2 p-1.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-[11px] font-bold text-amber-900 shadow-2xs">
+        <span className="flex items-center gap-1 font-black">
+          <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+          <span>TEST DEV :</span>
+        </span>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleNextItem}
+            className="px-2 py-0.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[10px] cursor-pointer shadow-xs active:scale-95 transition"
+          >
+            ⚡ Carte suivante
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              saveProgressToDb(100);
+              setIsCompleted(true);
+            }}
+            className="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] cursor-pointer shadow-xs active:scale-95 transition"
+          >
+            🔓 Tout valider
+          </button>
+        </div>
+      </div>
+
       <ReviewProgressBar
         type={currentItem.type}
         currentIndex={currentIndex}

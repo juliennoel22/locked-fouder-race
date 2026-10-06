@@ -13,6 +13,7 @@ import {
   Star,
   Play,
   Award,
+  Zap,
 } from "lucide-react";
 
 export interface PathNode {
@@ -32,6 +33,7 @@ interface CoursePathMapProps {
   progressPercent: number;
   onSelectNode: (node: PathNode) => void;
   onStartNextNode: () => void;
+  onUpdateProgress?: (newPercent: number) => void;
 }
 
 export function CoursePathMap({
@@ -41,6 +43,7 @@ export function CoursePathMap({
   progressPercent = 0,
   onSelectNode,
   onStartNextNode,
+  onUpdateProgress,
 }: CoursePathMapProps) {
   // Définition statique des 6 étapes du parcours Duolingo en zigzag
   const nodes: PathNode[] = useMemo(
@@ -134,6 +137,39 @@ export function CoursePathMap({
 
   return (
     <div className="w-full flex flex-col items-center select-none pb-28 pt-2">
+      {/* Barre d'outils Mode Test Rapidité */}
+      {onUpdateProgress && (
+        <div className="w-full mb-3 p-2.5 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs font-bold text-amber-900 shadow-2xs">
+          <span className="flex items-center gap-1.5 font-black text-[11px]">
+            <Zap className="w-4 h-4 fill-amber-500 text-amber-500" />
+            <span>MODE TEST DEV :</span>
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onUpdateProgress(Math.min(100, Math.round(((completedCount + 1) / nodes.length) * 100)))}
+              className="px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] cursor-pointer shadow-xs active:scale-95 transition"
+            >
+              +1 Étape
+            </button>
+            <button
+              type="button"
+              onClick={() => onUpdateProgress(100)}
+              className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] cursor-pointer shadow-xs active:scale-95 transition"
+            >
+              🔓 100%
+            </button>
+            <button
+              type="button"
+              onClick={() => onUpdateProgress(0)}
+              className="px-2.5 py-1 rounded-xl bg-zinc-700 hover:bg-zinc-800 text-white font-extrabold text-[11px] cursor-pointer shadow-xs active:scale-95 transition"
+            >
+              🔄 Reset 0%
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* En-tête Unité Duolingo Style (Bannière Verte Énergique) */}
       <div className="w-full rounded-3xl bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white p-4 sm:p-5 shadow-lg border border-emerald-400/40 space-y-2 text-left mb-6 relative overflow-hidden">
         <div className="flex items-center justify-between">
@@ -181,6 +217,7 @@ export function CoursePathMap({
           const isDone = index < completedCount;
           const isCurrent = index === currentStepIndex && progressPercent < 100;
           const isLocked = index > completedCount && progressPercent < 100;
+          const isClickable = !isLocked || Boolean(onUpdateProgress);
           const IconComponent = node.icon;
 
           return (
@@ -205,21 +242,25 @@ export function CoursePathMap({
               <button
                 type="button"
                 onClick={() => {
-                  if (!isLocked) onSelectNode(node);
+                  if (isClickable) onSelectNode(node);
                 }}
-                disabled={isLocked}
+                disabled={!isClickable}
                 className={`relative w-16 h-16 sm:w-18 sm:h-18 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer ${
                   isDone
                     ? "bg-gradient-to-tr from-emerald-500 to-green-400 text-white shadow-lg border-4 border-white shadow-emerald-500/30"
                     : isCurrent
                     ? "bg-gradient-to-tr from-emerald-500 via-green-500 to-emerald-400 text-white shadow-xl ring-4 ring-emerald-300 ring-offset-2 animate-pulse border-4 border-white"
+                    : isLocked && onUpdateProgress
+                    ? "bg-amber-100 text-amber-700 border-4 border-amber-300 cursor-pointer shadow-sm hover:scale-105"
                     : "bg-zinc-200 text-zinc-400 border-4 border-zinc-300 cursor-not-allowed"
                 }`}
               >
                 {isDone ? (
                   <Check className="w-8 h-8 stroke-[3]" />
-                ) : isLocked ? (
+                ) : isLocked && !onUpdateProgress ? (
                   <Lock className="w-6 h-6 text-zinc-400" />
+                ) : isLocked && onUpdateProgress ? (
+                  <Zap className="w-6 h-6 text-amber-600 fill-amber-500" />
                 ) : (
                   <IconComponent className="w-7 h-7 sm:w-8 sm:h-8" />
                 )}

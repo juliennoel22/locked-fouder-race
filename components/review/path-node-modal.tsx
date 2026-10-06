@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Play, BookOpen } from "lucide-react";
+import { X, Play, BookOpen, Zap } from "lucide-react";
 import { PathNode } from "./course-path-map";
 
 interface PathNodeModalProps {
@@ -8,6 +8,7 @@ interface PathNodeModalProps {
   node: PathNode | null;
   onClose: () => void;
   onStartSession: (node: PathNode) => void;
+  onCompleteNode?: (node: PathNode) => void;
 }
 
 export function PathNodeModal({
@@ -15,6 +16,7 @@ export function PathNodeModal({
   node,
   onClose,
   onStartSession,
+  onCompleteNode,
 }: PathNodeModalProps) {
   if (!isOpen || !node) return null;
 
@@ -22,7 +24,7 @@ export function PathNodeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white border border-zinc-200 rounded-3xl p-5 shadow-2xl space-y-4 text-left animate-in zoom-in-95 duration-200 select-none">
+      <div className="relative w-full max-w-md bg-white border border-zinc-200 rounded-3xl p-5 shadow-2xl space-y-3.5 text-left animate-in zoom-in-95 duration-200 select-none">
         {/* Bouton fermer */}
         <button
           type="button"
@@ -79,11 +81,26 @@ export function PathNodeModal({
             onClose();
             onStartSession(node);
           }}
-          className="w-full h-13 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition shadow-lg cursor-pointer"
+          className="w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition shadow-lg cursor-pointer"
         >
           <Play className="w-4 h-4 fill-white text-white" />
-          <span>Commencer la session (2-3 min)</span>
+          <span>Commencer la session</span>
         </button>
+
+        {/* Bouton Mode Test (Fast Complete) */}
+        {onCompleteNode && (
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onCompleteNode(node);
+            }}
+            className="w-full h-10 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer shadow-sm border border-amber-400"
+          >
+            <Zap className="w-3.5 h-3.5 fill-white" />
+            <span>⚡ Mode Test : Valider instantanément cette étape</span>
+          </button>
+        )}
       </div>
     </div>
   );

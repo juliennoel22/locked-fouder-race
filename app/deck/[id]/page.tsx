@@ -59,6 +59,37 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
     loadDeck();
   }, [loadDeck]);
 
+  const handleUpdateProgress = useCallback(
+    async (newPercent: number) => {
+      const target = Math.max(0, Math.min(100, Math.round(newPercent)));
+      if (!deckId) return;
+      try {
+        localStorage.setItem(`loreno_progress_${deckId}`, String(target));
+      } catch {}
+      setDeck((prev) => (prev ? { ...prev, progress_percent: target } : null));
+      if (!deckId.startsWith("demo-")) {
+        try {
+          await fetch("/api/decks", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: deckId, progress_percent: target }),
+          });
+        } catch (err) {
+          console.error("Erreur maj progression dev test :", err);
+        }
+      }
+    },
+    [deckId]
+  );
+
+  const handleCompleteNode = useCallback(
+    (node: PathNode) => {
+      const calculatedPercent = Math.min(100, Math.round((node.stepNumber / 6) * 100));
+      handleUpdateProgress(calculatedPercent);
+    },
+    [handleUpdateProgress]
+  );
+
   if (loading) {
     return (
       <main className="min-h-[100dvh] w-full bg-white flex flex-col items-center justify-center p-4">
@@ -122,6 +153,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
               progressPercent={deck.progress_percent || 0}
               onSelectNode={(node) => setSelectedPathNode(node)}
               onStartNextNode={() => router.push(`/review/${deck.id}`)}
+              onUpdateProgress={handleUpdateProgress}
             />
           ) : (
             <div className="space-y-4">
@@ -189,6 +221,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
           node={selectedPathNode}
           onClose={() => setSelectedPathNode(null)}
           onStartSession={() => router.push(`/review/${deck.id}`)}
+          onCompleteNode={handleCompleteNode}
         />
 
         {/* Modal Photo Miroir & Enrichissement */}
