@@ -9,7 +9,7 @@
 
 | ID | Type | Priorité | Titre | Auteur | Statut | Fichier |
 |---|:---:|:---:|---|:---:|:---:|:---:|
-| `BUG-003` | `bug` | `P0` | Fiabilité & cohérence des questions/réponses IA | Baptiste | 🟡 `ready` | [`tasks/BUG-003-ia-quiz-answer-consistency.md`](file:///home/julien/git/locked-fouder-race/tasks/BUG-003-ia-quiz-answer-consistency.md) |
+| `BUG-003` | `bug` | `P0` | Fiabilité & cohérence des questions/réponses IA | Baptiste | 🟢 `resolved` | [`tasks/BUG-003-ia-quiz-answer-consistency.md`](file:///home/julien/git/locked-fouder-race/tasks/BUG-003-ia-quiz-answer-consistency.md) |
 | `BUG-004` | `bug` | `P0` | Déblocage du palier 2 et progression roadmap | Baptiste | 🟡 `ready` | [`tasks/BUG-004-roadmap-progression-unlock.md`](file:///home/julien/git/locked-fouder-race/tasks/BUG-004-roadmap-progression-unlock.md) |
 | `BUG-005` | `bug` | `P0` | Persistance session mobile (déconnexions Safari/Chrome) | Baptiste | 🟡 `ready` | [`tasks/BUG-005-mobile-session-persistence.md`](file:///home/julien/git/locked-fouder-race/tasks/BUG-005-mobile-session-persistence.md) |
 | `BUG-006` | `bug` | `P0` | Masquage du paywall pour les abonnés Pro | Baptiste | 🟡 `ready` | [`tasks/BUG-006-hide-paywall-for-pro-users.md`](file:///home/julien/git/locked-fouder-race/tasks/BUG-006-hide-paywall-for-pro-users.md) |

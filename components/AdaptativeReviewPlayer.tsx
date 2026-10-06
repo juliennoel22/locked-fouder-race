@@ -21,6 +21,7 @@ export function AdaptativeReviewPlayer({
   subject,
   flashcards,
   initialQuizQuestion,
+  initialQuizAnswer,
 }: AdaptativeReviewPlayerProps) {
   const buildInitialQueue = useCallback((): ReviewQueueItem[] => {
     const queue: ReviewQueueItem[] = [];
@@ -47,18 +48,28 @@ export function AdaptativeReviewPlayer({
       });
     });
 
-    // 3. Étape 3 : Question piège
+    // 3. Étape 3 : Question piège (avec sa réponse dédiée spécifique)
     if (initialQuizQuestion?.trim()) {
+      const matchingCard = flashcards.find(
+        (f) =>
+          f.front.toLowerCase().includes(initialQuizQuestion.toLowerCase().slice(0, 15)) ||
+          initialQuizQuestion.toLowerCase().includes(f.front.toLowerCase().slice(0, 15))
+      );
+      const resolvedAnswer =
+        initialQuizAnswer?.trim() ||
+        matchingCard?.back ||
+        "Analyse les principes clés de ta fiche de cours pour justifier ta réponse d'examen.";
+
       queue.push({
         id: `trap-${Date.now()}`,
         type: "exam_trap",
         front: initialQuizQuestion,
-        back: flashcards[0]?.back || "Vérifie les concepts clés du cours.",
+        back: resolvedAnswer,
       });
     }
 
     return queue;
-  }, [flashcards, initialQuizQuestion]);
+  }, [flashcards, initialQuizQuestion, initialQuizAnswer]);
 
   const [queue, setQueue] = useState<ReviewQueueItem[]>(() => buildInitialQueue());
   const [currentIndex, setCurrentIndex] = useState<number>(0);

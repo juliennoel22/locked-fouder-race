@@ -48,12 +48,16 @@ export function NotebookQuizView({
 
     return cards.map((card, idx) => {
       const otherCards = cards.filter((_, i) => i !== idx);
-      const distractors = [
-        otherCards[0]?.back || "Un mécanisme d'application directe",
-        otherCards[1]?.back || "Une règle dérogatoire sans portée générale",
-        otherCards[2]?.back || "Une théorie rejetée par la jurisprudence",
-      ];
-      const rawOptions = [card.back, ...distractors.slice(0, 3)];
+      const generatedDistractors = Array.isArray(card.distractors) && card.distractors.length >= 2
+        ? card.distractors
+        : [
+            otherCards[0]?.back || "Un principe fondamental spécifique à ce domaine",
+            otherCards[1]?.back || "Une règle dérogatoire sans portée générale",
+            otherCards[2]?.back || "Une exception juridique ou méthodologique",
+          ];
+
+      const distractors = generatedDistractors.slice(0, 3);
+      const rawOptions = [card.back, ...distractors];
       const shift = idx % rawOptions.length;
       const options = [...rawOptions.slice(shift), ...rawOptions.slice(0, shift)];
       const correctIndex = options.indexOf(card.back);

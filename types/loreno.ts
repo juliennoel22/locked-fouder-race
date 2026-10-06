@@ -27,6 +27,7 @@ export interface Deck {
   summary?: string | null;
   detailed_content?: string | null;
   initial_quiz_question?: string | null;
+  initial_quiz_answer?: string | null;
   image_url?: string | null;
   image_urls?: string[] | null;
   progress_percent?: number;
@@ -44,6 +45,7 @@ export interface ScanResult {
   summary: string;
   detailed_content: string; // Fiche de cours complète en Markdown
   initial_quiz_question: string;
+  initial_quiz_answer?: string;
   flashcards: Array<{
     front: string;
     back: string;

@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 import { DEMO_DECK, DEMO_FLASHCARDS } from "@/lib/demo-deck";
 import { deckGenerateGameSchema } from "@/lib/validations";
+import { verifyAndAuditQuizContent } from "@/lib/ai-validator";
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -80,21 +81,24 @@ Tu reçois la fiche de révision complète du cours suivant :
 - Fiche de cours :
 ${contentToAnalyze}
 
-RÈGLE D'ÉTANCHÉITÉ STRICTE (CRITIQUE) :
-- Tout le contenu (questions, réponses, distracteurs, pièges) doit être EXCLUSIVEMENT tiré de cette fiche de cours.
-- Ne mélange aucun autre domaine de connaissances.
+RÈGLES IMPÉRATIVES DE COHÉRENCE ET CAUSALITÉ STRICTE (CRITIQUE) :
+1. ÉTANCHÉITÉ TOTALE : Tout le contenu doit être EXCLUSIVEMENT tiré de cette fiche de cours.
+2. VALIDATION CAUSALE : Chaque réponse ("back", "initial_quiz_answer") doit répondre DIRECTEMENT, EXACTEMENT ET DE FAÇON PERTINENTE à la question posée ("front", "initial_quiz_question").
+3. INTERDICTION DES ANACHRONISMES OU CONFUSIONS : Ne confonds jamais un fait déclencheur (ex: date d'un krach boursier) avec une réponse d'examen sur les politiques publiques ou conséquences. Si la question porte sur une politique ou un principe, la réponse doit être ce principe précis et non une date ou un lieu.
+4. DISTRACTEURS CRÉDIBLES ET INDÉPENDANTS : Les "distractors" doivent être des fausses réponses très crédibles et spécifiques à la question, JAMAIS de simples permutations d'autres questions sans rapport.
 
-Génère entre 5 et 7 cartes d'apprentissage et 1 question piège d'examen en JSON STRICT avec ce schéma exact :
+Génère entre 5 et 7 cartes d'apprentissage et 1 question piège d'examen avec sa réponse exacte en JSON STRICT avec ce schéma :
 {
   "initial_quiz_question": "La question piège d'examen la plus probable sur ce cours",
+  "initial_quiz_answer": "La réponse exacte, directe et précise correspondant exactement à cette question piège",
   "flashcards": [
     {
       "front": "Question ou concept clé ?",
-      "back": "Réponse synthétique et exacte",
+      "back": "Réponse synthétique et exacte répondant directement à la question",
       "distractors": [
-        "Fausse réponse 1 (crédible, subtile et proche du sujet)",
-        "Fausse réponse 2 (crédible, subtile et proche du sujet)",
-        "Fausse réponse 3 (crédible, subtile et proche du sujet)"
+        "Fausse réponse 1 crédible et spécifique",
+        "Fausse réponse 2 crédible et spécifique",
+        "Fausse réponse 3 crédible et spécifique"
       ]
     }
   ]
@@ -118,6 +122,7 @@ Génère entre 5 et 7 cartes d'apprentissage et 1 question piège d'examen en JS
 
     let parsedResult = {
       initial_quiz_question: deck.initial_quiz_question || "Quel est le principe fondamental du cours ?",
+      initial_quiz_answer: (deck as { initial_quiz_answer?: string }).initial_quiz_answer || "Consulte les notions clés de ta fiche de révision.",
       flashcards: [] as Array<{ front: string; back: string; distractors?: string[] }>,
     };
 
@@ -125,11 +130,18 @@ Génère entre 5 et 7 cartes d'apprentissage et 1 question piège d'examen en JS
       const cleanedJson = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(cleanedJson);
       if (Array.isArray(parsed.flashcards) && parsed.flashcards.length > 0) {
-        parsedResult = parsed;
+        parsedResult = {
+          initial_quiz_question: parsed.initial_quiz_question || parsedResult.initial_quiz_question,
+          initial_quiz_answer: parsed.initial_quiz_answer || parsedResult.initial_quiz_answer,
+          flashcards: parsed.flashcards,
+        };
       }
     } catch (parseErr) {
       console.warn("Erreur parsing JSON génération leçon, fallback:", parseErr);
     }
+
+    // 2.5 Passe de validation & contrôle causale IA (Critic Guardrail)
+    parsedResult = await verifyAndAuditQuizContent(parsedResult, contentToAnalyze, apiKey);
 
     // 3. Sauvegarde en BDD des flashcards générées
     if (parsedResult.flashcards.length > 0) {
@@ -143,10 +155,20 @@ Génère entre 5 et 7 cartes d'apprentissage et 1 question piège d'examen en JS
       await admin.from("flashcards").insert(cardsToInsert);
 
       if (parsedResult.initial_quiz_question) {
-        await admin
-          .from("decks")
-          .update({ initial_quiz_question: parsedResult.initial_quiz_question })
-          .eq("id", deck.id);
+        try {
+          await admin
+            .from("decks")
+            .update({
+              initial_quiz_question: parsedResult.initial_quiz_question,
+              initial_quiz_answer: parsedResult.initial_quiz_answer,
+            })
+            .eq("id", deck.id);
+        } catch {
+          await admin
+            .from("decks")
+            .update({ initial_quiz_question: parsedResult.initial_quiz_question })
+            .eq("id", deck.id);
+        }
       }
     }
 
@@ -154,6 +176,7 @@ Génère entre 5 et 7 cartes d'apprentissage et 1 question piège d'examen en JS
       success: true,
       flashcards: parsedResult.flashcards,
       initial_quiz_question: parsedResult.initial_quiz_question,
+      initial_quiz_answer: parsedResult.initial_quiz_answer,
     });
   } catch (error) {
     console.error("Erreur /api/decks/generate-game :", error);

@@ -58,6 +58,8 @@ export const DEMO_DECK: Deck = {
   detailed_content: DEMO_DETAILED_CONTENT,
   initial_quiz_question:
     "Quelle est la différence fondamentale entre la séparation stricte des pouvoirs (régime présidentiel) et la séparation souple (régime parlementaire) ?",
+  initial_quiz_answer:
+    "La séparation stricte exclut tout moyen d'action réciproque (pas de droit de dissolution ni de motion de censure), tandis que la séparation souple repose sur une collaboration institutionnelle avec droits de dissolution et de censure.",
   image_url: null,
   progress_percent: 0,
   created_at: new Date().toISOString(),
@@ -84,6 +86,7 @@ export const DEMO_NOTEBOOK_ITEM: NotebookItem = {
     summary: DEMO_DECK.summary || "",
     detailed_content: DEMO_DETAILED_CONTENT,
     initial_quiz_question: DEMO_DECK.initial_quiz_question || "",
+    initial_quiz_answer: DEMO_DECK.initial_quiz_answer || "",
     flashcards: DEMO_FLASHCARDS,
   },
   detailed_content: DEMO_DETAILED_CONTENT,

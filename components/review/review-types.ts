@@ -17,5 +17,6 @@ export interface AdaptativeReviewPlayerProps {
   subject?: string | null;
   flashcards: Flashcard[];
   initialQuizQuestion?: string | null;
+  initialQuizAnswer?: string | null;
   onFinish?: () => void;
 }

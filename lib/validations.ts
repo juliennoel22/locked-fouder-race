@@ -57,6 +57,7 @@ export const deckCreateSchema = z.object({
   detailed_content: z.string().optional().nullable(),
   progress_percent: z.number().min(0).max(100).optional().default(0),
   initial_quiz_question: z.string().optional().nullable(),
+  initial_quiz_answer: z.string().optional().nullable(),
   image_url: z.string().optional().nullable(),
   flashcards: z
     .array(
