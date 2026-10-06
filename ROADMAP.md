@@ -43,7 +43,7 @@ graph LR
 |---|---|---|:---:|
 | [`BUG-003`](file:///home/julien/git/locked-fouder-race/tasks/BUG-003-ia-quiz-answer-consistency.md) | **Cohérence IA Questions/Réponses** | Prompts d'alignement causal stricts + liaison `initial_quiz_answer` + correction des lecteurs `AdaptativeReviewPlayer` & `NotebookQuizView`. | 🟢 `resolved` |
 | [`BUG-004`](file:///home/julien/git/locked-fouder-race/tasks/BUG-004-roadmap-progression-unlock.md) | **Déblocage Nœud 2 Roadmap** | Sauvegarde incrémentale par palier + déblocage réactif instantané dans `CoursePathMap.tsx`. | 🟢 `resolved` |
-| [`BUG-005`](file:///home/julien/git/locked-fouder-race/tasks/BUG-005-mobile-session-persistence.md) | **Persistance Auth Mobile** | Paramétrer `@supabase/ssr` avec cookies `HttpOnly`, auto-refresh des tokens et gestion gracieuse hors-ligne pour Safari iOS / Chrome. | 🟡 `ready` |
+| [`BUG-005`](file:///home/julien/git/locked-fouder-race/tasks/BUG-005-mobile-session-persistence.md) | **Persistance Auth Mobile** | Imposition `maxAge: 31536000` (1 an) + `sameSite: lax` sur les clients Supabase SSR & middleware pour éliminer la déconnexion mobile. | 🟢 `resolved` |
 | [`BUG-006`](file:///home/julien/git/locked-fouder-race/tasks/BUG-006-hide-paywall-for-pro-users.md) | **Masquage Paywall pour Abonnés Pro** | Vérifier systématiquement `is_pro` et masquer les modales et bandeaux paywall ; retirer les wordings obsolètes "à vie". | 🟡 `ready` |
 
 ---

@@ -10,5 +10,16 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     FALLBACK_KEY;
 
-  return createBrowserClient(url, key);
+  return createBrowserClient(url, key, {
+    cookieOptions: {
+      maxAge: 31536000, // 1 an pour persistance mobile Safari / Chrome
+      sameSite: "lax",
+      path: "/",
+    },
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
 }

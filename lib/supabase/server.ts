@@ -23,12 +23,15 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore.set(name, value, {
+                ...options,
+                maxAge: options?.maxAge || 31536000, // 1 an de persistance mobile
+                sameSite: "lax",
+                path: "/",
+              })
             );
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have proxy refreshing
-            // user sessions.
+            // Le setAll peut être ignoré dans les Server Components si le middleware gère le refresh.
           }
         },
       },
