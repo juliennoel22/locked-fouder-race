@@ -2,23 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
-import { z } from "zod";
-
-const appendDeckSchema = z.object({
-  deckId: z.string().uuid("ID de cours invalide"),
-  base64: z.string().optional(),
-  mimeType: z.string().optional(),
-  imageUrl: z.string().optional(),
-  images: z
-    .array(
-      z.object({
-        base64: z.string().optional(),
-        mimeType: z.string().optional(),
-        imageUrl: z.string().optional(),
-      })
-    )
-    .optional(),
-});
+import { deckAppendSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     const rawBody = await request.json().catch(() => ({}));
-    const parseResult = appendDeckSchema.safeParse(rawBody);
+    const parseResult = deckAppendSchema.safeParse(rawBody);
 
     if (!parseResult.success) {
       return NextResponse.json(

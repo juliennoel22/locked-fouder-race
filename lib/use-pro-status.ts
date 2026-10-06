@@ -22,6 +22,8 @@ function hasProCookie(): boolean {
 
 export function useProStatus() {
   const [isPro, setIsPro] = useState<boolean>(false);
+  const [proUntil, setProUntil] = useState<string | null>(null);
+  const [isReferralTrial, setIsReferralTrial] = useState<boolean>(false);
   const [justUnlocked, setJustUnlocked] = useState<boolean>(false);
   const [isJuryMode, setIsJuryMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -75,8 +77,14 @@ export function useProStatus() {
           } catch {}
         }
 
-        const userIsPro = Boolean(user?.user_metadata?.is_pro) || isLocalPro;
+        const proUntilStr = user?.user_metadata?.pro_until;
+        const isProUntilValid = proUntilStr ? new Date(proUntilStr).getTime() > Date.now() : false;
+        const isLifetime = Boolean(user?.user_metadata?.is_pro);
+        const userIsPro = isLifetime || isProUntilValid || isLocalPro;
+
         setIsPro(userIsPro);
+        setProUntil(proUntilStr || null);
+        setIsReferralTrial(isProUntilValid && !isLifetime);
 
         if (userIsPro) {
           setProCookie();
@@ -126,6 +134,8 @@ export function useProStatus() {
 
   return {
     isPro,
+    proUntil,
+    isReferralTrial,
     isJuryMode,
     isLoading,
     justUnlocked,

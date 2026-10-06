@@ -37,7 +37,7 @@ export function ReviewCompletedModal({
       <div className="space-y-6 pt-4">
         {/* Trophée & Victoire */}
         <div className="relative inline-flex items-center justify-center">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#4457f4] to-emerald-400 flex items-center justify-center text-white shadow-xl shadow-[#4457f4]/20 animate-in zoom-in-75 duration-300">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-brand to-emerald-400 flex items-center justify-center text-white shadow-xl shadow-brand/20 animate-in zoom-in-75 duration-300">
             <Trophy className="w-10 h-10" />
           </div>
           <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white shadow-xs">
@@ -46,7 +46,7 @@ export function ReviewCompletedModal({
         </div>
 
         <div className="space-y-1.5">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#4457f4] bg-[#4457f4]/10 border border-[#4457f4]/20 px-3 py-1 rounded-full inline-block">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-brand bg-brand/10 border border-brand/20 px-3 py-1 rounded-full inline-block">
             Parcours Adaptatif Terminé
           </span>
           <h2 className="text-xl sm:text-2xl font-black text-black tracking-tight">
@@ -70,7 +70,7 @@ export function ReviewCompletedModal({
           </div>
           <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-0.5">
             <span className="text-[10px] text-zinc-400 font-semibold uppercase">Corrigées</span>
-            <div className="text-lg font-black text-[#4457f4]">{errorCount}</div>
+            <div className="text-lg font-black text-brand">{errorCount}</div>
           </div>
         </div>
       </div>

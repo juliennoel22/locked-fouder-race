@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
+import { deckCreateSchema, deckUpdateSchema } from "@/lib/validations";
+
+interface DeckRecord {
+  id: string;
+  created_at: string;
+  user_id: string;
+  title: string;
+  subject: string;
+  summary: string | null;
+  detailed_content?: string | null;
+  progress_percent: number;
+  initial_quiz_question: string | null;
+  image_url: string | null;
+}
+
+interface FlashcardRecord {
+  id: string;
+  deck_id: string;
+  front: string;
+  back: string;
+  order_index: number;
+}
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -14,7 +36,7 @@ async function getAuthUser(request: NextRequest, supabase: Awaited<ReturnType<ty
   try {
     const { data: userData, error } = await supabase.auth.getUser();
     if (userData?.user) return userData.user;
-    if (error && (error.status === 429 || (error as any)?.code === "over_request_rate_limit")) {
+    if (error && (error.status === 429 || (error as { code?: string })?.code === "over_request_rate_limit")) {
       const { data: claimsData } = await supabase.auth.getClaims();
       if (claimsData?.claims?.sub) return { id: claimsData.claims.sub } as { id: string; email?: string };
     }
@@ -67,13 +89,30 @@ export async function POST(request: NextRequest) {
     const user = await getAuthUser(request, supabase);
     if (!user) return NextResponse.json({ success: false, error: "Non autorisé" }, { status: 401 });
 
-    const body = await request.json();
-    const { title, subject, summary, detailed_content, progress_percent, initial_quiz_question, image_url, flashcards = [] } = body;
+    const body = await request.json().catch(() => ({}));
+    const parseResult = deckCreateSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Données de cours invalides", details: parseResult.error.format() },
+        { status: 400 }
+      );
+    }
+
+    const {
+      title,
+      subject,
+      summary,
+      detailed_content,
+      progress_percent,
+      initial_quiz_question,
+      image_url,
+      flashcards,
+    } = parseResult.data;
 
     const admin = getAdminClient();
 
-    let deck: any = null;
-    let deckError: any = null;
+    let deck: DeckRecord | null = null;
+    let deckError: { code?: string; message: string } | null = null;
 
     const initialInsert = await admin
       .from("decks")
@@ -83,14 +122,14 @@ export async function POST(request: NextRequest) {
         subject: subject || "Général",
         summary: summary || null,
         detailed_content: detailed_content || null,
-        progress_percent: typeof progress_percent === "number" ? progress_percent : 0,
+        progress_percent: progress_percent ?? 0,
         initial_quiz_question: initial_quiz_question || null,
         image_url: image_url || null,
       })
       .select("id, created_at, user_id, title, subject, summary, progress_percent, initial_quiz_question, image_url")
       .single();
 
-    deck = initialInsert.data;
+    deck = (initialInsert.data as DeckRecord) || null;
     deckError = initialInsert.error;
 
     if (deckError && deckError.code === "PGRST204") {
@@ -108,7 +147,7 @@ export async function POST(request: NextRequest) {
         .select("id, created_at, user_id, title, subject, summary, initial_quiz_question, image_url")
         .single();
 
-      deck = fallbackInsert.data;
+      deck = (fallbackInsert.data as DeckRecord) || null;
       deckError = fallbackInsert.error;
     }
 
@@ -117,10 +156,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: deckError?.message || "Erreur création cours" }, { status: 500 });
     }
 
-    let insertedCards: any[] = [];
-    if (Array.isArray(flashcards) && flashcards.length > 0) {
-      const cardsToInsert = flashcards.map((c: { front: string; back: string }, idx: number) => ({
-        deck_id: deck.id,
+    let insertedCards: FlashcardRecord[] = [];
+    if (flashcards && flashcards.length > 0) {
+      const cardsToInsert = flashcards.map((c, idx) => ({
+        deck_id: deck!.id,
         front: c.front,
         back: c.back,
         order_index: idx,
@@ -132,7 +171,7 @@ export async function POST(request: NextRequest) {
         .select();
 
       if (cardsError) console.error("Erreur insertion flashcards :", cardsError);
-      else insertedCards = cards || [];
+      else insertedCards = (cards as FlashcardRecord[]) || [];
     }
 
     return NextResponse.json({
@@ -176,9 +215,13 @@ export async function PATCH(request: NextRequest) {
     const user = await getAuthUser(request, supabase);
     if (!user) return NextResponse.json({ success: false, error: "Non autorisé" }, { status: 401 });
 
-    const body = await request.json();
-    const { id, progress_percent, detailed_content } = body;
-    if (!id) return NextResponse.json({ success: false, error: "ID du cours manquant" }, { status: 400 });
+    const body = await request.json().catch(() => ({}));
+    const parseResult = deckUpdateSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json({ success: false, error: "Données de mise à jour invalides" }, { status: 400 });
+    }
+
+    const { id, progress_percent, detailed_content } = parseResult.data;
 
     const updatePayload: Record<string, unknown> = {};
     if (typeof progress_percent === "number") {

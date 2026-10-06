@@ -43,12 +43,20 @@ export default {
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        brand: {
+          DEFAULT: "#4457f4",
+          hover: "#3345de",
+          light: "rgba(68, 87, 244, 0.08)",
+          border: "rgba(68, 87, 244, 0.25)",
+          muted: "rgba(68, 87, 244, 0.12)",
+          dark: "#2536c9",
+        },
         loreno: {
           DEFAULT: "#4457f4",
           light: "rgba(68, 87, 244, 0.08)",
           border: "rgba(68, 87, 244, 0.25)",
           hover: "#3345de",
+          dark: "#2536c9",
         },
         chart: {
           "1": "hsl(var(--chart-1))",

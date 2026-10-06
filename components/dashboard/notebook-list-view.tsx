@@ -14,6 +14,8 @@ interface NotebookListViewProps {
   onOpenPaywall: () => void;
   onOpenReferral?: () => void;
   isPro?: boolean;
+  isReferralTrial?: boolean;
+  proUntil?: string | null;
   userEmail?: string | null;
   onDeleteNotebook?: (id: string) => void;
   onActionClick?: (mode: "flashcards" | "quiz" | "tutor") => void;
@@ -26,6 +28,8 @@ export function NotebookListView({
   onOpenPaywall,
   onOpenReferral,
   isPro = false,
+  isReferralTrial = false,
+  proUntil,
   userEmail,
   onDeleteNotebook,
   onOpenScanModal,
@@ -176,6 +180,8 @@ export function NotebookListView({
         onClose={() => setShowProfileModal(false)}
         userEmail={userEmail}
         isPro={isPro}
+        isReferralTrial={isReferralTrial}
+        proUntil={proUntil}
         notebooksCount={notebooks.length}
         onOpenPaywall={onOpenPaywall}
       />

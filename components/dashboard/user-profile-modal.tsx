@@ -9,6 +9,8 @@ interface UserProfileModalProps {
   onClose: () => void;
   userEmail?: string | null;
   isPro?: boolean;
+  isReferralTrial?: boolean;
+  proUntil?: string | null;
   notebooksCount: number;
   onOpenPaywall: () => void;
 }
@@ -18,6 +20,8 @@ export function UserProfileModal({
   onClose,
   userEmail,
   isPro = false,
+  isReferralTrial = false,
+  proUntil,
   notebooksCount,
   onOpenPaywall,
 }: UserProfileModalProps) {
@@ -67,7 +71,11 @@ export function UserProfileModal({
 
           <div className="pt-2 border-t border-zinc-200 flex items-center justify-between">
             <span className="text-xs text-zinc-500">Statut du compte</span>
-            {isPro ? (
+            {isReferralTrial ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                🎁 3 jours Pro offerts
+              </span>
+            ) : isPro ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#4457f4] text-white shadow-2xs">
                 <Crown className="w-3 h-3 text-amber-300" /> Premium Illimité
               </span>
@@ -78,6 +86,19 @@ export function UserProfileModal({
             )}
           </div>
         </div>
+
+        {/* Banner 3 Jours Pro Parrainage */}
+        {isReferralTrial && (
+          <div className="p-3 rounded-2xl bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 text-left space-y-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900">
+              <Zap className="w-4 h-4 text-indigo-600 fill-indigo-600" />
+              <span>3 jours Pro offerts par ton parrain !</span>
+            </div>
+            <p className="text-[11px] text-zinc-600 leading-tight">
+              Scans et flashcards illimités actifs. Passe en accès à vie pour 9,99 € à tout moment.
+            </p>
+          </div>
+        )}
 
         {/* Statistiques sauvegardées */}
         <div className="grid grid-cols-2 gap-3 text-center">
@@ -95,7 +116,8 @@ export function UserProfileModal({
           </div>
         </div>
 
-        {!isPro && (
+        {/* Bouton de conversion pour compte Gratuit OU Essai Parrainage */}
+        {(!isPro || isReferralTrial) && (
           <button
             onClick={() => {
               onClose();

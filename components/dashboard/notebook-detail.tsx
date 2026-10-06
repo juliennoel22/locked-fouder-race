@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Bot, CheckCircle2, Layers, Eye } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FlashcardPlayer } from "@/components/flashcard-player";
 import { NotebookQuizView } from "./notebook-quiz-view";
@@ -9,6 +9,7 @@ import { AiTutorModal } from "./ai-tutor-modal";
 import { MirrorModal } from "@/components/mirror-modal";
 import { OnboardingTourBubble } from "./onboarding-tour-bubble";
 import { getTourStep, setTourStep } from "@/lib/onboarding-tour-state";
+import { NotebookActionBar } from "./notebook-action-bar";
 
 interface NotebookDetailProps {
   notebook: NotebookItem;
@@ -55,14 +56,14 @@ export function NotebookDetail({
 
   return (
     <div className="w-full flex-1 flex flex-col select-none relative">
-      {/* Header avec bouton retour contextuel & PRO */}
+      {/* Header */}
       <header className="w-full pt-1 flex items-center justify-between h-12 border-b border-zinc-200 pb-2 mb-3">
         <button
           onClick={() => {
             if (mode === "grid") onBack();
             else setMode("grid");
           }}
-          className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-black transition p-1 -ml-1"
+          className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-black transition p-1 -ml-1 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{mode === "grid" ? "Mes cours" : "Retour au cours"}</span>
@@ -75,19 +76,17 @@ export function NotebookDetail({
         ) : (
           <button
             onClick={onOpenPaywall}
-            className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition"
+            className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-black text-white hover:bg-zinc-800 transition cursor-pointer"
           >
             PRO
           </button>
         )}
       </header>
 
-      {/* VUE 1 : ARTICLE DU COURS DÉTAILLÉ AVEC MODES EN STICKY BOTTOM */}
+      {/* VUE 1 : Synthèse & Notions avec barre d'action sticky */}
       {mode === "grid" && (
         <div className="flex-1 flex flex-col justify-between text-left">
-          {/* Contenu textuel structuré */}
           <div className="space-y-4 pb-6">
-            {/* Bannière d'onboarding : Découverte du cours complet */}
             {tourStep === "inspect_course" && (
               <OnboardingTourBubble
                 show={true}
@@ -101,7 +100,6 @@ export function NotebookDetail({
               />
             )}
 
-            {/* Titre principal & Badges */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-zinc-100 border border-zinc-200 text-zinc-700">
@@ -117,11 +115,10 @@ export function NotebookDetail({
               </h1>
             </div>
 
-            {/* Bouton Proéminent : Consulter les cours originaux */}
             <button
               type="button"
               onClick={() => setShowMirrorModal(true)}
-              className="w-full py-3 px-4 rounded-2xl bg-zinc-900 text-white hover:bg-black transition active:scale-[0.99] flex items-center justify-between shadow-sm"
+              className="w-full py-3 px-4 rounded-2xl bg-zinc-900 text-white hover:bg-black transition active:scale-[0.99] flex items-center justify-between shadow-sm cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center text-white">
@@ -137,7 +134,6 @@ export function NotebookDetail({
               <span className="text-xs font-semibold text-zinc-300">Ouvrir →</span>
             </button>
 
-            {/* Section : Synthèse rapide du cours */}
             {notebook.deck.summary && (
               <section className="space-y-1.5 pt-1">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
@@ -149,7 +145,6 @@ export function NotebookDetail({
               </section>
             )}
 
-            {/* Section : Notions clés en résumé rapide */}
             {notebook.deck.flashcards.length > 0 && (
               <section className="space-y-1.5 pt-1">
                 <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
@@ -173,77 +168,18 @@ export function NotebookDetail({
             )}
           </div>
 
-          {/* STICKY BOTTOM : MODES D'ENTRAÎNEMENT */}
-          <div className="sticky bottom-0 -mx-4 -mb-4 p-4 bg-white/95 backdrop-blur-md border-t border-zinc-200 z-30 shadow-2xl space-y-2.5">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-black">
-                Lancer un entraînement
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-2.5">
-                {/* 1. Flashcards */}
-                <button
-                  onClick={() => setMode("flashcards")}
-                  className="p-3.5 rounded-2xl border border-zinc-200 bg-white hover:border-[#4457f4]/50 hover:shadow-xs transition-all active:scale-[0.98] text-left flex items-center gap-3 shadow-2xs group cursor-pointer"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center text-[#4457f4] shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
-                    <Layers className="w-4 h-4" />
-                  </div>
-                  <div className="truncate">
-                    <div className="text-xs sm:text-sm font-bold text-zinc-900 truncate">Flashcards</div>
-                    <div className="text-[11px] text-zinc-500 font-medium">{notebook.deck.flashcards.length} cartes</div>
-                  </div>
-                </button>
-
-                {/* 2. Quiz examen */}
-                <button
-                  onClick={() => setMode("quiz")}
-                  className="p-3.5 rounded-2xl border border-zinc-200 bg-white hover:border-[#4457f4]/50 hover:shadow-xs transition-all active:scale-[0.98] text-left flex items-center gap-3 shadow-2xs group cursor-pointer"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center text-[#4457f4] shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <div className="truncate">
-                    <div className="text-xs sm:text-sm font-bold text-zinc-900 truncate">Quiz examen</div>
-                    <div className="text-[11px] text-zinc-500 font-medium">Test chrono</div>
-                  </div>
-                </button>
-              </div>
-
-              {/* 3. Assistant IA (#4457f4 Brand Accent) */}
-              <button
-                onClick={() => {
-                  if (isPro) setShowAiTutor(true);
-                  else onOpenPaywall();
-                }}
-                className="w-full p-3.5 rounded-2xl border border-[#4457f4]/40 bg-zinc-950 text-white hover:border-[#4457f4] transition-all active:scale-[0.98] text-left flex items-center justify-between shadow-xs group cursor-pointer"
-              >
-                <div className="flex items-center gap-3 truncate">
-                  <div className="w-9 h-9 rounded-xl bg-[#4457f4] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-                    <Bot className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="truncate">
-                    <div className="text-xs sm:text-sm font-bold text-white truncate flex items-center gap-1.5">
-                      Assistant IA
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-[#4457f4] text-white tracking-wide">
-                        IA
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-zinc-400 truncate">{isPro ? "Tuteur 24/7" : "Débloquer"}</div>
-                  </div>
-                </div>
-                <span className="px-3 py-1.5 rounded-xl bg-[#4457f4] hover:bg-[#2536c9] text-white font-bold text-xs shrink-0 ml-2 transition">
-                  {isPro ? "Ouvrir" : "PRO"}
-                </span>
-              </button>
-            </div>
-          </div>
+          <NotebookActionBar
+            cardCount={notebook.deck.flashcards.length}
+            isPro={isPro}
+            onSelectFlashcards={() => setMode("flashcards")}
+            onSelectQuiz={() => setMode("quiz")}
+            onSelectTutor={() => setShowAiTutor(true)}
+            onOpenPaywall={onOpenPaywall}
+          />
         </div>
       )}
 
-      {/* VUE 2 : MODE FLASHCARDS */}
+      {/* VUE 2 : Flashcards */}
       {mode === "flashcards" && (
         <div className="w-full">
           <FlashcardPlayer
@@ -263,7 +199,7 @@ export function NotebookDetail({
         </div>
       )}
 
-      {/* VUE 3 : MODE QUIZ QCM */}
+      {/* VUE 3 : Quiz QCM */}
       {mode === "quiz" && (
         <NotebookQuizView
           deck={notebook.deck}
@@ -277,14 +213,12 @@ export function NotebookDetail({
         />
       )}
 
-      {/* Modal Tuteur IA */}
       <AiTutorModal
         isOpen={showAiTutor}
         onClose={() => setShowAiTutor(false)}
         notebook={notebook}
       />
 
-      {/* Visionneuse des documents du cours original (Photos & PDF) avec import */}
       <MirrorModal
         isOpen={showMirrorModal}
         onClose={() => setShowMirrorModal(false)}
@@ -295,4 +229,3 @@ export function NotebookDetail({
     </div>
   );
 }
-

@@ -25,6 +25,10 @@
     --ring: 0 0% 0%;
     --radius: 0.75rem;
 
+    /* Loreno Semantic Brand Tokens (Indigo 2026) */
+    --brand-color: #4457f4;
+    --brand-hover: #3345de;
+
     /* Mobile Shell Constraints (héritage MAXREPLY / MAXED) */
     --container-max-width: clamp(320px, 92vw, 480px);
     --safe-area-top: env(safe-area-inset-top, 0px);

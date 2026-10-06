@@ -15,7 +15,7 @@ export function NotebookListItem({ notebook, onSelect, onDelete }: NotebookListI
   return (
     <div
       onClick={() => onSelect(notebook)}
-      className="w-full p-3.5 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50/90 transition-all flex flex-col gap-2.5 active:scale-[0.99] cursor-pointer shadow-2xs hover:border-[#4457f4]/40 group"
+      className="w-full p-3.5 rounded-2xl border border-zinc-200 bg-white hover:bg-zinc-50/90 transition-all flex flex-col gap-2.5 active:scale-[0.99] cursor-pointer shadow-2xs hover:border-brand/40 group"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-3 text-left truncate flex-1 min-w-0">
@@ -59,7 +59,7 @@ export function NotebookListItem({ notebook, onSelect, onDelete }: NotebookListI
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
-          <div className="px-2.5 py-1.5 rounded-xl bg-black text-white group-hover:bg-[#4457f4] transition-colors flex items-center gap-1 text-xs font-bold shadow-xs">
+          <div className="px-2.5 py-1.5 rounded-xl bg-black text-white group-hover:bg-brand transition-colors flex items-center gap-1 text-xs font-bold shadow-xs">
             <Play className="w-3 h-3 fill-current" />
             <span>Réviser</span>
           </div>
@@ -74,7 +74,7 @@ export function NotebookListItem({ notebook, onSelect, onDelete }: NotebookListI
         </div>
         <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200/60">
           <div
-            className="h-full bg-gradient-to-r from-[#4457f4] to-emerald-500 rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-brand to-emerald-500 rounded-full transition-all duration-500"
             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
           />
         </div>

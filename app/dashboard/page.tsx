@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [showReferralModal, setShowReferralModal] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { isPro, justUnlocked, dismissCelebration } = useProStatus();
+  const { isPro, proUntil, isReferralTrial, justUnlocked, dismissCelebration } = useProStatus();
 
   // Célébration confettis lors du déblocage post-paiement
   useEffect(() => {
@@ -200,6 +200,8 @@ export default function DashboardPage() {
             onOpenPaywall={() => setShowPaywall(true)}
             onOpenReferral={() => setShowReferralModal(true)}
             isPro={isPro}
+            isReferralTrial={isReferralTrial}
+            proUntil={proUntil}
             userEmail={userEmail}
             onDeleteNotebook={handleDeleteNotebook}
             onOpenScanModal={() => setShowScanModal(true)}
@@ -214,6 +216,7 @@ export default function DashboardPage() {
             onOpenFeedback={() => setShowFeedbackModal(true)}
             onOpenScanModal={() => setShowScanModal(true)}
             isPro={isPro}
+            isReferralTrial={isReferralTrial}
             notebooksCount={notebooks.filter((n) => !n.isDemo).length}
             onOpenPaywall={() => setShowPaywall(true)}
           />

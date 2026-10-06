@@ -11,6 +11,7 @@ interface FloatingScanBarProps {
   onOpenFeedback?: () => void;
   onOpenScanModal?: () => void;
   isPro?: boolean;
+  isReferralTrial?: boolean;
   notebooksCount?: number;
   onOpenPaywall?: () => void;
   hideQuotaCta?: boolean;
@@ -22,6 +23,7 @@ export function FloatingScanBar({
   onOpenFeedback,
   onOpenScanModal,
   isPro = false,
+  isReferralTrial = false,
   notebooksCount = 0,
   onOpenPaywall,
   hideQuotaCta = false,
@@ -42,8 +44,33 @@ export function FloatingScanBar({
 
   return (
     <div className="fixed bottom-5 left-0 right-0 max-w-md mx-auto px-4 flex flex-col items-center z-30 pointer-events-auto">
-      {/* Gros CTA Achat / Quota violet sans badge encombrant */}
-      {!isPro && !hideQuotaCta && onOpenPaywall && (
+      {/* Banner 3 Jours Pro Parrainage avec option d'achat à vie */}
+      {isReferralTrial && onOpenPaywall && (
+        <div
+          onClick={onOpenPaywall}
+          className="w-full mb-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 border border-indigo-500/40 text-white flex items-center justify-between shadow-2xl hover:brightness-105 transition-all cursor-pointer active:scale-[0.99] select-none"
+        >
+          <div className="flex items-center gap-3 truncate">
+            <div className="w-8 h-8 rounded-xl bg-indigo-500/30 border border-indigo-400/40 flex items-center justify-center shrink-0 shadow-xs">
+              <Zap className="w-4 h-4 text-amber-300 fill-amber-300" />
+            </div>
+            <div className="truncate text-left">
+              <div className="text-xs sm:text-sm font-bold text-white tracking-tight truncate">
+                🎁 3 jours Pro offerts actifs !
+              </div>
+              <div className="text-[11px] text-indigo-200 truncate mt-0.5 font-medium">
+                Accès illimité • Passer à 9,99 € à vie
+              </div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-black bg-amber-400 hover:bg-amber-300 px-3.5 py-2 rounded-xl shrink-0 ml-2 shadow-md transition">
+            À vie →
+          </span>
+        </div>
+      )}
+
+      {/* Gros CTA Achat / Quota violet sans badge encombrant pour compte gratuit */}
+      {!isPro && !isReferralTrial && !hideQuotaCta && onOpenPaywall && (
         <div
           onClick={onOpenPaywall}
           className="w-full mb-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-[#4457f4] via-violet-600 to-indigo-700 border border-violet-400/40 text-white flex items-center justify-between shadow-2xl hover:brightness-105 transition-all cursor-pointer active:scale-[0.99] select-none"

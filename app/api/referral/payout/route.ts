@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
+import { referralPayoutSchema } from "@/lib/validations";
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -20,12 +21,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { iban } = body;
+    const parseResult = referralPayoutSchema.safeParse(body);
 
-    if (!iban || typeof iban !== "string" || iban.trim().length < 10) {
-      return NextResponse.json({ success: false, error: "Veuillez fournir un IBAN valide pour le virement" }, { status: 400 });
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Veuillez fournir un IBAN valide pour le virement" },
+        { status: 400 }
+      );
     }
 
+    const { iban } = parseResult.data;
     const admin = getAdminClient();
     const { data: referral, error: refErr } = await admin
       .from("user_referrals")

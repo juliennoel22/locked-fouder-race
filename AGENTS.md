@@ -1,4 +1,4 @@
-# AGENTS.md — DOCTRINE TECHNIQUE & RÈGLES D'EXÉCUTION (SNAPSTUDY)
+# AGENTS.md — DOCTRINE TECHNIQUE & RÈGLES D'EXÉCUTION (LORENO)
 
 ## 👤 Persona & Ton
 - **Lead Developer & Porteur de Projet** : Julien Noel (Lead Fullstack Senior & Builder Produit orienté conversion).
@@ -25,7 +25,7 @@
 
 ---
 
-## 📱 Doctrine Mobile-First Absolue (Héritage MAXREPLY / MAXED)
+## 📱 Doctrine Mobile-First Absolue (Normes MAXREPLY / MAXED)
 *Ce SaaS est promu sur TikTok/Reels : 95% du trafic et de la conversion s'effectue sur smartphone.*
 
 1. **Mobile Shell par Défaut** :
@@ -39,24 +39,33 @@
 4. **Anti-Zoom iOS & Safe Areas** :
    - Inputs et textareas forcés à `font-size: 16px` minimum sur mobile pour bloquer le zoom automatique iOS.
    - Respect impératif des safe-areas iPhone (`env(safe-area-inset-bottom)`, `env(safe-area-inset-top)`).
-5. **Aesthetic & Conversion** :
-   - Thème sombre épuré (zinc-950/black, touches amber/orange énergétiques), micro-animations fluides, zéro latence perçue.
+5. **Aesthetic & Design Tokens Sémantiques** :
+   - Thème épuré avec tokens sémantiques stricts (zéro couleur hexadécimale arbitraire comme `[#4457f4]`).
+   - Utiliser obligatoirement : `brand` (`#4457f4`), `brand-hover` (`#3345de`), `brand/10`, `border-brand/20`.
 
 ---
 
-##  Doctrine d'Exécution Commando (Hackathon 24H)
-1. **Règle 80/20 Absolue** : Priorité totale à l'impact utilisateur et à l'encaissement Stripe. Pas de fioritures, pas de sur-ingénierie.
-2. **Modularité & Taille des Fichiers** : Tout fichier doit impérativement faire **moins de 300 lignes**. Découper en composants et sous-modules réutilisables.
-3. **TypeScript Strict** : Zéro `any`. Interfaces et types explicites pour toutes les structures (Flashcards, Deck, OCR, Chat).
-4. **Pas d'opérations Git par l'IA** : L'IA ne manipule jamais git (commits, push, merges) en natif. Tout contrôle de version reste sous le contrôle de Julien.
-5. **Code Complet Sans Placeholders** : Aucun `// TODO`, `// ... rest of the code` ou implémentation partielle. Le code livré doit être immédiatement exécutable.
-
----
-
-## 🏗️ Architecture & Stack Technique
-- **Framework** : Next.js 15 App Router (starter public `with-supabase`).
-- **Style & UI** : Tailwind CSS, Lucide React, Canvas Confetti. Mobile-first container.
-- **Backend & Storage** : Supabase (SSR client `@supabase/ssr`, Auth email/magic link, tables `decks` & `flashcards`, bucket public `course-scans` via `supabase/schema.sql`).
-- **Intelligence Artificielle** :
-  - **Gemini 1.5 Flash** (`@google/genai`) : vision multimodale (analyse de notes manuscrites, structuration JSON) + Tuteur d'Examen interactif.
-- **Monétisation** : Redirection directe vers un **Stripe Payment Link** (`https://buy.stripe.com/...`) sans overhead de webhook complexe pour le MVP 24h.
+## 🤖 Normes Agentiques 2026 (Living Repo & Tool Contracts)
+1. **Règle Stricte des Fichiers < 300 Lignes** :
+   - Tout fichier doit impérativement faire **moins de 300 lignes** pour garantir un chargement contextuel ultra-rapide sans hallucination ni troncature.
+   - Découper en sous-modules atomiques dès qu'un fichier approche 250 lignes.
+2. **TypeScript Strict & Zéro `any`** :
+   - Tous les types doivent être déclarés ou inférés depuis les schémas Zod dans `lib/validations.ts`.
+   - Zéro casting permissif `as any`.
+3. **Schémas Zod comme Source Unique de Vérité (`lib/validations.ts`)** :
+   - Tout payload API entrant (POST, PATCH, DELETE) doit être validé via `schema.safeParse(body)` avant tout traitement DB ou IA.
+4. **Orchestration des Connecteurs MCP Disponibles** :
+   - **Supabase MCP** : Audit de schéma, requêtes SQL d'inspection, validation des migrations et RLS.
+   - **Stripe MCP** : Vérification des transactions réelles, gestion des webhooks et payment links.
+   - **Vercel MCP** : Surveillance des runtime logs en production, détection des erreurs 500 ou timeouts.
+   - **PostHog MCP** : Analyse des funnels de conversion et télémétrie des parcours d'apprentissage.
+   - **Meta Ads MCP** : Suivi des campagnes d'acquisition TikTok / Instagram Reels.
+5. **Gouvernance Git & Pas d'Opérations Git par l'IA** :
+   - L'IA ne manipule jamais git (commits, push, merges) en natif. Tout contrôle de version reste sous le contrôle de Julien.
+6. **Code Complet Sans Placeholders** :
+   - Aucun `// TODO`, `// ... rest of the code` ou implémentation partielle. Le code livré doit être immédiatement exécutable et testé par `npm run build`.
+7. **Protocole de Feedbacks & Tâches (Living Agentic Backlog)** :
+   - **Capture Rapide** : Tout retour de Baptiste ou idée brute est consigné dans `INBOX_BAPTISTE.md`.
+   - **Fiches Atomiques** : Toute action priorisée devient une fiche dans `tasks/TASK-XXX.md` avec YAML Frontmatter strict (auteur, type, statut, fichiers impactés, critères).
+   - **Mise à Jour Systématique par l'Agent** : Dès que Julien ou Baptiste formule un retour, l'agent doit spontanément consigner et mettre à jour `INBOX_BAPTISTE.md`, la fiche de tâche associée dans `tasks/`, l'index `tasks/BOARD.md`, ainsi que `MEMORY.md`.
+   - **Clôture de Boucle** : Après chaque implémentation réussie et build vert, l'agent passe le statut à `resolved` et documente la résolution.

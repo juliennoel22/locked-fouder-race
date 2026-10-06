@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 import { DEMO_DECK, DEMO_FLASHCARDS } from "@/lib/demo-deck";
+import { deckGenerateGameSchema } from "@/lib/validations";
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -14,14 +15,16 @@ function getAdminClient() {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json().catch(() => ({}));
-    const { deckId } = body;
+    const parseResult = deckGenerateGameSchema.safeParse(body);
 
-    if (!deckId) {
+    if (!parseResult.success) {
       return NextResponse.json(
-        { success: false, error: "deckId requis" },
+        { success: false, error: "deckId requis ou invalide" },
         { status: 400 }
       );
     }
+
+    const { deckId } = parseResult.data;
 
     // Cas Démo Deck
     if (deckId === "demo-droit-constitutionnel" || deckId === "demo") {

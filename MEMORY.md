@@ -49,20 +49,35 @@
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_ROLE_KEY`
 
-### 2. Stripe Compte Dédié Loreno
-- **Stripe Account ID** : `acct_1UEmR2AqwJcN83vt` (Loreno)
-- **Produit** : `Loreno — Pass Partiels Fondateur (Accès à vie)` (`prod_VFH1j5uWcYJqRi`)
-- **Prix** : `price_1UEmTMAqwJcN83vtnScd3rDZ` (9,99 € TTC, code taxe `txcd_10000000`)
-- **Stripe Payment Link Direct** :  
-  👉 **[https://buy.stripe.com/test_aFa9AS0wr0J53iJfdR3VC00](https://buy.stripe.com/test_aFa9AS0wr0J53iJfdR3VC00)**
-- **Clé API Publishable** : `pk_test_51UEmR2AqwJcN83vtQIF4aQV48oDeBNTUimo478YtSR9zw2GyfsMvUbdqKUy7bMRDflOt3quuN804LbqI8XFCEG2R00RWwSdftK`
+### 2. Stripe Compte Dédié Loreno (LIVE)
+- **Stripe Account ID** : `acct_1UEmQlAH5Oe6wyUi` (Loreno Live)
+- **Produit** : `Loreno — Pass Partiels Fondateur (Accès à vie)`
+- **Prix** : 9,99 € TTC
+- **Stripe Payment Link Direct Live** :  
+  👉 **[https://buy.stripe.com/aFa00idmx0iL8aV4gyds401](https://buy.stripe.com/aFa00idmx0iL8aV4gyds401)**
+- **Clé API Publishable Live** : `pk_live_51UEmQlAH5Oe6wyUiMZPv2AOWrSs18SUdtdgh9qAdBDW1JstYJvZQJXi1E8Q5XOuDHn4QCiJwtzRvKqbkCIqH0o3N00E6XfO1zy`
 
-### 3. Supabase Loreno
+### 3. Supabase Loreno (PROD)
 - **Organisation** : `LORENO (FREE)`
 - **Project Ref** : `bfxbrveuwyiidfthevdn`
 - **Project URL** : `https://bfxbrveuwyiidfthevdn.supabase.co`
 - **Publishable Key** : `sb_publishable_qPKyRvryGiPpgS893UUPlg_P6LJz_S6`
 - **Schéma SQL & Storage** : Exécuté avec succès ! Tables `decks`, `flashcards`, bucket public `course-scans` et RLS configurés.
+
+### 4. Design System Sémantique & MCP 2026
+- **Tokens de Style Unifiés** : `brand` (`#4457f4`), `brand-hover` (`#3345de`), `brand/10`, `border-brand/20` sans hexadécimal arbitraire.
+- **Connecteurs MCP Connectés** :
+  - `supabase` (Inspection schémas, requêtes directes, migrations)
+  - `stripe` (Suivi des paiements réels et planification)
+  - `vercel` (Logs production et diagnostic des fonctions)
+  - `posthog` (Télémétrie et analyse de rétention)
+  - `meta-ads` (Acquisition TikTok / Instagram Reels)
+
+### 5. Living Agentic Backlog (Octobre 2026)
+- **Zone de Dépôt Rapide** : `INBOX_BAPTISTE.md` (pour Baptiste & idées brutes sans friction).
+- **Fiches Atomiques** : `tasks/TASK-XXX.md` avec YAML Frontmatter strict (auteur, type, statut, priorité, fichiers impactés, critères).
+- **Tableau de Bord** : `tasks/BOARD.md` (vue Kanban synthétique).
+- **Règle d'Or** : L'agent IA et Julien mettent à jour ces documents dès qu'un feedback ou bug est formulé, et clôturent chaque tâche après validation du build.
 
 ---
 
@@ -72,9 +87,39 @@
 |---|---|---|---|
 | **Phase 0** | **Socle Mobile & Gouvernance** | 🟢 Terminé | `AGENTS.md`, `MEMORY.md`, `supabase/schema.sql`, `layout.tsx` (Viewport mobile), `globals.css` (Dvh + 3D flip). |
 | **Phase 1** | **Infra Vercel & Stripe Live** | 🟢 Terminé | Domaine `https://www.loreno.app` déployé en production, compte Stripe dédié Loreno configuré, Payment Link 9,99 € actif. |
-| **Phase 2** | **Supabase DB & Auth Gateway** | 🟢 Terminé | Schéma SQL exécuté, tables `decks`, `flashcards` et bucket `course-scans` créés. Clés branchées. |
-| **Phase 3** | **Upload Caméra & Compression Canvas** | 🟢 Terminé | Composant `CameraUpload`, redimensionnement Canvas < 400 Ko, upload Supabase Storage `course-scans`. |
-| **Phase 4** | **Player Flashcards 3D Swipe & Paywall** | 🟢 Terminé | `FlashcardPlayer` tactile swipe 3D, confettis, `MirrorModal` (photo originale) et `PaywallModal` (9,99 € Stripe). |
-| **Phase 5** | **OCR Vision Gemini 3.6 Flash** | 🟢 Terminé | Route `/api/scan` avec SDK `@google/genai` (Interactions API / `gemini-3.6-flash`) validée et connectée en production. |
-| **Phase 6** | **Tuteur d'Examen IA (Chatbot)** | 🟡 En cours | Chatbot interactif posant la 1ère question d'examen déduite du cours scanné. |
-| **Phase 7** | **Vidéo Pitch & Soumission Jury** | ⚪ Prévu | Vidéo MP4 $\le$ 500 Mo, vérification clé Stripe Read-Only, repo public. |
+| **Phase 2** | **Supabase DB & Auth Gateway** | 🟢 Terminé | Schéma SQL exécuté, tables `decks`, `flashcards`, `user_referrals` (fallback metadata active), bucket `course-scans`. |
+| **Phase 3** | **Upload Caméra & Fiches Markdown Gemini** | 🟢 Terminé | Route `/api/scan` avec Gemini 1.5 Flash générant fiches de cours complètes (`detailed_content`) + Flashcards. |
+| **Phase 4** | **Dashboard & Parcours Adaptatif Duolingo** | 🟢 Terminé | Filtres matières, cours démo Droit Constitutionnel, parcours `/review/[id]` avec ré-injection des erreurs (Option A). |
+| **Phase 5** | **Système d'Affiliation Cash & 3 Jours Pro** | 🟢 Terminé | Programme 20% commission cash, capture `?ref=...`, 3 jours Pro offerts filleuls, virement dès 70,00 €. |
+| **Phase 6** | **Tuteur d'Examen IA (Chatbot)** | 🟢 Terminé | Chatbot interactif posant des questions pièges d'examen et évaluant les réponses. |
+| **Phase 7** | **Code Quality & Architecture Agentique** | 🟢 Terminé | Audit documenté dans `docs/`, 100% des fichiers sous 300 lignes, contrats Zod stricts, 0 `any`, compilation validée. |
+| **Phase 8** | **Living Agentic Backlog & Triage Baptiste** | 🟢 Terminé | 18 vocaux transcrits & nettoyés, 11 photos de cours indexées, `INBOX_BAPTISTE.md`, tickets `BUG-003` à `FEAT-011` créés dans `tasks/` et `tasks/BOARD.md`. |
+| **Phase 9** | **Sprint Stabilisation & Clôture P0/P1** | 🟡 Ready | Résolution ordonnée de la fiabilité IA (`BUG-003`), déblocage roadmap (`BUG-004`), persistance auth (`BUG-005`), réduction filleul (`FEAT-007`). |
+| **Phase 10** | **Vidéo Pitch & Soumission Jury** | ⏳ À venir | Vidéo MP4 $\le$ 500 Mo, vérification clé Stripe Read-Only, repo public. |
+
+---
+
+## 📋 Détail Exhaustif de ce qu'il reste à faire (Roadmap & Backlog)
+
+### 🧪 1. Actions Immédiates & Tests Manuels (À réaliser par Julien)
+- [ ] **Test du flux d'Affiliation complet en navigation privée** :
+  1. Se connecter sur `/dashboard` et cliquer sur `🎁 Affiliation` pour copier son lien parrain (ex: `https://loreno.app?ref=JULIEN-XXXX`).
+  2. Ouvrir une fenêtre incognito, coller le lien et créer un 2nd compte de test.
+  3. Vérifier que le compte filleul débloque immédiatement les **3 jours Pro offerts** (badge "Mon compte" et bandeau bas actif).
+  4. Vérifier que le parrain voit son nombre de potes invités passer de `0` à `1` dans sa modale.
+- [ ] **Console SQL Supabase (Optionnel pour perfectionnisme DB)** :
+  - Exécuter le fichier `supabase/migrations/20260923_affiliate_system.sql` dans le SQL Editor de Supabase (`bfxbrveuwyiidfthevdn`) pour instancier la table PostgreSQL physique `user_referrals` (le fallback `user_metadata` assure déjà 100% de fonctionnement sans elle).
+- [ ] **Enregistrement de la Vidéo Pitch Jury (FounderRace)** :
+  - Démo mobile en < 2 min : Scan photo d'un cours manuscrit $\rightarrow$ Rendu de la fiche Markdown $\rightarrow$ Parcours de révision adaptatif Duolingo $\rightarrow$ Paywall Stripe & Affiliation.
+
+---
+
+### 🔮 2. Backlog V2 (Fonctionnalités Futures Post-Hackathon)
+- [ ] **Streaks & Notifications Email/Push** :
+  - Relances quotidiennes basées sur la courbe d'oubli SuperMemo SM-2 pour maintenir le streak d'apprentissage.
+- [ ] **Calibrage par Date d'Épreuve (Partiels)** :
+  - Ajouter un sélecteur de date d'examen dans l'onboarding pour adapter la fréquence et l'intensité des Quiz du Tuteur IA.
+- [ ] **Mode Audio / Podcast de Cours (Text-to-Speech)** :
+  - Option d'écoute audio de la fiche de révision générée par l'IA pendant les déplacements.
+- [ ] **Mode Focus App Blocker (Opal Style)** :
+  - Verrouillage temporaire des notifications et réseaux sociaux pendant qu'une session de révision est active.

@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
+import { referralClaimSchema } from "@/lib/validations";
+
+interface ReferralProfile {
+  id?: string;
+  user_id?: string;
+  referral_code: string;
+  invited_count: number;
+  pro_days_earned: number;
+  balance_cents: number;
+  total_earned_cents: number;
+  iban?: string | null;
+}
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -26,38 +38,54 @@ export async function GET(request: NextRequest) {
     }
 
     const admin = getAdminClient();
-    let { data: referral, error } = await admin
-      .from("user_referrals")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
+    let referral: ReferralProfile | null = null;
 
-    if (error || !referral) {
-      // Génération automatique du profil d'affiliation si inexistant
-      const newCode = generateReferralCode(user.email);
-      const { data: created, error: createErr } = await admin
+    try {
+      const { data: dbRef } = await admin
         .from("user_referrals")
-        .insert({
-          user_id: user.id,
-          referral_code: newCode,
-          invited_count: 0,
-          pro_days_earned: 0,
-          balance_cents: 0,
-          total_earned_cents: 0,
-        })
         .select("*")
+        .eq("user_id", user.id)
         .single();
+      if (dbRef) referral = dbRef as ReferralProfile;
+    } catch {}
 
-      if (!createErr && created) {
-        referral = created;
-      } else {
+    if (!referral) {
+      const userMeta = user.user_metadata || {};
+      let refCode = userMeta.referral_code;
+
+      if (!refCode) {
+        refCode = generateReferralCode(user.email);
+        try {
+          await admin.auth.admin.updateUserById(user.id, {
+            user_metadata: { ...userMeta, referral_code: refCode },
+          });
+        } catch {}
+      }
+
+      try {
+        const { data: created } = await admin
+          .from("user_referrals")
+          .insert({
+            user_id: user.id,
+            referral_code: refCode,
+            invited_count: Number(userMeta.invited_count || 0),
+            pro_days_earned: Number(userMeta.pro_days_earned || 0),
+            balance_cents: Number(userMeta.balance_cents || 0),
+            total_earned_cents: Number(userMeta.total_earned_cents || 0),
+          })
+          .select("*")
+          .single();
+        if (created) referral = created as ReferralProfile;
+      } catch {}
+
+      if (!referral) {
         referral = {
-          referral_code: newCode,
-          invited_count: 0,
-          pro_days_earned: 0,
-          balance_cents: 0,
-          total_earned_cents: 0,
-          iban: null,
+          referral_code: refCode,
+          invited_count: Number(userMeta.invited_count || 0),
+          pro_days_earned: Number(userMeta.pro_days_earned || 0),
+          balance_cents: Number(userMeta.balance_cents || 0),
+          total_earned_cents: Number(userMeta.total_earned_cents || 0),
+          iban: userMeta.iban || null,
         };
       }
     }
@@ -70,10 +98,10 @@ export async function GET(request: NextRequest) {
       data: {
         referral_code: referral.referral_code,
         referral_link: referralLink,
-        invited_count: referral.invited_count || 0,
-        pro_days_earned: referral.pro_days_earned || 0,
-        balance_cents: referral.balance_cents || 0,
-        total_earned_cents: referral.total_earned_cents || 0,
+        invited_count: Number(referral.invited_count || 0),
+        pro_days_earned: Number(referral.pro_days_earned || 0),
+        balance_cents: Number(referral.balance_cents || 0),
+        total_earned_cents: Number(referral.total_earned_cents || 0),
         iban: referral.iban || null,
       },
     });
@@ -93,22 +121,44 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { refCode } = body;
-
-    if (!refCode || typeof refCode !== "string") {
-      return NextResponse.json({ success: false, error: "Code d'affiliation requis" }, { status: 400 });
+    const parseResult = referralClaimSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json({ success: false, error: "Code d'affiliation requis ou invalide" }, { status: 400 });
     }
 
+    const cleanCode = parseResult.data.refCode.trim().toUpperCase().replace(/\s+/g, "-");
     const admin = getAdminClient();
 
-    // Récupération du parrain
-    const { data: referrer, error: refErr } = await admin
-      .from("user_referrals")
-      .select("*")
-      .eq("referral_code", refCode.trim().toUpperCase())
-      .single();
+    let referrer: ReferralProfile | null = null;
 
-    if (refErr || !referrer) {
+    try {
+      const { data: dbReferrer } = await admin
+        .from("user_referrals")
+        .select("*")
+        .eq("referral_code", cleanCode)
+        .single();
+      if (dbReferrer) referrer = dbReferrer as ReferralProfile;
+    } catch {}
+
+    if (!referrer) {
+      const { data: usersData } = await admin.auth.admin.listUsers();
+      const matchedUser = usersData?.users?.find(
+        (u) => u.user_metadata?.referral_code?.toUpperCase() === cleanCode
+      );
+
+      if (matchedUser) {
+        referrer = {
+          user_id: matchedUser.id,
+          referral_code: cleanCode,
+          invited_count: Number(matchedUser.user_metadata?.invited_count || 0),
+          pro_days_earned: Number(matchedUser.user_metadata?.pro_days_earned || 0),
+          balance_cents: Number(matchedUser.user_metadata?.balance_cents || 0),
+          total_earned_cents: Number(matchedUser.user_metadata?.total_earned_cents || 0),
+        };
+      }
+    }
+
+    if (!referrer) {
       return NextResponse.json({ success: false, error: "Code d'affiliation invalide" }, { status: 404 });
     }
 
@@ -116,27 +166,56 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Vous ne pouvez pas parrainer votre propre compte" }, { status: 400 });
     }
 
-    // Incrémenter le nombre d'invités du parrain
-    const newCount = (referrer.invited_count || 0) + 1;
-    let earnedDays = referrer.pro_days_earned || 0;
+    const newCount = (Number(referrer.invited_count) || 0) + 1;
+    let earnedDays = Number(referrer.pro_days_earned) || 0;
 
-    // Déblocage 3 jours Pro tous les 5 potes invités
     if (newCount % 5 === 0) {
       earnedDays += 3;
     }
 
-    await admin
-      .from("user_referrals")
-      .update({
-        invited_count: newCount,
-        pro_days_earned: earnedDays,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", referrer.user_id);
+    try {
+      await admin
+        .from("user_referrals")
+        .update({
+          invited_count: newCount,
+          pro_days_earned: earnedDays,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", referrer.user_id!);
+    } catch {}
+
+    try {
+      const { data: targetUserData } = await admin.auth.admin.getUserById(referrer.user_id!);
+      if (targetUserData?.user) {
+        const targetMeta = targetUserData.user.user_metadata || {};
+        await admin.auth.admin.updateUserById(referrer.user_id!, {
+          user_metadata: {
+            ...targetMeta,
+            invited_count: newCount,
+            pro_days_earned: earnedDays,
+          },
+        });
+      }
+    } catch {}
+
+    const proUntil = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    try {
+      await admin.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          ...user.user_metadata,
+          is_pro: true,
+          pro_until: proUntil,
+          referred_by: cleanCode,
+        },
+      });
+    } catch (e) {
+      console.warn("Could not update user metadata in referral POST:", e);
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Lien d'affiliation appliqué avec succès ! Vous et votre parrain bénéficiez des avantages Loreno Pro.",
+      proUntil,
+      message: "Lien d'affiliation appliqué avec succès ! Vous bénéficiez de 3 jours Pro offerts.",
     });
   } catch (err) {
     console.error("Erreur POST /api/referral :", err);
