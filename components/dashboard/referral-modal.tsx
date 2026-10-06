@@ -46,11 +46,12 @@ export function ReferralModal({ isOpen, onClose }: ReferralModalProps) {
 
   const handleCopyLink = () => {
     if (!referralData?.referral_link) return;
-    navigator.clipboard.writeText(referralData.referral_link);
+    const viralText = `Rejoins-moi sur Loreno ! Révise tes cours en 2 minutes avec des fiches et des quiz personnalisés, et profite de 20% de réduction sur ton abonnement avec mon lien : ${referralData.referral_link}`;
+    navigator.clipboard.writeText(viralText);
     setCopied(true);
     showToast({
-      title: "Lien copié ! 📋",
-      description: "Envoie ce lien à tes potes pour débloquer le Pack Pro.",
+      title: "Message complet copié ! 📋",
+      description: "Le texte d'accroche et ton lien affilié (-20%) ont été copiés.",
       type: "success",
     });
     setTimeout(() => setCopied(false), 2000);

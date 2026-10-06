@@ -3,7 +3,7 @@ id: UX-010
 title: "Bouton de copie avec texte d'accroche viral et ergonomie tactile des flashcards"
 author: "Baptiste"
 type: "ux"
-status: "ready"
+status: "resolved"
 priority: "p2"
 created_at: "2026-10-04"
 affected_files:

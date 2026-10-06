@@ -78,23 +78,23 @@ export function ReviewFlashcardStep({
         </div>
       </div>
 
-      {/* Boutons d'action Thumb Zone */}
-      <div className="flex items-center gap-2.5 pt-2">
+      {/* Boutons d'action Thumb Zone Ergonomiques UX-010 */}
+      <div className="flex items-center gap-3 pt-3">
         <button
           type="button"
           onClick={() => onMistake(item)}
-          className="flex-1 h-13 rounded-2xl border-2 border-red-200 bg-white hover:bg-red-50 text-red-700 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition shadow-xs cursor-pointer"
+          className="flex-1 h-14 sm:h-16 rounded-2xl border-2 border-red-200 bg-white hover:bg-red-50 text-red-600 font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition shadow-xs cursor-pointer"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5 stroke-[2.5]" />
           <span>À revoir</span>
         </button>
 
         <button
           type="button"
           onClick={onSuccess}
-          className="flex-1 h-13 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition shadow-md cursor-pointer"
+          className="flex-1 h-14 sm:h-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition shadow-md cursor-pointer border border-emerald-400/40"
         >
-          <Check className="w-4 h-4" />
+          <Check className="w-5 h-5 stroke-[2.5]" />
           <span>Je sais</span>
         </button>
       </div>
