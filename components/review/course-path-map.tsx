@@ -101,8 +101,28 @@ export function CoursePathMap({
     []
   );
 
-  // Calcul du nœud actif selon le % de complétion (0-100%)
-  const completedCount = Math.floor((progressPercent / 100) * nodes.length);
+  // Hydratation réactive avec tolérance réseau (Prop + LocalStorage instantané)
+  const effectiveProgress = useMemo(() => {
+    let localVal = 0;
+    try {
+      if (typeof window !== "undefined") {
+        const keys = Object.keys(localStorage).filter((k) => k.startsWith("loreno_progress_"));
+        for (const k of keys) {
+          const val = Number(localStorage.getItem(k) || 0);
+          if (val > localVal) localVal = val;
+        }
+      }
+    } catch {}
+    return Math.max(progressPercent || 0, localVal);
+  }, [progressPercent]);
+
+  // Calcul du nombre de nœuds complétés (1 à 6)
+  const completedCount = useMemo(() => {
+    if (effectiveProgress >= 100) return nodes.length;
+    if (effectiveProgress <= 0) return 0;
+    return Math.max(1, Math.floor((effectiveProgress / 100) * nodes.length));
+  }, [effectiveProgress, nodes.length]);
+
   const currentStepIndex = Math.min(completedCount, nodes.length - 1);
 
   const getPositionClass = (pos: "left" | "center" | "right") => {
@@ -121,7 +141,7 @@ export function CoursePathMap({
           </span>
           <div className="flex items-center gap-1 bg-black/20 backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-black text-amber-300">
             <Award className="w-3.5 h-3.5" />
-            <span>{progressPercent}%</span>
+            <span>{effectiveProgress}%</span>
           </div>
         </div>
 
@@ -138,7 +158,7 @@ export function CoursePathMap({
         <div className="w-full h-2 bg-black/20 rounded-full overflow-hidden border border-white/20 pt-0.5">
           <div
             className="h-full bg-white rounded-full transition-all duration-500"
-            style={{ width: `${Math.max(5, progressPercent)}%` }}
+            style={{ width: `${Math.max(5, effectiveProgress)}%` }}
           />
         </div>
       </div>

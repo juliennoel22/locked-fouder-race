@@ -108,12 +108,23 @@ export function AdaptativeReviewPlayer({
 
   const saveProgressToDb = useCallback(
     async (percent: number) => {
-      if (!deckId || deckId.startsWith("demo-")) return;
+      if (!deckId) return;
+      const targetPercent = Math.max(0, Math.min(100, Math.round(percent)));
+      
+      try {
+        if (typeof window !== "undefined") {
+          const stored = Number(localStorage.getItem(`loreno_progress_${deckId}`) || 0);
+          const maxPercent = Math.max(stored, targetPercent);
+          localStorage.setItem(`loreno_progress_${deckId}`, String(maxPercent));
+        }
+      } catch {}
+
+      if (deckId.startsWith("demo-")) return;
       try {
         await fetch("/api/decks", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: deckId, progress_percent: percent }),
+          body: JSON.stringify({ id: deckId, progress_percent: targetPercent }),
         });
       } catch (e) {
         console.error("Erreur sauvegarde progress_percent :", e);
@@ -124,11 +135,16 @@ export function AdaptativeReviewPlayer({
 
   const handleNextItem = () => {
     setIsFlipped(false);
-    if (currentIndex + 1 >= queue.length) {
+    const nextIdx = currentIndex + 1;
+    const totalCount = Math.max(1, queue.length);
+    const currentPercent = Math.round((nextIdx / totalCount) * 100);
+
+    if (nextIdx >= queue.length) {
       setIsCompleted(true);
       saveProgressToDb(100);
     } else {
-      setCurrentIndex((prev) => prev + 1);
+      setCurrentIndex(nextIdx);
+      saveProgressToDb(currentPercent);
     }
   };
 
