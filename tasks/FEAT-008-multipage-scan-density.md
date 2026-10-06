@@ -3,7 +3,7 @@ id: FEAT-008
 title: "Exhaustivité et haute densité des fiches de révision sur les scans multi-pages (jusqu'à 11 pages)"
 author: "Baptiste"
 type: "feature"
-status: "ready"
+status: "resolved"
 priority: "p1"
 created_at: "2026-10-04"
 affected_files:

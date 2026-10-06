@@ -19,14 +19,20 @@ function createDynamicScanResult(topicTitle?: string, topicSubject?: string): Sc
   };
 }
 
-const SYSTEM_PROMPT = `Tu es le moteur OCR et d'analyse pédagogique d'élite de Loreno (https://www.loreno.app).
+const SYSTEM_PROMPT = `Tu me donnes la fiche de révision complète et haute densité du cours.
+Tu es le moteur OCR et d'analyse pédagogique d'élite de Loreno (https://www.loreno.app).
 Tu reçois une photo ou un document de notes de cours.
-Ta mission est d'extraire l'essence du cours et de rédiger une FICHE DE RÉVISION COMPLÈTE.
+Ta mission est d'extraire l'essence du cours et de rédiger une FICHE DE RÉVISION EXHAUSTIVE ET HAUTE DENSITÉ.
 
 RÈGLE D'ÉTANCHÉITÉ ET D'ISOLATION ABSOLUE (CRITIQUE) :
 - Tu dois analyser UNIQUEMENT le sujet réel du document fourni.
 - Il est STRICTEMENT INTERDIT d'injecter des notions d'Histoire, de Droit Constitutionnel, ou d'autres domaines non présents dans le document.
 - Tout le contenu (titre, sujet, synthèse, detailed_content) doit être 100% ÉTANCHEMENT focalisé sur le cours analysé.
+
+CONSIGNE HAUTE DENSITÉ & MULTI-PAGES (FEAT-008) :
+- Pour les scans multi-pages (jusqu'à 11 pages et plus), tu dois traiter CHAQUE PAGE AVEC LA MÊME RIGUEUR ET LA MÊME PROFONDEUR.
+- Découpe "detailed_content" en autant de sections (##) et sous-sections qu'il y a de thèmes dans les pages scannées.
+- Ne résume pas grossièrement. Préserve l'intégralité des définitions, repères chronologiques, équations, formules et pièges d'examen.
 
 Génère une réponse STRICTEMENT en format JSON avec cette structure exacte :
 {
@@ -38,11 +44,9 @@ Génère une réponse STRICTEMENT en format JSON avec cette structure exacte :
 
 Règles pour "detailed_content" (Fiche de cours complète) :
 - Rédige une vraie fiche de cours EXHAUSTIVE, TOUJOURS COMPLÈTE ET SANS TRONCATURE.
-- Développe impérativement CHAQUE section (## 1. Synthèse du Cours, ## 2. Notions Essentielles avec au moins 3 à 5 éléments précis à puces, ## 3. Points d'Attention & Pièges d'Examen).
-- Ne laisse JAMAIS un titre de section (comme ## 2. Notions Essentielles) vide ou sans contenu sous forme de liste.
+- Développe impérativement CHAQUE section avec au moins 5 à 10 éléments précis à puces.
 - Inclus des sous-titres (##), des définitions en gras, des listes à puces et des exemples d'examen concrets.
-- Sois très précis et fidèle aux notes de l'étudiant.
-- Ne génère AUCUNE flashcard ni question à ce stade, focalise 100% de ton attention sur la perfection et la clarté de la fiche de révision.`;
+- Sois très précis et fidèle aux notes de l'étudiant.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -149,7 +153,7 @@ export async function POST(request: NextRequest) {
 
         const promptText = `${SYSTEM_PROMPT}${
           imagesList.length > 1
-            ? `\nNOTE MULTI-PAGES : Tu reçois ${imagesList.length} pages ou documents d'un même cours. Synthétise tout en une seule fiche de révision complète et unifiée.`
+            ? `\n\nNOTE MULTI-PAGES HAUTE DENSITÉ (${imagesList.length} PAGES SCANNÉES) :\nTu reçois ${imagesList.length} pages d'un même cours. Ne fais AUCUNE omission d'information entre la page 1 et la page ${imagesList.length}. Développe chaque chapitre avec une profusion de détails, définitions en gras, dates et mécanismes d'examen dans "detailed_content".`
             : ""
         }`;
 
