@@ -91,7 +91,7 @@ export function Header({
         {isPro ? (
           <div
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-amber-950 shadow-xs border border-amber-400/60 animate-in fade-in"
-            title="Membre Loreno PRO à vie"
+            title="Membre Loreno PRO"
           >
             <Crown className="w-3 h-3 fill-amber-950 text-amber-950" />
             <span>PRO</span>

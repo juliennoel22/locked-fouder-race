@@ -20,10 +20,12 @@ export function PaywallModal({
       "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401"
   );
 
+  const [isPro, setIsPro] = useState<boolean>(false);
+
   useEffect(() => {
     if (!isOpen) return;
 
-    const buildStripeLink = async () => {
+    const checkProAndBuildStripeLink = async () => {
       const baseUrl =
         process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
         "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401";
@@ -33,6 +35,10 @@ export function PaywallModal({
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
+          if (user.user_metadata?.is_pro) {
+            setIsPro(true);
+            return;
+          }
           const urlObj = new URL(baseUrl);
           urlObj.searchParams.set("client_reference_id", user.id);
           if (user.email) {
@@ -45,10 +51,10 @@ export function PaywallModal({
       }
     };
 
-    buildStripeLink();
+    checkProAndBuildStripeLink();
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || isPro) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
@@ -86,12 +92,12 @@ export function PaywallModal({
         <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 mb-5 space-y-3">
           <div className="flex justify-between items-baseline border-b border-zinc-200 pb-3">
             <div>
-              <div className="font-bold text-black text-base">Pack Premium</div>
-              <div className="text-xs text-zinc-500">Accès à vie • Réservé aux 50 premiers</div>
+              <div className="font-bold text-black text-base">Abonnement Loreno Pro</div>
+              <div className="text-xs text-zinc-500">Sans engagement • Résiliable en 1 clic</div>
             </div>
             <div className="text-right">
               <span className="text-2xl font-bold text-black">9,99 €</span>
-              <span className="text-xs text-zinc-400 line-through ml-1.5">39,99 €</span>
+              <span className="text-xs text-zinc-500 font-semibold"> / mois</span>
             </div>
           </div>
 
@@ -125,13 +131,13 @@ export function PaywallModal({
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 h-13 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#4457f4] via-violet-600 to-indigo-700 hover:brightness-105 text-white font-bold text-sm transition active:scale-[0.99] shadow-lg shadow-[#4457f4]/25"
           >
-            <span>Obtenir le Pack Premium (9,99 €)</span>
+            <span>S&apos;abonner à Loreno Pro (9,99 € / mois)</span>
             <ArrowRight className="w-4 h-4 stroke-[2.5]" />
           </a>
 
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
             <ShieldCheck className="w-3.5 h-3.5 text-zinc-600" />
-            <span>Paiement unique sécurisé Stripe • Sans abonnement</span>
+            <span>Abonnement mensuel sécurisé Stripe • Sans engagement</span>
           </div>
         </div>
       </div>

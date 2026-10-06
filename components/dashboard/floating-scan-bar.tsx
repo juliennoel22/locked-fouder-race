@@ -44,8 +44,8 @@ export function FloatingScanBar({
 
   return (
     <div className="fixed bottom-5 left-0 right-0 max-w-md mx-auto px-4 flex flex-col items-center z-30 pointer-events-auto">
-      {/* Banner 3 Jours Pro Parrainage avec option d'achat à vie */}
-      {isReferralTrial && onOpenPaywall && (
+      {/* Banner 3 Jours Pro Parrainage avec option d'achat */}
+      {!isPro && isReferralTrial && onOpenPaywall && (
         <div
           onClick={onOpenPaywall}
           className="w-full mb-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 border border-indigo-500/40 text-white flex items-center justify-between shadow-2xl hover:brightness-105 transition-all cursor-pointer active:scale-[0.99] select-none"
@@ -59,12 +59,12 @@ export function FloatingScanBar({
                 🎁 3 jours Pro offerts actifs !
               </div>
               <div className="text-[11px] text-indigo-200 truncate mt-0.5 font-medium">
-                Accès illimité • Passer à 9,99 € à vie
+                Accès illimité • Loreno Pro 9,99 €/mois
               </div>
             </div>
           </div>
           <span className="text-xs font-bold text-black bg-amber-400 hover:bg-amber-300 px-3.5 py-2 rounded-xl shrink-0 ml-2 shadow-md transition">
-            À vie →
+            Loreno Pro →
           </span>
         </div>
       )}
@@ -89,8 +89,8 @@ export function FloatingScanBar({
               </div>
               <div className="text-[11px] text-violet-100/90 truncate mt-0.5 font-medium">
                 {notebooksCount >= 2
-                  ? "Accès illimité à vie à 9,99€"
-                  : "Passe en illimité à vie pour 9,99€"}
+                  ? "Accès illimité avec Loreno Pro (9,99€/mois)"
+                  : "Passe en illimité avec Loreno Pro (9,99€/mois)"}
               </div>
             </div>
           </div>

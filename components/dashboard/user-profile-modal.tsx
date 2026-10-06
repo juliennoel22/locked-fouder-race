@@ -95,7 +95,7 @@ export function UserProfileModal({
               <span>3 jours Pro offerts par ton parrain !</span>
             </div>
             <p className="text-[11px] text-zinc-600 leading-tight">
-              Scans et flashcards illimités actifs. Passe en accès à vie pour 9,99 € à tout moment.
+              Scans et flashcards illimités actifs. Débloque Loreno Pro à tout moment.
             </p>
           </div>
         )}
@@ -126,7 +126,7 @@ export function UserProfileModal({
             className="w-full h-11 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
           >
             <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span>Passer Premium (9,99 € à vie)</span>
+            <span>Passer à Loreno Pro (9,99 €/mois)</span>
           </button>
         )}
 

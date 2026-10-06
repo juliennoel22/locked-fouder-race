@@ -173,7 +173,7 @@ export default function DashboardPage() {
           <div className="mb-3 p-3.5 rounded-2xl bg-black text-white flex items-center justify-between animate-in slide-in-from-top duration-300 shadow-md">
             <div className="text-xs">
               <div className="font-bold flex items-center gap-1.5">
-                <span>🎉</span> Pack Premium Activé à vie !
+                <span>🎉</span> Loreno Pro Activé !
               </div>
               <p className="text-[11px] text-zinc-300 mt-0.5">
                 Tous tes accès illimités et le Tuteur IA sont débloqués.
