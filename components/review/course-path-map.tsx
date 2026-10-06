@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import {
   BookOpen,
   Layers,
@@ -14,6 +14,7 @@ import {
   Play,
   Award,
   Zap,
+  ChevronRight,
 } from "lucide-react";
 
 export interface PathNode {
@@ -34,6 +35,7 @@ interface CoursePathMapProps {
   onSelectNode: (node: PathNode) => void;
   onStartNextNode: () => void;
   onUpdateProgress?: (newPercent: number) => void;
+  onOpenCourseSheet?: () => void;
 }
 
 export function CoursePathMap({
@@ -44,83 +46,33 @@ export function CoursePathMap({
   onSelectNode,
   onStartNextNode,
   onUpdateProgress,
+  onOpenCourseSheet,
 }: CoursePathMapProps) {
-  // Définition statique des 6 étapes du parcours Duolingo en zigzag
+  const activeNodeRef = useRef<HTMLDivElement>(null);
+
   const nodes: PathNode[] = useMemo(
     () => [
-      {
-        id: "step-1",
-        type: "concepts",
-        title: "Concepts Clés",
-        subtitle: "Synthèse & Définitions",
-        icon: BookOpen,
-        position: "left",
-        stepNumber: 1,
-      },
-      {
-        id: "step-2",
-        type: "flashcards",
-        title: "Mémorisation 3D",
-        subtitle: "Flashcards Set 1",
-        icon: Layers,
-        position: "right",
-        stepNumber: 2,
-      },
-      {
-        id: "step-3",
-        type: "quiz",
-        title: "Test de Notions",
-        subtitle: "Quiz Adaptatif",
-        icon: CheckCircle2,
-        position: "center",
-        stepNumber: 3,
-      },
-      {
-        id: "step-4",
-        type: "chest",
-        title: "Coffre Trésor",
-        subtitle: "Bonus Rétention",
-        icon: Gift,
-        position: "left",
-        stepNumber: 4,
-      },
-      {
-        id: "step-5",
-        type: "recall",
-        title: "Rappel Avancé",
-        subtitle: "Flashcards Avancées",
-        icon: Mic,
-        position: "right",
-        stepNumber: 5,
-      },
-      {
-        id: "step-6",
-        type: "exam_trap",
-        title: "Épreuve Finale",
-        subtitle: "Question Piège Examen",
-        icon: Trophy,
-        position: "center",
-        stepNumber: 6,
-      },
+      { id: "step-1", type: "concepts", title: "Concepts Clés", subtitle: "Synthèse & Définitions", icon: BookOpen, position: "left", stepNumber: 1 },
+      { id: "step-2", type: "flashcards", title: "Mémorisation 3D", subtitle: "Flashcards Set 1", icon: Layers, position: "right", stepNumber: 2 },
+      { id: "step-3", type: "quiz", title: "Test de Notions", subtitle: "Quiz Adaptatif", icon: CheckCircle2, position: "center", stepNumber: 3 },
+      { id: "step-4", type: "chest", title: "Coffre Trésor", subtitle: "Bonus Rétention", icon: Gift, position: "left", stepNumber: 4 },
+      { id: "step-5", type: "recall", title: "Rappel Avancé", subtitle: "Flashcards Avancées", icon: Mic, position: "right", stepNumber: 5 },
+      { id: "step-6", type: "exam_trap", title: "Épreuve Finale", subtitle: "Question Piège Examen", icon: Trophy, position: "center", stepNumber: 6 },
     ],
     []
   );
 
-  // Hydratation réactive spécifique à CE DECK UNIQUE
   const effectiveProgress = useMemo(() => {
     let localVal = 0;
     try {
       if (typeof window !== "undefined" && deckId) {
         const stored = localStorage.getItem(`loreno_progress_${deckId}`);
-        if (stored) {
-          localVal = Number(stored);
-        }
+        if (stored) localVal = Number(stored);
       }
     } catch {}
     return Math.max(progressPercent || 0, localVal);
   }, [progressPercent, deckId]);
 
-  // Calcul du nombre de nœuds complétés (1 à 6)
   const completedCount = useMemo(() => {
     if (effectiveProgress >= 100) return nodes.length;
     if (effectiveProgress <= 0) return 0;
@@ -128,6 +80,13 @@ export function CoursePathMap({
   }, [effectiveProgress, nodes.length]);
 
   const currentStepIndex = Math.min(completedCount, nodes.length - 1);
+
+  // Auto-scroll au palier actif lors du chargement (effet Duolingo)
+  useEffect(() => {
+    if (activeNodeRef.current) {
+      activeNodeRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, []);
 
   const getPositionClass = (pos: "left" | "center" | "right") => {
     if (pos === "left") return "-translate-x-10 sm:-translate-x-12";
@@ -170,8 +129,12 @@ export function CoursePathMap({
         </div>
       )}
 
-      {/* En-tête Unité Duolingo Style (Bannière Verte Énergique) */}
-      <div className="w-full rounded-3xl bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white p-4 sm:p-5 shadow-lg border border-emerald-400/40 space-y-2 text-left mb-6 relative overflow-hidden">
+      {/* En-tête Unité Duolingo Style (Interactive : Clic ouvre la fiche complète) */}
+      <button
+        type="button"
+        onClick={onOpenCourseSheet}
+        className="w-full rounded-3xl bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white p-4 sm:p-5 shadow-lg border border-emerald-400/40 space-y-2 text-left mb-6 relative overflow-hidden transition active:scale-[0.99] cursor-pointer hover:brightness-105"
+      >
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 border border-white/30 px-2.5 py-0.5 rounded-full text-white">
             UNITÉ 1 • {subject || "MAÎTRISE DU COURS"}
@@ -182,13 +145,21 @@ export function CoursePathMap({
           </div>
         </div>
 
-        <div>
-          <h2 className="text-base sm:text-lg font-black text-white leading-tight">
-            {deckTitle}
-          </h2>
-          <p className="text-xs text-emerald-100 font-medium mt-0.5">
-            Parcours de révision séquentiel adaptatif
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base sm:text-lg font-black text-white leading-tight">
+              {deckTitle}
+            </h2>
+            <p className="text-xs text-emerald-100 font-medium mt-0.5">
+              Parcours de révision séquentiel adaptatif
+            </p>
+          </div>
+          {onOpenCourseSheet && (
+            <div className="px-2.5 py-1 rounded-xl bg-white/20 border border-white/30 text-white text-xs font-bold flex items-center gap-1 shrink-0 ml-2">
+              <span>Lire la fiche</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
+          )}
         </div>
 
         {/* Barre de progression globale */}
@@ -198,7 +169,7 @@ export function CoursePathMap({
             style={{ width: `${Math.max(5, effectiveProgress)}%` }}
           />
         </div>
-      </div>
+      </button>
 
       {/* CHEMIN VISUEL EN ZIGZAG (DUOLINGO MAP) */}
       <div className="relative w-full flex flex-col items-center space-y-7 py-2">
@@ -223,6 +194,7 @@ export function CoursePathMap({
           return (
             <div
               key={node.id}
+              ref={isCurrent ? activeNodeRef : undefined}
               className={`relative flex flex-col items-center transition-all duration-300 ${getPositionClass(
                 node.position
               )}`}

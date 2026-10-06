@@ -14,7 +14,9 @@ export function ReferralListener() {
       if (refParam) {
         const cleanRef = refParam.trim().toUpperCase();
         localStorage.setItem("loreno_ref_code", cleanRef);
+        localStorage.setItem("loreno_has_referral_discount", "true");
         document.cookie = `loreno_ref_code=${encodeURIComponent(cleanRef)}; path=/; max-age=2592000; SameSite=Lax`;
+        document.cookie = `loreno_has_referral_discount=true; path=/; max-age=2592000; SameSite=Lax`;
       }
     } catch {}
 

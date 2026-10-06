@@ -3,7 +3,7 @@ id: UX-009
 title: "Auto-scroll sur le palier actif et ouverture directe de la fiche de cours"
 author: "Baptiste"
 type: "ux"
-status: "ready"
+status: "resolved"
 priority: "p1"
 created_at: "2026-10-04"
 affected_files:

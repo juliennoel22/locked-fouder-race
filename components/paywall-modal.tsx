@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, ArrowRight, ShieldCheck, X, Zap } from "lucide-react";
+import { Check, ArrowRight, ShieldCheck, X, Zap, Gift } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface PaywallModalProps {
@@ -21,6 +21,7 @@ export function PaywallModal({
   );
 
   const [isPro, setIsPro] = useState<boolean>(false);
+  const [hasReferralDiscount, setHasReferralDiscount] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -30,22 +31,35 @@ export function PaywallModal({
         process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
         "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401";
 
+      const hasRefFlag =
+        typeof window !== "undefined" &&
+        (Boolean(localStorage.getItem("loreno_ref_code")) ||
+          Boolean(localStorage.getItem("loreno_has_referral_discount")) ||
+          document.cookie.includes("loreno_ref_code"));
+
+      if (hasRefFlag) {
+        setHasReferralDiscount(true);
+      }
+
       try {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
+        const urlObj = new URL(baseUrl);
         if (user) {
           if (user.user_metadata?.is_pro) {
             setIsPro(true);
             return;
           }
-          const urlObj = new URL(baseUrl);
           urlObj.searchParams.set("client_reference_id", user.id);
           if (user.email) {
             urlObj.searchParams.set("prefilled_email", user.email);
           }
-          setStripeUrl(urlObj.toString());
         }
+        if (hasRefFlag) {
+          urlObj.searchParams.set("prefilled_promo_code", "PARRAIN20");
+        }
+        setStripeUrl(urlObj.toString());
       } catch (e) {
         console.warn("Could not build personalized Stripe payment link", e);
       }
@@ -68,15 +82,22 @@ export function PaywallModal({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Badge optionnel (affiché uniquement après une session d'entraînement réelle) */}
-        {typeof retentionScore === "number" && (
-          <div className="flex justify-start mb-3">
+        {/* Badges optionnels : Retention ou Réduction Parrainage */}
+        <div className="flex flex-col gap-1.5 justify-start mb-3">
+          {hasReferralDiscount && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+              <Gift className="w-3.5 h-3.5 text-emerald-600" />
+              <span>🎁 Avantage Filleul : -20% appliqués avec ton lien parrain !</span>
+            </div>
+          )}
+
+          {typeof retentionScore === "number" && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-medium">
               <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
               <span>Score de rétention : {retentionScore}%</span>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Header épuré */}
         <div className="text-left mb-5 space-y-1.5">
@@ -96,8 +117,22 @@ export function PaywallModal({
               <div className="text-xs text-zinc-500">Sans engagement • Résiliable en 1 clic</div>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-bold text-black">9,99 €</span>
-              <span className="text-xs text-zinc-500 font-semibold"> / mois</span>
+              {hasReferralDiscount ? (
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-zinc-400 line-through font-bold">9,99 €</span>
+                    <span className="text-2xl font-bold text-emerald-600">7,99 €</span>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                    -20% Parrainage
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <span className="text-2xl font-bold text-black">9,99 €</span>
+                  <span className="text-xs text-zinc-500 font-semibold"> / mois</span>
+                </>
+              )}
             </div>
           </div>
 

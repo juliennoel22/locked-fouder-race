@@ -3,7 +3,7 @@ id: FEAT-007
 title: "Réduction tarifaire automatique pour le nouvel acheteur arrivant via un lien d'affiliation"
 author: "Baptiste"
 type: "feature"
-status: "ready"
+status: "resolved"
 priority: "p1"
 created_at: "2026-10-04"
 affected_files:

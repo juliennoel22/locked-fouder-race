@@ -154,6 +154,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
               onSelectNode={(node) => setSelectedPathNode(node)}
               onStartNextNode={() => router.push(`/review/${deck.id}`)}
               onUpdateProgress={handleUpdateProgress}
+              onOpenCourseSheet={() => setShowPathMap(false)}
             />
           ) : (
             <div className="space-y-4">
