@@ -26,6 +26,7 @@ export interface PathNode {
 }
 
 interface CoursePathMapProps {
+  deckId?: string;
   deckTitle: string;
   subject?: string | null;
   progressPercent: number;
@@ -34,6 +35,7 @@ interface CoursePathMapProps {
 }
 
 export function CoursePathMap({
+  deckId,
   deckTitle,
   subject,
   progressPercent = 0,
@@ -101,20 +103,19 @@ export function CoursePathMap({
     []
   );
 
-  // Hydratation réactive avec tolérance réseau (Prop + LocalStorage instantané)
+  // Hydratation réactive spécifique à CE DECK UNIQUE
   const effectiveProgress = useMemo(() => {
     let localVal = 0;
     try {
-      if (typeof window !== "undefined") {
-        const keys = Object.keys(localStorage).filter((k) => k.startsWith("loreno_progress_"));
-        for (const k of keys) {
-          const val = Number(localStorage.getItem(k) || 0);
-          if (val > localVal) localVal = val;
+      if (typeof window !== "undefined" && deckId) {
+        const stored = localStorage.getItem(`loreno_progress_${deckId}`);
+        if (stored) {
+          localVal = Number(stored);
         }
       }
     } catch {}
     return Math.max(progressPercent || 0, localVal);
-  }, [progressPercent]);
+  }, [progressPercent, deckId]);
 
   // Calcul du nombre de nœuds complétés (1 à 6)
   const completedCount = useMemo(() => {

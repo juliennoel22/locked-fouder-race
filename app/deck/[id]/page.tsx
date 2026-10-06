@@ -116,6 +116,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
         <div className="flex-1 flex flex-col space-y-4 pb-28 pt-1 text-left">
           {showPathMap ? (
             <CoursePathMap
+              deckId={deck.id}
               deckTitle={deck.title}
               subject={deck.subject}
               progressPercent={deck.progress_percent || 0}
