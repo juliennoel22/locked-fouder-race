@@ -1,6 +1,6 @@
 import { Flashcard } from "@/types/loreno";
 
-export type ReviewItemType = "flashcard" | "quiz" | "exam_trap";
+export type ReviewItemType = "flashcard" | "quiz" | "exam_trap" | "free_text";
 
 export interface ReviewQueueItem {
   id: string;

@@ -19,8 +19,10 @@ export function ReviewProgressBar({
     type === "flashcard"
       ? "Étape 1 • Mémorisation Flashcards"
       : type === "quiz"
-      ? "Étape 2 • Quiz Adaptatif"
-      : "Étape 3 • Question Piège Examen";
+      ? "Étape 2 • QCM avec Distracteurs"
+      : type === "free_text"
+      ? "Étape 3 • Saisie Libre (Examen)"
+      : "Étape 4 • Question Piège Examen";
 
   return (
     <div className="w-full space-y-1.5 pb-3">

@@ -13,6 +13,7 @@ import { ReviewProgressBar } from "./review/review-progress-bar";
 import { ReviewFlashcardStep } from "./review/review-flashcard-step";
 import { ReviewQuizStep } from "./review/review-quiz-step";
 import { ReviewTrapStep } from "./review/review-trap-step";
+import { ReviewFreeTextStep } from "./review/review-freetext-step";
 
 export type { ReviewItemType, ReviewQueueItem };
 
@@ -38,7 +39,7 @@ export function AdaptativeReviewPlayer({
       });
     });
 
-    // 2. Étape 2 : Quiz notionnel
+    // 2. Étape 2 : QCM notionnel avec distracteurs uniques
     flashcards.forEach((card, idx) => {
       queue.push({
         id: `qz-${idx}-${Date.now()}`,
@@ -49,7 +50,18 @@ export function AdaptativeReviewPlayer({
       });
     });
 
-    // 3. Étape 3 : Question piège (avec sa réponse dédiée spécifique)
+    // 3. Étape 3 : Saisie libre d'examen (Free Text)
+    if (flashcards.length > 0) {
+      const mainCard = flashcards[0];
+      queue.push({
+        id: `ft-${Date.now()}`,
+        type: "free_text",
+        front: mainCard.front,
+        back: mainCard.back,
+      });
+    }
+
+    // 4. Étape 4 : Question piège d'examen
     if (initialQuizQuestion?.trim()) {
       const matchingCard = flashcards.find(
         (f) =>
@@ -252,6 +264,16 @@ export function AdaptativeReviewPlayer({
             item={currentItem}
             options={currentOptions}
             onSelectOption={handleQuizAnswer}
+          />
+        )}
+
+        {currentItem.type === "free_text" && (
+          <ReviewFreeTextStep
+            item={currentItem}
+            onSubmitAnswer={(isCorrect) => {
+              if (isCorrect) handleNextItem();
+              else handleMistake(currentItem);
+            }}
           />
         )}
 

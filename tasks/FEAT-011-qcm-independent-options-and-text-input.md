@@ -3,7 +3,7 @@ id: FEAT-011
 title: "Distracteurs QCM indépendants non permutables & mode de saisie libre"
 author: "Baptiste"
 type: "feature"
-status: "ready"
+status: "resolved"
 priority: "p2"
 created_at: "2026-10-04"
 affected_files:

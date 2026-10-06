@@ -29,22 +29,47 @@ export const DEMO_FLASHCARDS = [
   {
     front: "Qui est l'auteur principal ayant théorisé la séparation des pouvoirs en France ?",
     back: "Montesquieu dans son ouvrage majeur 'De l'esprit des lois' publié en 1748.",
+    distractors: [
+      "Jean-Jacques Rousseau dans 'Du contrat social' (1762).",
+      "Alexis de Tocqueville dans 'De la démocratie en Amérique' (1835).",
+      "René Cassin dans la 'Déclaration universelle des droits de l'homme' (1948).",
+    ],
   },
   {
     front: "Quels sont les 3 pouvoirs traditionnellement identifiés ?",
     back: "1. Le pouvoir législatif (faire les lois)\n2. Le pouvoir exécutif (appliquer les lois)\n3. Le pouvoir judiciaire (trancher les litiges et sanctionner).",
+    distractors: [
+      "1. Le pouvoir exécutif\n2. Le pouvoir médiatique\n3. Le pouvoir syndical.",
+      "1. Le pouvoir constitutionnel\n2. Le pouvoir préfectoral\n3. Le pouvoir communal.",
+      "1. Le pouvoir régalien\n2. Le pouvoir militaire\n3. Le pouvoir monétaire.",
+    ],
   },
   {
     front: "Comment se caractérise un régime à séparation STRICTE des pouvoirs ?",
     back: "Absence de moyens d'action réciproques (pas de droit de dissolution de l'exécutif, pas de motion de censure du législatif). Exemple : États-Unis.",
+    distractors: [
+      "Le Premier ministre peut dissoudre l'Assemblée à tout moment avec l'accord du Sénat.",
+      "Le Parlement peut révoquer le Chef de l'État par un simple vote de confiance hebdomadaire.",
+      "Le pouvoir judiciaire fusionne avec le Ministère de l'Intérieur pour accélérer la promulgation.",
+    ],
   },
   {
     front: "Comment se caractérise un régime à séparation SOUPLE des pouvoirs ?",
     back: "Collaboration des pouvoirs avec moyens d'action réciproques (dissolution de l'Assemblée par l'exécutif, motion de censure parlementaire). Exemple : Régime parlementaire.",
+    distractors: [
+      "L'exécutif est nommé à vie et le Parlement ne peut se réunir qu'une fois tous les cinq ans.",
+      "Le Président cumule les fonctions de Juge suprême et de Président de l'Assemblée Nationale.",
+      "Interdiction stricte pour les ministres de se présenter devant les commissions parlementaires.",
+    ],
   },
   {
     front: "Quelle phrase célèbre de Montesquieu résume le principe d'équilibre ?",
     back: "'Pour qu'on ne puisse abuser du pouvoir, il faut que, par la disposition des choses, le pouvoir arrête le pouvoir.'",
+    distractors: [
+      "'L'État, c'est moi et la souveraineté réside exclusivement dans la couronne.'",
+      "'La liberté consiste à pouvoir faire tout ce qui ne nuit pas à autrui.'",
+      "'Tout homme qui a du pouvoir est porté à en déchoir s'il ne consulte pas le peuple.'",
+    ],
   },
 ];
 
