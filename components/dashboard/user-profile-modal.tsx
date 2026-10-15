@@ -73,10 +73,10 @@ export function UserProfileModal({
             <span className="text-xs text-zinc-500">Statut du compte</span>
             {isReferralTrial ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                🎁 3 jours Pro offerts
+                🎁 3 jours Pro offerts {proUntil ? `(${new Date(proUntil).toLocaleDateString()})` : ""}
               </span>
             ) : isPro ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#4457f4] text-white shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand text-white shadow-2xs">
                 <Crown className="w-3 h-3 text-amber-300" /> Premium Illimité
               </span>
             ) : (

@@ -211,7 +211,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
               className="w-full h-14 rounded-2xl bg-black text-white font-black text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xl cursor-pointer hover:bg-zinc-800"
             >
               <Play className="w-4 h-4 fill-white text-white" />
-              <span>Démarrer l'entraînement</span>
+              <span>Démarrer l&apos;entraînement</span>
             </button>
           </div>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ReviewErrorModal } from "./review/review-error-modal";
 import { ReviewCompletedModal } from "./review/review-completed-modal";
@@ -124,6 +124,11 @@ export function AdaptativeReviewPlayer({
     }
   };
 
+  const handleQuizAnswerRef = useRef(handleQuizAnswer);
+  useEffect(() => {
+    handleQuizAnswerRef.current = handleQuizAnswer;
+  });
+
   // Raccourcis clavier universels (Espace = Flip, 1-4 = Quiz)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -135,7 +140,7 @@ export function AdaptativeReviewPlayer({
         setIsFlipped((prev) => !prev);
       } else if (currentItem.type === "quiz" && ["1", "2", "3", "4"].includes(e.key)) {
         const idx = parseInt(e.key, 10) - 1;
-        if (currentOptions[idx]) handleQuizAnswer(currentOptions[idx]);
+        if (currentOptions[idx]) handleQuizAnswerRef.current(currentOptions[idx]);
       }
     };
     window.addEventListener("keydown", handleKeyDown);

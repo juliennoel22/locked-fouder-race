@@ -3,14 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { compressCourseImage } from "@/lib/image-compression";
-import { ScanApiResponse, ScanResult, NotebookItem } from "@/types/loreno";
+import { ScanApiResponse, ScanResult } from "@/types/loreno";
 import { DEFAULT_SCAN_RESULT } from "@/lib/quiz-data";
 import { QuizScanStep, ScannedPhotoItem } from "@/components/quiz-scan-step";
 import { QuizLoadingOverlay } from "@/components/quiz-loading-overlay";
 import { PaywallModal } from "@/components/paywall-modal";
-import { createClient } from "@/lib/supabase/client";
 import { useProStatus } from "@/lib/use-pro-status";
 
 export default function NewNotebookPage() {

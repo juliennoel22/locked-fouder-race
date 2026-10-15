@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Lock, Sparkles } from "lucide-react";
+import { AlertTriangle, Lock } from "lucide-react";
 import { Button } from "./ui/button";
 
 interface ExamTrapBoxProps {
@@ -31,7 +31,7 @@ export function ExamTrapBox({
         </div>
 
         <p className="text-xs text-zinc-600 leading-relaxed">
-          Pour ta note de <strong className="text-black">{subject || "cours"}</strong>, 3 notions clés indispensables ont été identifiées.
+          Pour ta note de <strong className="text-black">{subject || deckTitle || "cours"}</strong>, 3 notions clés indispensables ont été identifiées.
         </p>
 
         {/* La Question Piège du Professeur */}

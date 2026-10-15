@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, ChangeEvent } from "react";
-import { Camera, Upload, Loader2, RefreshCw, AlertCircle } from "lucide-react";
-import { Button } from "./ui/button";
+import { Camera, Upload, RefreshCw, AlertCircle } from "lucide-react";
 import { compressCourseImage } from "@/lib/image-compression";
 import { FlashcardPlayer } from "./flashcard-player";
 import { ScanApiResponse, ScanResult } from "@/types/loreno";

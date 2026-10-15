@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-interface OnboardingPayload {
-  step?: number;
-  level?: string;
-  goal?: string;
-  userName?: string;
-  painPoint?: string;
-  completed?: boolean;
-}
-
 import { authEmailRequestSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {

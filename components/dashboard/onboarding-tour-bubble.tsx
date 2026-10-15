@@ -14,6 +14,7 @@ interface OnboardingTourBubbleProps {
   showDismiss?: boolean;
 }
 
-export function OnboardingTourBubble(_props: OnboardingTourBubbleProps) {
+export function OnboardingTourBubble(_props?: OnboardingTourBubbleProps) {
+  void _props;
   return null;
 }

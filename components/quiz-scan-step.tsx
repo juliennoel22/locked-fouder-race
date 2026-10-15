@@ -33,6 +33,7 @@ export function QuizScanStep({
   onCardCountChange,
   targetMode = "grid",
 }: QuizScanStepProps) {
+  void { cardCount, onCardCountChange, targetMode };
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const isSubmittingRef = useRef<boolean>(false);

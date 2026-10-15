@@ -2,18 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@/lib/supabase/server";
 
-interface TutorMessage {
-  role: "user" | "model";
-  text: string;
-}
-
-interface TutorRequest {
-  title: string;
-  subject: string;
-  summary: string;
-  flashcards?: Array<{ front: string; back: string }>;
-  messages: TutorMessage[];
-}
 
 import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, Sparkles, ArrowRight, Check, Copy, Zap, Camera, Bot } from "lucide-react";
+import { Crown, ArrowRight, Check, Copy, Zap, Camera, Bot } from "lucide-react";
 
 export function JuryPassCard() {
   const router = useRouter();

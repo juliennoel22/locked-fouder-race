@@ -164,7 +164,7 @@ export function PaywallModal({
             href={stripeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 h-13 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#4457f4] via-violet-600 to-indigo-700 hover:brightness-105 text-white font-bold text-sm transition active:scale-[0.99] shadow-lg shadow-[#4457f4]/25"
+            className="w-full flex items-center justify-center gap-2 h-13 py-3.5 px-6 rounded-xl bg-gradient-to-r from-brand via-brand-hover to-indigo-700 hover:brightness-105 text-white font-bold text-sm transition active:scale-[0.99] shadow-lg shadow-brand/25"
           >
             <span>S&apos;abonner à Loreno Pro (9,99 € / mois)</span>
             <ArrowRight className="w-4 h-4 stroke-[2.5]" />

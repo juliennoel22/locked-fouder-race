@@ -159,11 +159,16 @@ export function FlashcardPlayer({
     setExitDirection(null);
   };
 
+  const handleNextCardRef = useRef(handleNextCard);
+  useEffect(() => {
+    handleNextCardRef.current = handleNextCard;
+  });
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isCompleted) return;
-      if (e.key === "ArrowLeft") { e.preventDefault(); handleNextCard(false); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); handleNextCard(true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); handleNextCardRef.current(false); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); handleNextCardRef.current(true); }
       else if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); setIsFlipped((p) => !p); }
     };
     window.addEventListener("keydown", handleKeyDown);

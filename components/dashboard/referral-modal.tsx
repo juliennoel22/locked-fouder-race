@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Copy, Check, Share2, Wallet, Users, Gift, ArrowRight, ShieldCheck, X, Loader2 } from "lucide-react";
+import { Copy, Check, Share2, Wallet, Users, Gift, ShieldCheck, X, Loader2 } from "lucide-react";
 import { ReferralData } from "@/types/loreno";
 import { showToast } from "@/lib/toast";
 

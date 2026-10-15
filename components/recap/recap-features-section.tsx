@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Zap, Bot, Smartphone, LucideIcon } from "lucide-react";
+import { Camera, Zap, Bot, LucideIcon } from "lucide-react";
 
 interface FeatureItem {
   step: string;

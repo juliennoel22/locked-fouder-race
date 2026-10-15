@@ -76,6 +76,7 @@ export function ReviewCompletedModal({
           <h2 className="text-xl font-black text-zinc-900 tracking-tight">
             {isFinalStep ? "Bulletin Final Prédictif" : `Palier ${stepNumber} Débloqué !`}
           </h2>
+          <p className="text-xs text-zinc-500 font-medium line-clamp-1">{deckTitle}</p>
         </div>
 
         {/* Bulletin Prédictif /20 & Mention Académique (FEAT-014) */}

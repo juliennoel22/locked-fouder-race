@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, Sparkles, Bot, User, Loader2, Trash2 } from "lucide-react";
+import { X, Send, Bot, User, Loader2, Trash2 } from "lucide-react";
 import { NotebookItem } from "@/types/loreno";
 import { FormattedAiText } from "./formatted-ai-text";
 
@@ -18,12 +18,12 @@ interface Message {
 }
 
 export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
-  const defaultGreeting: Message = {
+  const getGreeting = useCallback((): Message => ({
     role: "model",
     text: `Salut ! Je suis ton tuteur IA pour **${notebook.title}**.\n\nPose-moi tes questions ou demande-moi une **question piège** pour t'entraîner !`,
-  };
+  }), [notebook.title]);
 
-  const [messages, setMessages] = useState<Message[]>([defaultGreeting]);
+  const [messages, setMessages] = useState<Message[]>([getGreeting()]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -44,8 +44,8 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
         }
       }
     } catch { }
-    setMessages([defaultGreeting]);
-  }, [isOpen, notebook.id, storageKey]);
+    setMessages([getGreeting()]);
+  }, [isOpen, storageKey, getGreeting]);
 
   // Sauvegarde persistante des messages
   const persistMessages = useCallback(
@@ -81,7 +81,7 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
     if (typeof window !== "undefined") {
       localStorage.removeItem(storageKey);
     }
-    setMessages([defaultGreeting]);
+    setMessages([getGreeting()]);
     setLoading(false);
   };
 

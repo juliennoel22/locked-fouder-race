@@ -73,7 +73,7 @@ export function FloatingScanBar({
       {!isPro && !isReferralTrial && !hideQuotaCta && onOpenPaywall && (
         <div
           onClick={onOpenPaywall}
-          className="w-full mb-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-[#4457f4] via-violet-600 to-indigo-700 border border-violet-400/40 text-white flex items-center justify-between shadow-2xl hover:brightness-105 transition-all cursor-pointer active:scale-[0.99] select-none"
+          className="w-full mb-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-brand via-brand-hover to-indigo-700 border border-brand/40 text-white flex items-center justify-between shadow-2xl hover:brightness-105 transition-all cursor-pointer active:scale-[0.99] select-none"
         >
           <div className="flex items-center gap-3 truncate">
             <div className="w-8 h-8 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 shadow-xs">
@@ -127,8 +127,8 @@ export function FloatingScanBar({
           >
             <MessageSquare className="w-5 h-5 text-black" />
             <span className="absolute -top-1 -right-1 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4457f4] opacity-40"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-[#4457f4] text-white text-[9px] font-bold items-center justify-center border-2 border-white">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-40"></span>
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-brand text-white text-[9px] font-bold items-center justify-center border-2 border-white">
                 1
               </span>
             </span>

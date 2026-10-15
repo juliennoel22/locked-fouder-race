@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
-import { z } from "zod";
+import { reviewLogSchema, type ReviewLogInput } from "@/lib/validations";
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -10,17 +10,6 @@ function getAdminClient() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
-
-const logReviewSchema = z.object({
-  deckId: z.string().min(1),
-  logs: z.array(
-    z.object({
-      cardFront: z.string().min(1),
-      rating: z.enum(["again", "good", "hard"]),
-      stepNumber: z.number().int().min(1).max(6).optional(),
-    })
-  ).min(1),
-});
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -32,7 +21,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const body = await request.json().catch(() => ({}));
-    const parseResult = logReviewSchema.safeParse(body);
+    const parseResult = reviewLogSchema.safeParse(body);
 
     if (!parseResult.success) {
       return NextResponse.json({ success: false, error: "Payload invalide" }, { status: 400 });
@@ -44,7 +33,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const admin = getAdminClient();
-    const rowsToInsert = logs.map((l) => ({
+    const rowsToInsert = logs.map((l: ReviewLogInput["logs"][number]) => ({
       user_id: user.id,
       deck_id: deckId,
       card_front: l.cardFront,
@@ -102,7 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
 
       const weakCards = Array.from(latestRatingByCard.entries())
-        .filter(([_, rating]) => rating === "again")
+        .filter(([, rating]) => rating === "again")
         .map(([front]) => front);
 
       return NextResponse.json({ success: true, weakCards });

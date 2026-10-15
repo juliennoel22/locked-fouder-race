@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 
 interface RecapLiveStats {
   revenue: number;
@@ -9,11 +9,13 @@ interface RecapLiveStats {
   lastUpdated: string;
 }
 
-export async function GET(request: Request): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  await connection();
+  void request;
   let revenue = 59.94;
   let transactionsCount = 6;
-  let visitors = 148;
-  let pageviews = 452;
+  const visitors = 148;
+  const pageviews = 452;
   let signupsCount = 23;
 
   // 1. Fetch live Stripe charges

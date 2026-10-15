@@ -59,7 +59,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Vérification de la session utilisateur Supabase
-  let user: any = null;
+  let user: { id: string; user_metadata?: Record<string, unknown> } | null = null;
   try {
     const { data: userData, error } = await supabase.auth.getUser();
     if (userData?.user) {

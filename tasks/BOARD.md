@@ -1,7 +1,7 @@
 # 📋 AGENTIC TASK BOARD — LORENO
 
 > **Tableau de Bord des Tâches Atomiques**  
-> *Dernière mise à jour* : 2026-10-04 (Intégration du batch de retours Baptiste)
+> *Dernière mise à jour* : 2026-10-15 (Méga Audit MVP de Production & Clôture AUDIT-021)
 
 ---
 
@@ -29,6 +29,7 @@
 | `FEAT-018` | `feature` | `P1` | Persistance cross-device SRS & table review_logs | Julien | 🟢 `resolved` | [`tasks/FEAT-018-cross-device-srs-persistence.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-018-cross-device-srs-persistence.md) |
 | `UX-019` | `ux` | `P1` | Transformation de l'Étape 6 en défi actif | Julien | 🟢 `resolved` | [`tasks/UX-019-interactive-exam-trap-step.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-019-interactive-exam-trap-step.md) |
 | `UX-020` | `ux` | `P2` | Transitions spatiales continues & ergonomie clavier mobile | Julien | 🟢 `resolved` | [`tasks/UX-020-spatial-card-transitions-and-keyboard.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-020-spatial-card-transitions-and-keyboard.md) |
+| `AUDIT-021` | `chore` | `P0` | Méga Audit MVP Production (< 300L, Zero Any, Zero Lint) | Julien | 🟢 `resolved` | [`tasks/AUDIT-021-mega-audit-mvp-production.md`](file:///home/julien/git/locked-fouder-race/tasks/AUDIT-021-mega-audit-mvp-production.md) |
 
 ---
 

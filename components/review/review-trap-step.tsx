@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { HelpCircle, Check, Eye, AlertTriangle, Sparkles, Send } from "lucide-react";
+import { HelpCircle, Check, AlertTriangle, Sparkles, Send } from "lucide-react";
 import { ReviewQueueItem } from "./review-types";
 import { triggerFeedback, triggerHaptic } from "@/lib/haptics";
 
@@ -14,7 +14,6 @@ interface ReviewTrapStepProps {
 export function ReviewTrapStep({ item, onValidate, onMistake }: ReviewTrapStepProps) {
   const [userReasoning, setUserReasoning] = useState("");
   const [isRevealed, setIsRevealed] = useState(false);
-  const [verdict, setVerdict] = useState<"mastered" | "trapped" | null>(null);
 
   const handleReveal = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -23,7 +22,6 @@ export function ReviewTrapStep({ item, onValidate, onMistake }: ReviewTrapStepPr
   };
 
   const handleFinish = (status: "mastered" | "trapped") => {
-    setVerdict(status);
     if (status === "mastered") {
       triggerFeedback("success");
       onValidate();

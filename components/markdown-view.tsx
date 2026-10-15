@@ -71,7 +71,7 @@ export function MarkdownView({ content, className = "" }: MarkdownViewProps) {
               key={idx}
               className="text-sm sm:text-base font-bold text-black tracking-tight pt-3 pb-0.5 flex items-center gap-1.5"
             >
-              <span className="w-1.5 h-4 rounded-full bg-[#4457f4]" />
+              <span className="w-1.5 h-4 rounded-full bg-brand" />
               <span>{renderInline(trimmed.substring(3))}</span>
             </h2>
           );
@@ -105,7 +105,7 @@ export function MarkdownView({ content, className = "" }: MarkdownViewProps) {
         if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
           return (
             <div key={idx} className="flex items-start gap-2 pl-1.5 my-1">
-              <span className="text-[#4457f4] font-bold text-base leading-none select-none">•</span>
+              <span className="text-brand font-bold text-base leading-none select-none">•</span>
               <div className="flex-1">{renderInline(trimmed.substring(2))}</div>
             </div>
           );
@@ -116,7 +116,7 @@ export function MarkdownView({ content, className = "" }: MarkdownViewProps) {
         if (numMatch) {
           return (
             <div key={idx} className="flex items-start gap-2 pl-1.5 my-1">
-              <span className="font-extrabold text-[#4457f4] text-xs select-none">
+              <span className="font-extrabold text-brand text-xs select-none">
                 {numMatch[1]}.
               </span>
               <div className="flex-1">{renderInline(numMatch[2])}</div>

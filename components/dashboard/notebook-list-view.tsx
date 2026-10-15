@@ -146,7 +146,7 @@ export function NotebookListView({
             Mes cours ({filteredNotebooks.length})
           </span>
           {isPro && (
-            <span className="text-[10px] font-bold text-[#4457f4] bg-[#4457f4]/10 border border-[#4457f4]/30 px-2 py-0.5 rounded-lg">
+            <span className="text-[10px] font-bold text-brand bg-brand/10 border border-brand/30 px-2 py-0.5 rounded-lg">
               ⭐ Illimité
             </span>
           )}
@@ -154,13 +154,25 @@ export function NotebookListView({
 
         <div className="space-y-2.5 pb-20">
           {filteredNotebooks.length === 0 ? (
-            <div className="p-8 text-center text-zinc-500 text-xs border border-dashed border-zinc-300 rounded-2xl space-y-2 bg-zinc-50/50">
-              <p className="font-semibold text-zinc-700">Aucun cours trouvé</p>
-              <p className="text-[11px] text-zinc-400">
-                {searchQuery
-                  ? `Aucun cours ne correspond à "${searchQuery}".`
-                  : "Scanne un nouveau cours pour commencer."}
-              </p>
+            <div className="p-8 text-center text-zinc-500 text-xs border border-dashed border-zinc-300 rounded-2xl space-y-3 bg-zinc-50/50 flex flex-col items-center justify-center">
+              <div>
+                <p className="font-semibold text-zinc-700">Aucun cours trouvé</p>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  {searchQuery
+                    ? `Aucun cours ne correspond à "${searchQuery}".`
+                    : "Scanne un nouveau cours pour commencer."}
+                </p>
+              </div>
+              {!searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleScanAction}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-black text-white text-xs font-bold hover:bg-zinc-800 active:scale-95 transition shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Scanner mon premier cours
+                </button>
+              )}
             </div>
           ) : (
             filteredNotebooks.map((nb) => (

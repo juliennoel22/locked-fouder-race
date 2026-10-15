@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Send } from "lucide-react";
 import { ReviewQueueItem } from "./review-types";
 
 export function checkFreeTextAnswer(userAnswer: string, correctAnswer: string): boolean {

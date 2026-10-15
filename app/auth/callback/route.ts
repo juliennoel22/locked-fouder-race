@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   // 1. Google OAuth (PKCE Code Exchange)
   if (code) {
     const supabase = await createClient();
-    const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       // Marquer immédiatement l'onboarding comme complété pour l'utilisateur Google
       try {

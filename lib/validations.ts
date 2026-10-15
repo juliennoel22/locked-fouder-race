@@ -170,3 +170,20 @@ export const deleteAccountRequestSchema = z.object({
 });
 
 export type DeleteAccountRequest = z.infer<typeof deleteAccountRequestSchema>;
+
+/**
+ * Zod Schema for logging review card progress (/api/review/log)
+ */
+export const reviewLogSchema = z.object({
+  deckId: z.string().min(1, "deckId requis"),
+  logs: z.array(
+    z.object({
+      cardFront: z.string().min(1),
+      rating: z.enum(["again", "good", "hard"]),
+      stepNumber: z.number().int().min(1).max(6).optional(),
+    })
+  ).min(1, "Au moins un log requis"),
+});
+
+export type ReviewLogInput = z.infer<typeof reviewLogSchema>;
+
