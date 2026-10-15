@@ -2,24 +2,15 @@
 
 import { useMemo, useEffect, useRef } from "react";
 import {
-  BookOpen,
-  Layers,
-  CheckCircle2,
-  Gift,
-  Mic,
-  Trophy,
-  Lock,
-  Check,
-  Star,
-  Play,
-  Award,
-  Zap,
-  ChevronRight,
+  BookOpen, Layers, CheckCircle2, Gift, Flame,
+  Trophy, Lock, Check, Star, Play, Award, Zap, ChevronRight
 } from "lucide-react";
+import { ReviewItemType } from "./review-types";
+import { REVIEW_STEPS_CONFIG } from "@/lib/review-config";
 
 export interface PathNode {
   id: string;
-  type: "concepts" | "flashcards" | "quiz" | "chest" | "recall" | "exam_trap";
+  type: ReviewItemType;
   title: string;
   subtitle: string;
   icon: React.ElementType;
@@ -33,10 +24,24 @@ interface CoursePathMapProps {
   subject?: string | null;
   progressPercent: number;
   onSelectNode: (node: PathNode) => void;
-  onStartNextNode: () => void;
+  onStartNextNode: (stepNumber?: number) => void;
   onUpdateProgress?: (newPercent: number) => void;
   onOpenCourseSheet?: () => void;
 }
+
+const STEP_ICONS: Record<number, React.ElementType> = {
+  1: BookOpen, 2: Layers, 3: CheckCircle2, 4: Gift, 5: Flame, 6: Trophy
+};
+
+const DEFAULT_PATH_NODES: PathNode[] = REVIEW_STEPS_CONFIG.map((cfg) => ({
+  id: cfg.id,
+  type: cfg.type,
+  title: cfg.title,
+  subtitle: cfg.subtitle,
+  icon: STEP_ICONS[cfg.stepNumber] || BookOpen,
+  position: cfg.position,
+  stepNumber: cfg.stepNumber,
+}));
 
 export function CoursePathMap({
   deckId,
@@ -49,18 +54,7 @@ export function CoursePathMap({
   onOpenCourseSheet,
 }: CoursePathMapProps) {
   const activeNodeRef = useRef<HTMLDivElement>(null);
-
-  const nodes: PathNode[] = useMemo(
-    () => [
-      { id: "step-1", type: "concepts", title: "Concepts Clés", subtitle: "Synthèse & Définitions", icon: BookOpen, position: "left", stepNumber: 1 },
-      { id: "step-2", type: "flashcards", title: "Mémorisation 3D", subtitle: "Flashcards Set 1", icon: Layers, position: "right", stepNumber: 2 },
-      { id: "step-3", type: "quiz", title: "Test de Notions", subtitle: "Quiz Adaptatif", icon: CheckCircle2, position: "center", stepNumber: 3 },
-      { id: "step-4", type: "chest", title: "Coffre Trésor", subtitle: "Bonus Rétention", icon: Gift, position: "left", stepNumber: 4 },
-      { id: "step-5", type: "recall", title: "Rappel Avancé", subtitle: "Flashcards Avancées", icon: Mic, position: "right", stepNumber: 5 },
-      { id: "step-6", type: "exam_trap", title: "Épreuve Finale", subtitle: "Question Piège Examen", icon: Trophy, position: "center", stepNumber: 6 },
-    ],
-    []
-  );
+  const nodes = DEFAULT_PATH_NODES;
 
   const effectiveProgress = useMemo(() => {
     let localVal = 0;
@@ -283,7 +277,7 @@ export function CoursePathMap({
       <div className="fixed bottom-5 left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-auto">
         <button
           type="button"
-          onClick={onStartNextNode}
+          onClick={() => onStartNextNode(currentStepIndex + 1)}
           className="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xl border border-emerald-400/40 cursor-pointer"
         >
           <Play className="w-4 h-4 fill-white text-white" />

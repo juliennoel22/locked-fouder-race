@@ -152,7 +152,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
               subject={deck.subject}
               progressPercent={deck.progress_percent || 0}
               onSelectNode={(node) => setSelectedPathNode(node)}
-              onStartNextNode={() => router.push(`/review/${deck.id}`)}
+              onStartNextNode={(stepNum) => router.push(`/review/${deck.id}?step=${stepNum || 1}`)}
               onUpdateProgress={handleUpdateProgress}
               onOpenCourseSheet={() => setShowPathMap(false)}
             />
@@ -221,7 +221,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
           isOpen={Boolean(selectedPathNode)}
           node={selectedPathNode}
           onClose={() => setSelectedPathNode(null)}
-          onStartSession={() => router.push(`/review/${deck.id}`)}
+          onStartSession={(node) => router.push(`/review/${deck.id}?step=${node?.stepNumber || 1}`)}
           onCompleteNode={handleCompleteNode}
         />
 

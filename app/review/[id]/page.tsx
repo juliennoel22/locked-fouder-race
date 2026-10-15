@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, use, Suspense, useRef } from "react";
+import { useEffect, useState, use, Suspense, useRef, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Deck } from "@/types/loreno";
 import { DEMO_DECK } from "@/lib/demo-deck";
@@ -14,11 +15,31 @@ interface ReviewPageProps {
 }
 
 export function ReviewSessionView({ deckId }: { deckId: string }) {
+  const searchParams = useSearchParams();
+  const rawStep = searchParams.get("step");
+  const urlStepNumber = rawStep ? parseInt(rawStep, 10) : undefined;
+
   const [deck, setDeck] = useState<Deck | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isGeneratingLesson, setIsGeneratingLesson] = useState<boolean>(false);
   const [isApiReady, setIsApiReady] = useState<boolean>(false);
   const hasTriggeredRef = useRef<boolean>(false);
+
+  const effectiveStepNumber = useMemo(() => {
+    if (urlStepNumber && urlStepNumber >= 1 && urlStepNumber <= 6) {
+      return urlStepNumber;
+    }
+    let progress = deck?.progress_percent || 0;
+    try {
+      if (typeof window !== "undefined" && deck?.id) {
+        const stored = localStorage.getItem(`loreno_progress_${deck.id}`);
+        if (stored) progress = Math.max(progress, Number(stored));
+      }
+    } catch {}
+    if (progress >= 100) return 1;
+    const completedSteps = Math.floor((progress / 100) * 6);
+    return Math.min(6, completedSteps + 1);
+  }, [urlStepNumber, deck]);
 
   useEffect(() => {
     async function loadDeck() {
@@ -120,17 +141,20 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
         {/* Header avec lien de retour direct à la fiche de cours */}
         <Header
           backHref={`/deck/${deck.id}`}
-          title="Entraînement Adaptatif"
+          title={`Étape ${effectiveStepNumber} / 6`}
         />
 
         {/* Moteur Adaptatif Duolingo Style */}
         <div className="flex-1 flex flex-col min-h-0">
           <AdaptativeReviewPlayer
+            key={`player-${deck.id}-step-${effectiveStepNumber}`}
             deckId={deck.id}
             deckTitle={deck.title}
             subject={deck.subject}
             flashcards={deck.flashcards || []}
             initialQuizQuestion={deck.initial_quiz_question}
+            initialQuizAnswer={deck.initial_quiz_answer}
+            stepNumber={effectiveStepNumber}
           />
         </div>
       </div>

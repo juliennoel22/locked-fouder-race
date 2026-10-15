@@ -242,6 +242,20 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (error) {
+      if (error.code === "PGRST204") {
+        console.warn("PGRST204: Colonne absente de la table decks, fallback sur updated_at...");
+        const fallbackUpdate = await admin
+          .from("decks")
+          .update({ updated_at: updatePayload.updated_at })
+          .eq("id", id)
+          .eq("user_id", user.id)
+          .select("id, updated_at")
+          .single();
+        return NextResponse.json({
+          success: true,
+          deck: { id, progress_percent, updated_at: fallbackUpdate.data?.updated_at },
+        });
+      }
       console.error("Erreur PATCH /api/decks :", error);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

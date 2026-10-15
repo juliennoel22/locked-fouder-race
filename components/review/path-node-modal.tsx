@@ -1,6 +1,7 @@
 "use client";
 
 import { X, Play, BookOpen, Zap } from "lucide-react";
+import { getStepConfig } from "@/lib/review-config";
 import { PathNode } from "./course-path-map";
 
 interface PathNodeModalProps {
@@ -60,17 +61,7 @@ export function PathNodeModal({
             <span>Objectif de la session :</span>
           </div>
           <p className="text-zinc-600 leading-relaxed">
-            {node.type === "concepts"
-              ? "Revisite les concepts et définitions de base du cours pour réactiver ta mémoire."
-              : node.type === "flashcards"
-              ? "Session de 4 cartes mémoire 3D. Évalue ta maîtrise en glissant 'Je sais' ou 'À revoir'."
-              : node.type === "quiz"
-              ? "Test de rapidité QCM sur les notions essentielles du cours."
-              : node.type === "chest"
-              ? "Coffre bonus ! Valide cette étape pour débloquer un boost de mémoire instantané."
-              : node.type === "recall"
-              ? "Entraînement de rappel actif sur les notions les plus exigeantes."
-              : "Défie le piège d'examen le plus probable pour obtenir ton score final !"}
+            {getStepConfig(node.stepNumber).objectiveText}
           </p>
         </div>
 

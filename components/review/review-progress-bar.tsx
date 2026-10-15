@@ -7,6 +7,7 @@ interface ReviewProgressBarProps {
   currentIndex: number;
   totalCount: number;
   progressPercent: number;
+  stepNumber?: number;
 }
 
 export function ReviewProgressBar({
@@ -14,21 +15,30 @@ export function ReviewProgressBar({
   currentIndex,
   totalCount,
   progressPercent,
+  stepNumber,
 }: ReviewProgressBarProps) {
   const stepLabel =
-    type === "flashcard"
-      ? "Étape 1 • Mémorisation Flashcards"
+    type === "concept"
+      ? "Concepts Clés"
+      : type === "flashcard"
+      ? "Mémorisation 3D"
       : type === "quiz"
-      ? "Étape 2 • QCM avec Distracteurs"
+      ? "QCM Chronométré"
+      : type === "chest"
+      ? "Coffre Trésor"
       : type === "free_text"
-      ? "Étape 3 • Saisie Libre (Examen)"
-      : "Étape 4 • Question Piège Examen";
+      ? "Rappel Saisie Libre"
+      : "Épreuve Finale";
+
+  const displayTitle = stepNumber
+    ? `Étape ${stepNumber} sur 6 • ${stepLabel}`
+    : stepLabel;
 
   return (
     <div className="w-full space-y-1.5 pb-3">
       <div className="flex items-center justify-between text-[11px] font-bold text-zinc-500">
-        <span className="flex items-center gap-1 text-brand">
-          {stepLabel}
+        <span className="flex items-center gap-1 text-brand font-black">
+          {displayTitle}
         </span>
         <span>
           {currentIndex + 1} / {totalCount}

@@ -1,6 +1,12 @@
 import { Flashcard } from "@/types/loreno";
 
-export type ReviewItemType = "flashcard" | "quiz" | "exam_trap" | "free_text";
+export type ReviewItemType =
+  | "concept"
+  | "flashcard"
+  | "quiz"
+  | "chest"
+  | "free_text"
+  | "exam_trap";
 
 export interface ReviewQueueItem {
   id: string;
@@ -18,5 +24,6 @@ export interface AdaptativeReviewPlayerProps {
   flashcards: Flashcard[];
   initialQuizQuestion?: string | null;
   initialQuizAnswer?: string | null;
+  stepNumber?: number;
   onFinish?: () => void;
 }

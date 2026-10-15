@@ -20,6 +20,10 @@
 | `FEAT-011` | `feature` | `P2` | Distracteurs QCM indépendants & mode saisie libre | Baptiste | 🟢 `resolved` | [`tasks/FEAT-011-qcm-independent-options-and-text-input.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-011-qcm-independent-options-and-text-input.md) |
 | `TASK-001` | `chore` | `P0` | Refactoring modulaire < 300L & Zod strict | Julien | 🟢 `resolved` | [`tasks/CHORE-001-modular-refactor.md`](file:///home/julien/git/locked-fouder-race/tasks/CHORE-001-modular-refactor.md) |
 | `TASK-002` | `ux` | `P1` | Harmonisation Design System tokens sémantiques `brand` | Julien | 🟢 `resolved` | [`tasks/UX-002-semantic-brand-tokens.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-002-semantic-brand-tokens.md) |
+| `FEAT-012` | `feature` | `P0` | Micro-sessions par nœud (`?step=1..6`) | Julien | 🟢 `resolved` | [`tasks/FEAT-012-micro-sessions-per-node.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-012-micro-sessions-per-node.md) |
+| `FEAT-013` | `feature` | `P1` | Volumétrie proportionnelle IA multi-pages | Julien | 🟡 `ready` | [`tasks/FEAT-013-proportional-ai-volume.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-013-proportional-ai-volume.md) |
+| `FEAT-014` | `feature` | `P1` | Bulletin prédictif d'examen (/20) & diagnostic | Julien | 🟡 `ready` | [`tasks/FEAT-014-predictive-exam-report-card.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-014-predictive-exam-report-card.md) |
+| `UX-015` | `ux` | `P2` | Micro-haptics smartphone & audio chimes dopamine | Julien | 🟡 `ready` | [`tasks/UX-015-smartphone-micro-haptics-and-audio.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-015-smartphone-micro-haptics-and-audio.md) |
 
 ---
 

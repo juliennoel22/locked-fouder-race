@@ -20,6 +20,9 @@
    - **Audit d'Examen Immédiat** (`ExamTrapBox`) : Détection du risque partiel et affichage de la **Question Piège du Professeur** avec CTA pour débloquer le corrigé type.
    - **Teaser des 14 Cartes Floutées** (Sunk Cost Fallacy) : 3 cartes interactives offertes + aperçu flouté des cartes suivantes avec cadenas.
    - **Paywall Anti-Rattrapage** (`PaywallModal`) : Reframe agressif (Prof 35€/h vs Rattrapage 6 mois vs 9,99€ à vie Loreno) sans export 1-clic superflu.
+4. **Gameplay & Roadmap Modulables (Zéro Usine à Gaz)** :
+   - Toutes les règles du parcours (paliers, pourcentages `targetPercent`, types d'épreuves, titres, descriptions) sont déclarées dans un fichier central unique : `lib/review-config.ts`.
+   - Tout changement de gameplay ou d'équilibrage de progression s'effectue en 1 ligne sans toucher aux composants ni risquer de régression.
 
 ---
 

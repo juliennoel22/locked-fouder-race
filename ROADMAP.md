@@ -1,95 +1,118 @@
-# 🗺️ ROADMAP.md — PLAN D'ATTAQUE & FEUILLE DE ROUTE LORENO
+# 🗺️ ROADMAP.md — PLAN D'ATTAQUE & ÉTAT DES LIEUX COMPLET (LORENO)
 
-> **Plan d'Exécution & Suivi des Jalons Produit**  
-> *Dernière mise à jour* : Octobre 2026 | *Lead* : Julien Noel & Agent IA Antigravity  
-> *Sources des feedbacks* : Retours Baptiste (`INBOX_BAPTISTE.md`), Audits Prod, Vocaux 04/10.
-
----
-
-## 📍 1. Où en Sommes-Nous ? (État des Lieux Live)
-
-### ✅ Ce qui est déjà délivré et opérationnel (Fondations V1)
-- **Infra Live & Prerendered** : Domaine `https://www.loreno.app` sur Vercel avec Next.js 16 App Router.
-- **Base Supabase & Storage** : Tables `decks`, `flashcards`, bucket public `course-scans` et RLS configurés.
-- **Paiements Stripe Live** : Compte Stripe dédié (`acct_1UEmQlAH5Oe6wyUi`) avec lien de paiement 9,99 € actif.
-- **Cœur IA Vision** : Route `/api/scan` connectée à Gemini Flash avec extraction JSON de fiches Markdown et flashcards.
-- **Architecture Propre** : Code 100% sous 300 lignes par fichier, contrats Zod stricts, tokens sémantiques `brand`.
-
-### ⚠️ Ce qui bloque la mise en main client (Les "Reviews" de Baptiste)
-1. **Intégrité IA (P0)** : Des hallucinations causales dans les quiz d'examen détruisent la crédibilité pédagogique.
-2. **Progression Roadmap (P0)** : Après le nœud 1, le nœud 2 reste verrouillé dans le parcours.
-3. **Persistance Auth Mobile (P0)** : Déconnexions répétées à chaque réouverture du navigateur sur smartphone.
-4. **Paywall Pro (P0)** : Le bandeau d'achat s'affiche encore pour les utilisateurs ayant souscrit au pass Pro.
-5. **Multi-Pages (P1)** : Les scans de 11 pages sont moins denses que ceux de 4 pages.
-6. **Affiliation Filleul (P1)** : Pas de réduction automatique appliquée au panier du filleul.
+> **Document Maître de Référence & Analyse sans Optimisme**  
+> *Dernière mise à jour* : 6 Octobre 2026 | *Lead* : Julien Noel & Agent IA Antigravity  
+> *Posture* : Scepticisme absolu, zéro complaisance, focus conversion & rétention étudiante vs Gizmo / Duolingo / TurboLearn.
 
 ---
 
-## 🚀 2. Les 4 Sprints d'Exécution
+## ⚖️ 1. L'Arbitrage Sceptique : Gros Chantier ou Simple Optimisation ?
 
-```mermaid
-graph LR
-    S1["Sprint 1 : P0 Stabilisation (Bloquants)"] --> S2["Sprint 2 : P1 Qualité & Conversion"]
-    S2 --> S3["Sprint 3 : P2 Ergonomie & Quiz Avancés"]
-    S3 --> S4["Sprint 4 : Démo & Échelle"]
-```
-
----
-
-### 🔴 Sprint 1 : P0 — Fiabilité, Progression & Auth (Immédiat)
-*Objectif : Rendre le flux de scan et de révision 100% stable et sans rupture d'expérience.*
-
-| Ticket | Titre | Description & Fichiers Impactés | Statut |
-|---|---|---|:---:|
-| [`BUG-003`](file:///home/julien/git/locked-fouder-race/tasks/BUG-003-ia-quiz-answer-consistency.md) | **Cohérence IA Questions/Réponses** | Prompts d'alignement causal stricts + liaison `initial_quiz_answer` + correction des lecteurs `AdaptativeReviewPlayer` & `NotebookQuizView`. | 🟢 `resolved` |
-| [`BUG-004`](file:///home/julien/git/locked-fouder-race/tasks/BUG-004-roadmap-progression-unlock.md) | **Déblocage Nœud 2 Roadmap** | Sauvegarde incrémentale par palier + déblocage réactif instantané dans `CoursePathMap.tsx`. | 🟢 `resolved` |
-| [`BUG-005`](file:///home/julien/git/locked-fouder-race/tasks/BUG-005-mobile-session-persistence.md) | **Persistance Auth Mobile** | Imposition `maxAge: 31536000` (1 an) + `sameSite: lax` sur les clients Supabase SSR & middleware pour éliminer la déconnexion mobile. | 🟢 `resolved` |
-| [`BUG-006`](file:///home/julien/git/locked-fouder-race/tasks/BUG-006-hide-paywall-for-pro-users.md) | **Masquage Paywall pour Abonnés Pro** | Masquage des bandeaux/modales si `isPro === true` + remplacement de l'intitulé 'à vie' par 'Loreno Pro'. | 🟢 `resolved` |
+### 🛑 Le Diagnostic sans filtre :
+- **Est-ce un "gros gros gros travail" (réécriture complète) ?**  
+  👉 **NON.** L'infrastructure (Next.js 16, Supabase SSR, cookies 1 an, compression client Canvas, Stripe live, Gemini Flash) est saine, robuste et déjà en production. Il n'y a aucun besoin de refaire l'architecture technique de base.
+- **Est-ce juste "de la simple optimisation ou du cosmétique" ?**  
+  👉 **NON PLUS.** Qualifier le travail restant de "simple optimisation" serait un biais d'optimisme dangereux. Il y a un **problème de conception pédagogique majeur** :  
+  L'application souffre d'une **schizophrénie d'expérience** :
+  - *La promesse visuelle* : Une roadmap serpentine façon Duolingo avec 6 étapes graduées (Concepts $\rightarrow$ Mémorisation 3D $\rightarrow$ Quiz $\rightarrow$ Coffre $\rightarrow$ Rappel Actif $\rightarrow$ Épreuve Finale).
+  - *La réalité technique actuelle* : Quel que soit le nœud cliqué, le routeur envoie vers `/review/[id]` qui balance **l'intégralité du deck en une seule traite monolithique**, puis affiche "100% Validé" sans distinction.
+- **La conclusion concrète** :  
+  Ce n'est **ni 6 mois de dev, ni un coup de peinture**. C'est un **chantier chirurgical de découplage de 3 à 4 jours de dev (12 à 16h)** pour aligner la réalité du player sur la promesse de la roadmap.
 
 ---
 
-### 🟠 Sprint 2 : P1 — Conversion, Multi-Pages & Ergonomie (Secondaire)
-*Objectif : Optimiser le tunnel de transformation et la richesse pédagogique sur gros volumes de cours.*
+## 🧱 2. Ce qui est SOLIDE, CONSOLIDÉ et DÉFINITIF (On n'y touche plus)
 
-| Ticket | Titre | Description & Fichiers Impactés | Statut |
-|---|---|---|:---:|
-| [`FEAT-007`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-007-referral-buyer-discount.md) | **Réduction Achat Filleul (Affiliation)** | Intégrer un coupon de réduction Stripe automatique (ex: -20%) lorsque l'étudiant provient d'un lien `?ref=...`. | 🟡 `ready` |
-| [`FEAT-008`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-008-multipage-scan-density.md) | **Densité Fiches Multi-Pages (11p)** | Optimiser le prompt de synthèse et le chunking vision dans `/api/scan` pour préserver chaque chapitre sans compression excessive d'informations. | 🟡 `ready` |
-| [`UX-009`](file:///home/julien/git/locked-fouder-race/tasks/UX-009-roadmap-scroll-and-card-preview.md) | **Scroll Auto Palier + Clic Fiche** | Auto-scroll centré sur le nœud actif lors du chargement de la roadmap + clic sur le badge titre pour ouvrir le tiroir de la fiche de cours. | 🟡 `ready` |
+Ces briques ont été testées, auditées et répondent aux standards de production :
 
----
-
-### 🟡 Sprint 3 : P2 — Ergonomie Tactile & Variété des Quiz
-*Objectif : Perfectionner les interactions physiques et la valeur d'entraînement aux examens.*
-
-| Ticket | Titre | Description & Fichiers Impactés | Statut |
-|---|---|---|:---:|
-| [`UX-010`](file:///home/julien/git/locked-fouder-race/tasks/UX-010-share-copy-text-and-flashcard-buttons.md) | **Partage Viral & Gros Boutons Touch** | Agrandissement des cibles tactiles "Je sais / À revoir" ($\ge$ 48px) ; copie du texte d'accroche viral complet pour WhatsApp/TikTok. | 🟡 `ready` |
-| [`FEAT-011`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-011-qcm-independent-options-and-text-input.md) | **Distracteurs Réels & Saisie Libre** | Génération de distracteurs QCM indépendants non-permutables + mode de saisie libre avec correction tolérante par l'IA. | 🟡 `ready` |
+| Composant | Statut Réel | Preuve Technique / Pourquoi c'est blindé |
+|---|:---:|---|
+| **Auth & Session Mobile (1 an)** | 🟢 Béton | Cookies Supabase SSR paramétrés avec `maxAge: 31536000` (`lib/supabase/client.ts`, `server.ts`, `proxy.ts`). Zéro déconnexion parasite sur Safari iOS / Chrome Android. |
+| **Pipeline Scan & Compression Client** | 🟢 Béton | Canvas HTML5 redimensionnant les photos à max 1600px en JPEG 0.8 avant envoi (`lib/image-compressor.ts`). Upload de 5 Mo réduit à < 400 Ko. Zéro timeout réseau en 4G. |
+| **OCR & Synthèse Markdown (Gemini Flash)** | 🟢 Béton | Prompting haute densité (`app/api/scan/route.ts`). Restitution fidèle des cours jusqu'à 11+ pages en fiches Markdown structurées avec définitions en gras. |
+| **Monétisation Stripe & Affiliation Live** | 🟢 Béton | Compte Stripe configuré (`acct_1UEmQlAH5Oe6wyUi`), lien de paiement 9,99 €/mois. Cookie parrain injecté automatiquement avec code promo `PARRAIN20` (-20% / 7,99 €) pour le filleul acheteur. |
+| **Guardrail Anti-Hallucination IA** | 🟢 Béton | Critic Guardrail à `temperature: 0` (`lib/ai-validator.ts`) vérifiant l'alignement causal question/réponse et rejetant les inversions logiques. |
+| **Génération Distracteurs QCM Indépendants** | 🟢 Béton | Zéro distractor permuté idiot. L'IA génère 3 faux choix plausibles spécifiques à la question (`app/api/decks/generate-game/route.ts`). |
+| **Saisie Libre Active Recall** | 🟢 Béton | Composant `ReviewFreeTextStep` avec comparaison sémantique et tolérance aux fautes d'orthographe légères. |
+| **Architecture du Code & Qualité** | 🟢 Béton | Zéro fichier > 300 lignes, Next.js 16 App Router propre, compilation `npm run build` en 0 erreur, typage TypeScript strict, zéro `any`, Zod schemas stricts. |
 
 ---
 
-### 🟣 Sprint 4 : Démo, Métriques & Échelle (Post-Stabilisation)
-- [ ] Enregistrement vidéo de démonstration mobile (< 2 minutes pour le jury).
-- [ ] Dashboard analytique PostHog & Meta Ads pour monitorer le coût d'acquisition par scan.
-- [ ] Relances Spaced Repetition (SRS) par notifications Web Push / Email.
+## 📋 3. Ce qu'il reste à faire EN DÉTAIL (Chantier par Chantier)
 
 ---
 
-## 🤝 3. Mode Opératoire & Collaboration Agentique Julien $\leftrightarrow$ Antigravity
+### 🎯 CHANTIER 1 (P0) : Découplage Réel des 6 Nœuds du Parcours
+> **Objectif** : Transformer la roadmap en 6 vraies micro-sessions de 60 à 90 secondes avec sauvegarde de l'étape.
 
-Pour travailler vite, sans régression et avec un niveau de rigueur maximal :
+#### 1.1. Paramétrage d'URL et Filtrage de la File d'Attente
+- **Fichiers impactés** : [`components/review/course-path-map.tsx`](file:///home/julien/git/locked-fouder-race/components/review/course-path-map.tsx), [`app/deck/[id]/page.tsx`](file:///home/julien/git/locked-fouder-race/app/deck/[id]/page.tsx), [`app/review/[id]/page.tsx`](file:///home/julien/git/locked-fouder-race/app/review/[id]/page.tsx), [`components/AdaptativeReviewPlayer.tsx`](file:///home/julien/git/locked-fouder-race/components/AdaptativeReviewPlayer.tsx).
+- **Spécification technique** :
+  - Le clic sur un nœud dans `PathNodeModal` ou la carte redirige vers `/review/[id]?step=X` (où X est 1 à 6).
+  - Dans `AdaptativeReviewPlayer.tsx`, la queue est construite **exclusivement pour le palier actif** :
+    - **Étape 1 (Concepts Clés)** : 4 fiches de lecture/découverte avec validation simple "J'ai compris".
+    - **Étape 2 (Mémorisation 3D)** : 4 ou 5 cartes flashcards avec flip 3D et évaluation swipe (Je sais / À revoir).
+    - **Étape 3 (Test de Notions)** : 4 questions QCM chronométrées avec les 3 distracteurs uniques.
+    - **Étape 4 (Coffre Trésor)** : Écran palier dopamine (gain de flammes / XP, récapitulatif de rétention intermédiaire).
+    - **Étape 5 (Rappel Avancé)** : 2 à 3 exercices de saisie libre (`free_text`) pour tester la mémoire active sans indice.
+    - **Étape 6 (Épreuve Finale)** : La question piège d'examen (`exam_trap`) + délivrance du bulletin prédictif.
+- **Sauvegarde d'état** :
+  - À la fin d'une étape, la progression `loreno_progress_${deckId}` passe à `Math.round((step / 6) * 100)` (ex: 17%, 33%, 50%, 67%, 83%, 100%).
+  - Mise à jour en base via `PATCH /api/decks` pour synchronisation multi-appareils.
+  - Redirection automatique vers `/deck/[id]` avec zoom/scroll sur le nœud suivant déverrouillé.
 
-1. **Règle de l'Unité de Travail (Tâche par Tâche)** :
-   - On ne fait pas de refactor géant d'un coup. On sélectionne un ticket (ex: `BUG-003`), on l'attaque, on le teste, on valide `npm run build`, puis on passe au suivant.
-2. **Cycle de Vie des Tickets** :
-   - Statut initial : 🟡 `ready` $\rightarrow$ En cours : 🔵 `in_progress` $\rightarrow$ Clôturé : 🟢 `resolved` dans `tasks/BOARD.md` et `MEMORY.md`.
-3. **Plafond Strict des 300 Lignes** :
-   - Tout fichier approchant les 250 lignes est découpé en composants atomiques.
-4. **Protocole des Buckets d'Action pour Julien** :
-   - Dès qu'une tâche de génération ou d'analyse lourde démarre, l'agent annonce le temps estimé et t'oriente vers :
-     - **Bucket 1 (1-2 min)** : Reset neuro-biologique (respiration, étirements).
-     - **Bucket 2 (3-5 min)** : Actifs TikTok / Outreach créateurs étudiants.
-     - **Bucket 3 (5-10 min)** : Pause déconnexion / marche.
-5. **Gouvernance Git** :
-   - L'agent ne manipule aucun git en natif ; tu conserves la main absolue sur les commits et le push en production.
+---
+
+### 🧠 CHANTIER 2 (P1) : Volumétrie IA Proportionnelle à la Taille du Cours
+> **Objectif** : Empêcher qu'un cours de 11 pages produise le même nombre ridicule de questions qu'un polycopié d'1 page.
+
+#### 2.1. Calcul Dynamique du Volume de Génération
+- **Fichiers impactés** : [`app/api/decks/generate-game/route.ts`](file:///home/julien/git/locked-fouder-race/app/api/decks/generate-game/route.ts), [`lib/validations.ts`](file:///home/julien/git/locked-fouder-race/lib/validations.ts).
+- **Spécification technique** :
+  - Analyser le volume de `detailed_content` ou du cours scanné :
+    - *Cours court (< 500 mots)* : 6 cartes flashcards, 4 QCMs, 1 piège (total 11 items).
+    - *Cours moyen (500 à 1500 mots)* : 10 cartes flashcards, 6 QCMs, 2 saisies libres, 1 piège (total 19 items).
+    - *Cours dense (> 1500 mots, partiel 11 pages)* : 16 cartes flashcards, 8 QCMs, 4 saisies libres, 2 pièges (total 30 items répartis sur les 6 étapes).
+  - Stocker les items avec un champ `step_target: 1 | 2 | 3 | 5 | 6` pour distribution déterministe.
+
+---
+
+### 🎓 CHANTIER 3 (P1) : Bulletin Prédictif d'Examen (/20) & Diagnostic de Faiblesses
+> **Objectif** : Sortir du simple "100% Validé" qui ne renseigne pas l'étudiant, pour lui donner un verdict académique crédible.
+
+#### 3.1. Refonte du Rapport de Fin de Session
+- **Fichiers impactés** : [`components/review/review-completed-modal.tsx`](file:///home/julien/git/locked-fouder-race/components/review/review-completed-modal.tsx), [`components/AdaptativeReviewPlayer.tsx`](file:///home/julien/git/locked-fouder-race/components/AdaptativeReviewPlayer.tsx).
+- **Spécification technique** :
+  - Calcul de la **Note Prédictive sur 20** :
+    - Formule pondérée : `Note = Max(6, 20 - (erreurs_qcm * 2.5) - (erreurs_freetext * 3) - (piege_rate ? 4 : 0))`.
+  - Section **Diagnostic Express** :
+    - *Points forts* : "Définitions fondamentales maîtrisées à 100%".
+    - *Point critique à revoir* : La question où l'étudiant a hésité ou s'est trompé.
+  - Call To Action orienté conversion :
+    - Si l'utilisateur n'est pas Pro : *"Envie de t'entraîner sur les 14 autres pièges d'examen de ce cours ? Débloque le Mode Examen Pro."*
+
+---
+
+### ⚡ CHANTIER 4 (P2) : Dopamine Sensorielle (Haptics & Audio Chimes)
+> **Objectif** : Donner une sensation physique d'impact sur mobile lors des bonnes et mauvaises réponses.
+
+#### 4.1. Micro-Retours Haptiques Smartphone
+- **Fichiers impactés** : [`components/review/review-flashcard-step.tsx`](file:///home/julien/git/locked-fouder-race/components/review/review-flashcard-step.tsx), [`components/review/review-quiz-step.tsx`](file:///home/julien/git/locked-fouder-race/components/review/review-quiz-step.tsx), [`components/review/review-freetext-step.tsx`](file:///home/julien/git/locked-fouder-race/components/review/review-freetext-step.tsx).
+- **Spécification technique** :
+  - Création d'un utilitaire `lib/haptics.ts` appelant `navigator.vibrate` en sécurité avec fallback silencieux :
+    - Succès : `vibrate([20])` (léger tap net).
+    - Erreur : `vibrate([40, 60, 40])` (double tap sourd).
+    - Étape terminée : `vibrate([30, 40, 50, 40, 60])` (célébration).
+
+---
+
+## ⏱️ 4. Calendrier d'Exécution Réaliste
+
+| Ticket | Tâche | Fichiers Principaux | Temps Réel | Risque |
+|---|---|---|:---:|:---:|
+| `FEAT-012` | **Micro-Sessions Découplées (`?step=1..6`)** | `AdaptativeReviewPlayer.tsx`, `app/deck/[id]/page.tsx`, `course-path-map.tsx` | **4 à 5h** | Faible |
+| `FEAT-013` | **Volumétrie Proportionnelle IA** | `app/api/decks/generate-game/route.ts` | **2h** | Faible |
+| `FEAT-014` | **Bulletin Prédictif d'Examen (/20)** | `components/review/review-completed-modal.tsx` | **3h** | Très faible |
+| `UX-015` | **Micro-Haptics Mobile & Feedback** | `lib/haptics.ts`, composants review | **1h30** | Très faible |
+
+**Total d'effort net pour hisser Loreno au niveau Gizmo / Duolingo** : **~11 heures d'ingénierie active** (réalisable en 2 à 3 sessions intenses).

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ReviewErrorModal } from "./review/review-error-modal";
 import { ReviewCompletedModal } from "./review/review-completed-modal";
 import {
@@ -10,10 +11,13 @@ import {
   AdaptativeReviewPlayerProps,
 } from "./review/review-types";
 import { ReviewProgressBar } from "./review/review-progress-bar";
+import { ReviewConceptStep } from "./review/review-concept-step";
 import { ReviewFlashcardStep } from "./review/review-flashcard-step";
 import { ReviewQuizStep } from "./review/review-quiz-step";
+import { ReviewChestStep } from "./review/review-chest-step";
 import { ReviewTrapStep } from "./review/review-trap-step";
 import { ReviewFreeTextStep } from "./review/review-freetext-step";
+import { buildQueueForStep } from "./review/review-queue-builder";
 
 export type { ReviewItemType, ReviewQueueItem };
 
@@ -24,71 +28,34 @@ export function AdaptativeReviewPlayer({
   flashcards,
   initialQuizQuestion,
   initialQuizAnswer,
+  stepNumber = 1,
 }: AdaptativeReviewPlayerProps) {
-  const buildInitialQueue = useCallback((): ReviewQueueItem[] => {
-    const queue: ReviewQueueItem[] = [];
+  const router = useRouter();
+  const currentStep = Math.max(1, Math.min(6, stepNumber));
 
-    // 1. Étape 1 : Flashcards
-    flashcards.forEach((card, idx) => {
-      queue.push({
-        id: `fc-${idx}-${Date.now()}`,
-        type: "flashcard",
-        front: card.front,
-        back: card.back,
-        distractors: card.distractors,
-      });
+  const initQueue = useCallback((): ReviewQueueItem[] => {
+    return buildQueueForStep({
+      step: currentStep,
+      flashcards,
+      initialQuizQuestion,
+      initialQuizAnswer,
+      deckTitle,
     });
+  }, [currentStep, flashcards, initialQuizQuestion, initialQuizAnswer, deckTitle]);
 
-    // 2. Étape 2 : QCM notionnel avec distracteurs uniques
-    flashcards.forEach((card, idx) => {
-      queue.push({
-        id: `qz-${idx}-${Date.now()}`,
-        type: "quiz",
-        front: card.front,
-        back: card.back,
-        distractors: card.distractors,
-      });
-    });
-
-    // 3. Étape 3 : Saisie libre d'examen (Free Text)
-    if (flashcards.length > 0) {
-      const mainCard = flashcards[0];
-      queue.push({
-        id: `ft-${Date.now()}`,
-        type: "free_text",
-        front: mainCard.front,
-        back: mainCard.back,
-      });
-    }
-
-    // 4. Étape 4 : Question piège d'examen
-    if (initialQuizQuestion?.trim()) {
-      const matchingCard = flashcards.find(
-        (f) =>
-          f.front.toLowerCase().includes(initialQuizQuestion.toLowerCase().slice(0, 15)) ||
-          initialQuizQuestion.toLowerCase().includes(f.front.toLowerCase().slice(0, 15))
-      );
-      const resolvedAnswer =
-        initialQuizAnswer?.trim() ||
-        matchingCard?.back ||
-        "Analyse les principes clés de ta fiche de cours pour justifier ta réponse d'examen.";
-
-      queue.push({
-        id: `trap-${Date.now()}`,
-        type: "exam_trap",
-        front: initialQuizQuestion,
-        back: resolvedAnswer,
-      });
-    }
-
-    return queue;
-  }, [flashcards, initialQuizQuestion, initialQuizAnswer]);
-
-  const [queue, setQueue] = useState<ReviewQueueItem[]>(() => buildInitialQueue());
+  const [queue, setQueue] = useState<ReviewQueueItem[]>(() => initQueue());
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [errorCount, setErrorCount] = useState<number>(0);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setQueue(initQueue());
+    setCurrentIndex(0);
+    setErrorCount(0);
+    setIsFlipped(false);
+    setIsCompleted(false);
+  }, [initQueue]);
 
   const [errorModalData, setErrorModalData] = useState<{
     isOpen: boolean;
@@ -103,8 +70,12 @@ export function AdaptativeReviewPlayer({
       ? Math.min(100, Math.round((currentIndex / totalItemsCount) * 100))
       : 0;
 
+  const stepCompletionPercent = useMemo(() => {
+    return Math.min(100, Math.round((currentStep / 6) * 100));
+  }, [currentStep]);
+
   const currentOptions = useMemo(() => {
-    if (!currentItem || currentItem.type === "flashcard") return [];
+    if (!currentItem || currentItem.type !== "quiz") return [];
     const correct = currentItem.back;
 
     if (Array.isArray(currentItem.distractors) && currentItem.distractors.length >= 2) {
@@ -123,7 +94,7 @@ export function AdaptativeReviewPlayer({
     async (percent: number) => {
       if (!deckId) return;
       const targetPercent = Math.max(0, Math.min(100, Math.round(percent)));
-      
+
       try {
         if (typeof window !== "undefined") {
           const stored = Number(localStorage.getItem(`loreno_progress_${deckId}`) || 0);
@@ -149,15 +120,12 @@ export function AdaptativeReviewPlayer({
   const handleNextItem = () => {
     setIsFlipped(false);
     const nextIdx = currentIndex + 1;
-    const totalCount = Math.max(1, queue.length);
-    const currentPercent = Math.round((nextIdx / totalCount) * 100);
 
     if (nextIdx >= queue.length) {
       setIsCompleted(true);
-      saveProgressToDb(100);
+      saveProgressToDb(stepCompletionPercent);
     } else {
       setCurrentIndex(nextIdx);
-      saveProgressToDb(currentPercent);
     }
   };
 
@@ -189,11 +157,19 @@ export function AdaptativeReviewPlayer({
   };
 
   const handleRestart = () => {
-    setQueue(buildInitialQueue());
+    setQueue(initQueue());
     setCurrentIndex(0);
     setErrorCount(0);
     setIsFlipped(false);
     setIsCompleted(false);
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < 6) {
+      router.push(`/review/${deckId}?step=${currentStep + 1}`);
+    } else {
+      router.push(`/deck/${deckId}`);
+    }
   };
 
   if (isCompleted) {
@@ -201,10 +177,12 @@ export function AdaptativeReviewPlayer({
       <ReviewCompletedModal
         deckId={deckId}
         deckTitle={deckTitle}
-        progressPercent={100}
-        totalCards={flashcards.length}
+        progressPercent={stepCompletionPercent}
+        totalCards={queue.length}
         errorCount={errorCount}
+        stepNumber={currentStep}
         onRestart={handleRestart}
+        onNextStep={handleNextStep}
       />
     );
   }
@@ -217,7 +195,7 @@ export function AdaptativeReviewPlayer({
       <div className="w-full mb-2 p-1.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-[11px] font-bold text-amber-900 shadow-2xs">
         <span className="flex items-center gap-1 font-black">
           <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-          <span>TEST DEV :</span>
+          <span>TEST DEV (Étape {currentStep}/6) :</span>
         </span>
         <div className="flex items-center gap-1.5">
           <button
@@ -225,17 +203,17 @@ export function AdaptativeReviewPlayer({
             onClick={handleNextItem}
             className="px-2 py-0.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[10px] cursor-pointer shadow-xs active:scale-95 transition"
           >
-            ⚡ Carte suivante
+            ⚡ Item suivant
           </button>
           <button
             type="button"
             onClick={() => {
-              saveProgressToDb(100);
+              saveProgressToDb(stepCompletionPercent);
               setIsCompleted(true);
             }}
             className="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] cursor-pointer shadow-xs active:scale-95 transition"
           >
-            🔓 Tout valider
+            🔓 Valider palier
           </button>
         </div>
       </div>
@@ -245,9 +223,18 @@ export function AdaptativeReviewPlayer({
         currentIndex={currentIndex}
         totalCount={queue.length}
         progressPercent={progressPercent}
+        stepNumber={currentStep}
       />
 
       <div className="flex-1 flex flex-col justify-center py-4">
+        {currentItem.type === "concept" && (
+          <ReviewConceptStep
+            item={currentItem}
+            subjectTitle={subject || deckTitle}
+            onValidate={handleNextItem}
+          />
+        )}
+
         {currentItem.type === "flashcard" && (
           <ReviewFlashcardStep
             item={currentItem}
@@ -265,6 +252,10 @@ export function AdaptativeReviewPlayer({
             options={currentOptions}
             onSelectOption={handleQuizAnswer}
           />
+        )}
+
+        {currentItem.type === "chest" && (
+          <ReviewChestStep item={currentItem} onValidate={handleNextItem} />
         )}
 
         {currentItem.type === "free_text" && (
