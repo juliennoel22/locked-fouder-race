@@ -2,6 +2,7 @@
 
 import { RotateCw, X, Check } from "lucide-react";
 import { ReviewQueueItem } from "./review-types";
+import { triggerHaptic, triggerFeedback } from "@/lib/haptics";
 
 interface ReviewFlashcardStepProps {
   item: ReviewQueueItem;
@@ -20,12 +21,27 @@ export function ReviewFlashcardStep({
   onMistake,
   onSuccess,
 }: ReviewFlashcardStepProps) {
+  const handleFlip = () => {
+    triggerHaptic("tap");
+    onToggleFlip();
+  };
+
+  const handleSuccess = () => {
+    triggerFeedback("success");
+    onSuccess();
+  };
+
+  const handleMistake = () => {
+    triggerFeedback("error");
+    onMistake(item);
+  };
+
   return (
     <div className="flex-1 flex flex-col justify-between">
       {/* Carte avec retournement 3D */}
       <div className="relative w-full min-h-[260px] [perspective:1000px] select-none cursor-pointer my-auto">
         <div
-          onClick={onToggleFlip}
+          onClick={handleFlip}
           className={`relative w-full h-full min-h-[260px] rounded-3xl border-2 transition-transform duration-500 [transform-style:preserve-3d] ${
             isFlipped
               ? "[transform:rotateY(180deg)] border-brand"
@@ -82,7 +98,7 @@ export function ReviewFlashcardStep({
       <div className="flex items-center gap-3 pt-3">
         <button
           type="button"
-          onClick={() => onMistake(item)}
+          onClick={handleMistake}
           className="flex-1 h-14 sm:h-16 rounded-2xl border-2 border-red-200 bg-white hover:bg-red-50 text-red-600 font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition shadow-xs cursor-pointer"
         >
           <X className="w-5 h-5 stroke-[2.5]" />
@@ -91,7 +107,7 @@ export function ReviewFlashcardStep({
 
         <button
           type="button"
-          onClick={onSuccess}
+          onClick={handleSuccess}
           className="flex-1 h-14 sm:h-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition shadow-md cursor-pointer border border-emerald-400/40"
         >
           <Check className="w-5 h-5 stroke-[2.5]" />

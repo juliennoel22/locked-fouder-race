@@ -20,6 +20,7 @@ import { ReviewDevBanner } from "./review/review-dev-banner";
 import { buildQueueForStep } from "./review/review-queue-builder";
 import { useReviewSync } from "./review/use-review-sync";
 import { ReviewInterleavingMode, resolveInterleavingMode } from "@/lib/review-config";
+import { triggerFeedback } from "@/lib/haptics";
 
 export type { ReviewItemType, ReviewQueueItem };
 
@@ -115,8 +116,10 @@ export function AdaptativeReviewPlayer({
   const handleQuizAnswer = (selected: string) => {
     if (!currentItem) return;
     if (selected === currentItem.back) {
+      triggerFeedback("success");
       handleNextItem();
     } else {
+      triggerFeedback("error");
       handleMistake(currentItem);
     }
   };
@@ -156,6 +159,7 @@ export function AdaptativeReviewPlayer({
   };
 
   if (isCompleted) {
+    const weakNotionsList = Array.from(new Set(queue.filter((q) => q.isRetry).map((q) => q.front)));
     return (
       <ReviewCompletedModal
         deckId={deckId}
@@ -164,6 +168,7 @@ export function AdaptativeReviewPlayer({
         totalCards={queue.length}
         errorCount={errorCount}
         stepNumber={currentStep}
+        weakNotions={weakNotionsList}
         onRestart={handleRestart}
         onNextStep={handleNextStep}
       />
@@ -237,8 +242,13 @@ export function AdaptativeReviewPlayer({
           <ReviewFreeTextStep
             item={currentItem}
             onSubmitAnswer={(isCorrect) => {
-              if (isCorrect) handleNextItem();
-              else handleMistake(currentItem);
+              if (isCorrect) {
+                triggerFeedback("success");
+                handleNextItem();
+              } else {
+                triggerFeedback("error");
+                handleMistake(currentItem);
+              }
             }}
           />
         )}
