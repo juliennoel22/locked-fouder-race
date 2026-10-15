@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ReviewErrorModal } from "./review/review-error-modal";
 import { ReviewCompletedModal } from "./review/review-completed-modal";
@@ -17,7 +16,9 @@ import { ReviewQuizStep } from "./review/review-quiz-step";
 import { ReviewChestStep } from "./review/review-chest-step";
 import { ReviewTrapStep } from "./review/review-trap-step";
 import { ReviewFreeTextStep } from "./review/review-freetext-step";
+import { ReviewDevBanner } from "./review/review-dev-banner";
 import { buildQueueForStep } from "./review/review-queue-builder";
+import { ReviewInterleavingMode, resolveInterleavingMode } from "@/lib/review-config";
 
 export type { ReviewItemType, ReviewQueueItem };
 
@@ -29,9 +30,13 @@ export function AdaptativeReviewPlayer({
   initialQuizQuestion,
   initialQuizAnswer,
   stepNumber = 1,
+  mode: initialMode,
 }: AdaptativeReviewPlayerProps) {
   const router = useRouter();
   const currentStep = Math.max(1, Math.min(6, stepNumber));
+  const [activeMode, setActiveMode] = useState<ReviewInterleavingMode>(() =>
+    resolveInterleavingMode(initialMode)
+  );
 
   const initQueue = useCallback((): ReviewQueueItem[] => {
     return buildQueueForStep({
@@ -40,8 +45,10 @@ export function AdaptativeReviewPlayer({
       initialQuizQuestion,
       initialQuizAnswer,
       deckTitle,
+      deckId,
+      mode: activeMode,
     });
-  }, [currentStep, flashcards, initialQuizQuestion, initialQuizAnswer, deckTitle]);
+  }, [currentStep, flashcards, initialQuizQuestion, initialQuizAnswer, deckTitle, deckId, activeMode]);
 
   const [queue, setQueue] = useState<ReviewQueueItem[]>(() => initQueue());
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -65,14 +72,8 @@ export function AdaptativeReviewPlayer({
 
   const currentItem = queue[currentIndex];
   const totalItemsCount = queue.length;
-  const progressPercent =
-    totalItemsCount > 0
-      ? Math.min(100, Math.round((currentIndex / totalItemsCount) * 100))
-      : 0;
-
-  const stepCompletionPercent = useMemo(() => {
-    return Math.min(100, Math.round((currentStep / 6) * 100));
-  }, [currentStep]);
+  const progressPercent = totalItemsCount > 0 ? Math.min(100, Math.round((currentIndex / totalItemsCount) * 100)) : 0;
+  const stepCompletionPercent = useMemo(() => Math.min(100, Math.round((currentStep / 6) * 100)), [currentStep]);
 
   const currentOptions = useMemo(() => {
     if (!currentItem || currentItem.type !== "quiz") return [];
@@ -137,6 +138,17 @@ export function AdaptativeReviewPlayer({
       correctAnswer: item.back,
     });
 
+    try {
+      if (typeof window !== "undefined" && deckId) {
+        const stored = localStorage.getItem(`loreno_weak_cards_${deckId}`);
+        const list: string[] = stored ? JSON.parse(stored) : [];
+        if (!list.includes(item.front)) {
+          list.push(item.front);
+          localStorage.setItem(`loreno_weak_cards_${deckId}`, JSON.stringify(list.slice(-5)));
+        }
+      }
+    } catch {}
+
     setQueue((prev) => [
       ...prev,
       {
@@ -191,32 +203,23 @@ export function AdaptativeReviewPlayer({
 
   return (
     <div className="w-full flex-1 flex flex-col justify-between py-2 select-none">
-      {/* Barre Mode Test Rapidité en Jeu */}
-      <div className="w-full mb-2 p-1.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-[11px] font-bold text-amber-900 shadow-2xs">
-        <span className="flex items-center gap-1 font-black">
-          <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-          <span>TEST DEV (Étape {currentStep}/6) :</span>
-        </span>
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={handleNextItem}
-            className="px-2 py-0.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[10px] cursor-pointer shadow-xs active:scale-95 transition"
-          >
-            ⚡ Item suivant
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              saveProgressToDb(stepCompletionPercent);
-              setIsCompleted(true);
-            }}
-            className="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] cursor-pointer shadow-xs active:scale-95 transition"
-          >
-            🔓 Valider palier
-          </button>
-        </div>
-      </div>
+      <ReviewDevBanner
+        currentStep={currentStep}
+        mode={activeMode}
+        onModeChange={(newMode) => {
+          setActiveMode(newMode);
+          try {
+            if (typeof window !== "undefined") {
+              localStorage.setItem("loreno_review_mode", newMode);
+            }
+          } catch {}
+        }}
+        onNextItem={handleNextItem}
+        onValidateStep={() => {
+          saveProgressToDb(stepCompletionPercent);
+          setIsCompleted(true);
+        }}
+      />
 
       <ReviewProgressBar
         type={currentItem.type}

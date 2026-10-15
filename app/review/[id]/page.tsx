@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { AdaptativeReviewPlayer } from "@/components/AdaptativeReviewPlayer";
 import { LessonLoadingOverlay } from "@/components/review/lesson-loading-overlay";
 import { createClient } from "@/lib/supabase/client";
+import { resolveInterleavingMode } from "@/lib/review-config";
 
 interface ReviewPageProps {
   params: Promise<{ id: string }>;
@@ -155,6 +156,7 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
             initialQuizQuestion={deck.initial_quiz_question}
             initialQuizAnswer={deck.initial_quiz_answer}
             stepNumber={effectiveStepNumber}
+            mode={resolveInterleavingMode(searchParams.get("mode"))}
           />
         </div>
       </div>

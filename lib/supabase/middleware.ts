@@ -120,10 +120,10 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // 4. Bloquer l'accès à /dashboard ou /deck si non connecté ou si onboarding non terminé
+  // 4. Bloquer l'accès à /dashboard ou /deck si non connecté ou si onboarding non terminé (sauf decks démo)
   const isProtectedPath =
     pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/deck") ||
+    (pathname.startsWith("/deck") && !pathname.startsWith("/deck/demo")) ||
     pathname.startsWith("/protected");
 
   if (isProtectedPath) {

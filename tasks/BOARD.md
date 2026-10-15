@@ -21,9 +21,12 @@
 | `TASK-001` | `chore` | `P0` | Refactoring modulaire < 300L & Zod strict | Julien | 🟢 `resolved` | [`tasks/CHORE-001-modular-refactor.md`](file:///home/julien/git/locked-fouder-race/tasks/CHORE-001-modular-refactor.md) |
 | `TASK-002` | `ux` | `P1` | Harmonisation Design System tokens sémantiques `brand` | Julien | 🟢 `resolved` | [`tasks/UX-002-semantic-brand-tokens.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-002-semantic-brand-tokens.md) |
 | `FEAT-012` | `feature` | `P0` | Micro-sessions par nœud (`?step=1..6`) | Julien | 🟢 `resolved` | [`tasks/FEAT-012-micro-sessions-per-node.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-012-micro-sessions-per-node.md) |
-| `FEAT-013` | `feature` | `P1` | Volumétrie proportionnelle IA multi-pages | Julien | 🟡 `ready` | [`tasks/FEAT-013-proportional-ai-volume.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-013-proportional-ai-volume.md) |
+| `FEAT-013` | `feature` | `P1` | Volumétrie proportionnelle IA & profils modulables | Julien | 🟢 `resolved` | [`tasks/FEAT-013-proportional-ai-volume.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-013-proportional-ai-volume.md) |
 | `FEAT-014` | `feature` | `P1` | Bulletin prédictif d'examen (/20) & diagnostic | Julien | 🟡 `ready` | [`tasks/FEAT-014-predictive-exam-report-card.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-014-predictive-exam-report-card.md) |
 | `UX-015` | `ux` | `P2` | Micro-haptics smartphone & audio chimes dopamine | Julien | 🟡 `ready` | [`tasks/UX-015-smartphone-micro-haptics-and-audio.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-015-smartphone-micro-haptics-and-audio.md) |
+| `SEC-016` | `security` | `P0` | Structured outputs JSON & sécurisation multi-tenant | Julien | 🟡 `ready` | [`tasks/SEC-016-structured-outputs-and-multi-tenant-auth.md`](file:///home/julien/git/locked-fouder-race/tasks/SEC-016-structured-outputs-and-multi-tenant-auth.md) |
+| `FEAT-017` | `feature` | `P1` | Génération anticipée des cartes dès /api/scan (Zéro attente) | Julien | 🟡 `ready` | [`tasks/FEAT-017-eager-background-game-generation.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-017-eager-background-game-generation.md) |
+| `FEAT-018` | `feature` | `P1` | Persistance cross-device SRS & table review_logs | Julien | 🟡 `ready` | [`tasks/FEAT-018-cross-device-srs-persistence.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-018-cross-device-srs-persistence.md) |
 
 ---
 

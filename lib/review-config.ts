@@ -1,5 +1,7 @@
 import { ReviewItemType } from "@/components/review/review-types";
 
+export type ReviewInterleavingMode = "flash" | "balanced" | "deep";
+
 export interface ReviewStepDefinition {
   stepNumber: number;
   id: string;
@@ -9,6 +11,44 @@ export interface ReviewStepDefinition {
   targetPercent: number;
   position: "left" | "center" | "right";
   objectiveText: string;
+}
+
+export interface AiVolumeTier {
+  maxWords: number;
+  targetMinCards: number;
+  targetMaxCards: number;
+  recommendedCount: number;
+}
+
+/**
+ * Tiers de volumétrie proportionnelle selon la taille réelle du cours scanné.
+ * - Court (< 600 mots) : 6-8 cartes cibles (7 en moyenne)
+ * - Moyen (600 - 1500 mots) : 10-12 cartes cibles (11 en moyenne)
+ * - Long / Multi-pages (> 1500 mots, ex: 11 pages) : 16-18 cartes cibles (16 en moyenne)
+ */
+export const AI_VOLUME_TIERS: AiVolumeTier[] = [
+  { maxWords: 600, targetMinCards: 6, targetMaxCards: 8, recommendedCount: 7 },
+  { maxWords: 1500, targetMinCards: 10, targetMaxCards: 12, recommendedCount: 11 },
+  { maxWords: Infinity, targetMinCards: 16, targetMaxCards: 18, recommendedCount: 16 },
+];
+
+export function getAiVolumeTarget(text: string): { targetCount: number; minCards: number; maxCards: number } {
+  const words = text ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+  const tier = AI_VOLUME_TIERS.find((t) => words <= t.maxWords) || AI_VOLUME_TIERS[AI_VOLUME_TIERS.length - 1];
+  return { targetCount: tier.recommendedCount, minCards: tier.targetMinCards, maxCards: tier.targetMaxCards };
+}
+
+export function resolveInterleavingMode(rawMode?: string | null): ReviewInterleavingMode {
+  if (rawMode === "flash" || rawMode === "balanced" || rawMode === "deep") {
+    return rawMode;
+  }
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("loreno_review_mode");
+    if (saved === "flash" || saved === "balanced" || saved === "deep") {
+      return saved;
+    }
+  }
+  return "flash";
 }
 
 /**

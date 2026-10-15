@@ -4,6 +4,7 @@ import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js
 import { DEMO_DECK, DEMO_FLASHCARDS } from "@/lib/demo-deck";
 import { deckGenerateGameSchema } from "@/lib/validations";
 import { verifyAndAuditQuizContent } from "@/lib/ai-validator";
+import { getAiVolumeTarget } from "@/lib/review-config";
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const ai = new GoogleGenAI({ apiKey });
     const contentToAnalyze = deck.detailed_content || deck.summary || deck.title;
+    const volumeTarget = getAiVolumeTarget(contentToAnalyze);
 
     const prompt = `Tu es le concepteur pédagogique d'élite de Loreno (https://www.loreno.app).
 Tu reçois la fiche de révision complète du cours suivant :
@@ -86,8 +88,13 @@ RÈGLES IMPÉRATIVES DE COHÉRENCE ET CAUSALITÉ STRICTE (CRITIQUE) :
 2. VALIDATION CAUSALE : Chaque réponse ("back", "initial_quiz_answer") doit répondre DIRECTEMENT, EXACTEMENT ET DE FAÇON PERTINENTE à la question posée ("front", "initial_quiz_question").
 3. INTERDICTION DES ANACHRONISMES OU CONFUSIONS : Ne confonds jamais un fait déclencheur (ex: date d'un krach boursier) avec une réponse d'examen sur les politiques publiques ou conséquences. Si la question porte sur une politique ou un principe, la réponse doit être ce principe précis et non une date ou un lieu.
 4. DISTRACTEURS CRÉDIBLES ET INDÉPENDANTS : Les "distractors" doivent être des fausses réponses très crédibles et spécifiques à la question, JAMAIS de simples permutations d'autres questions sans rapport.
+5. PROGRESSION CHRONOLOGIQUE STRICTE : Ordonne impérativement les flashcards selon le déroulé chronologique de la fiche de cours :
+   - Début du tableau (1er tiers) : Définitions et concepts fondateurs de départ.
+   - Milieu du tableau (2e tiers) : Mécanismes d'articulation, processus et cas types.
+   - Fin du tableau (3e tiers) : Synthèse avancée, applications et pièges d'examen.
 
-Génère entre 5 et 7 cartes d'apprentissage et 1 question piège d'examen avec sa réponse exacte en JSON STRICT avec ce schéma :
+VOLUMÉTRIE CIBLE ADAPTATIVE :
+Génère entre ${volumeTarget.minCards} et ${volumeTarget.maxCards} cartes d'apprentissage (cible : ${volumeTarget.targetCount} cartes) et 1 question piège d'examen avec sa réponse exacte en JSON STRICT avec ce schéma :
 {
   "initial_quiz_question": "La question piège d'examen la plus probable sur ce cours",
   "initial_quiz_answer": "La réponse exacte, directe et précise correspondant exactement à cette question piège",

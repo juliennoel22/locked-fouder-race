@@ -1,4 +1,5 @@
 import { Flashcard } from "@/types/loreno";
+import type { ReviewInterleavingMode } from "@/lib/review-config";
 
 export type ReviewItemType =
   | "concept"
@@ -25,5 +26,6 @@ export interface AdaptativeReviewPlayerProps {
   initialQuizQuestion?: string | null;
   initialQuizAnswer?: string | null;
   stepNumber?: number;
+  mode?: ReviewInterleavingMode;
   onFinish?: () => void;
 }
