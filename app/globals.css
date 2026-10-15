@@ -84,3 +84,19 @@
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
+
+@keyframes cardSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-card-slide {
+  animation: cardSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

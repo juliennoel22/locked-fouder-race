@@ -3,7 +3,7 @@ id: UX-019
 title: "Transformation de l'Étape 6 en défi actif (Question piège d'examen)"
 author: "Julien"
 type: "ux"
-status: "ready"
+status: "resolved"
 priority: "p1"
 created_at: "2026-10-15"
 affected_files:
@@ -18,14 +18,16 @@ acceptance_criteria:
 # UX-019 : Transformation de l'Étape 6 en Défi Actif
 
 ## 1. Contexte & Problème Observé
-Actuellement, l'Étape 6 ("Question Piège d'Examen") affiche la question ET la réponse simultanément dans `ReviewTrapStep`. L'étudiant clique passivement sur "Valider le défi". Tout le suspense et l'engagement cognitif de l'examen final sont perdus.
+Actuellement, l'Étape 6 ("Question Piège d'Examen") affichait la question ET la réponse simultanément dans `ReviewTrapStep`. L'étudiant cliquait passivement sur "Valider le défi". Tout le suspense et l'engagement cognitif de l'examen final étaient perdus.
 
 ## 2. Spécification Technique
 1. **Écran en 2 temps** :
-   - *Phase 1 (Mise à l'épreuve)* : Affichage de la question piège + 2 options de discrimination ou champ de saisie court.
-   - *Phase 2 (Révélation du verdict)* : Dévoilement du corrigé type d'examen avec explication du piège évité et bouton de complétion finale.
-2. **Animation** : Transition fluide entre question et correction.
+   - *Phase 1 (Mise à l'épreuve active)* : Affichage de la question piège seule + saisie active du raisonnement étudiant ou clic direct vers le corrigé.
+   - *Phase 2 (Révélation du verdict & analyse)* : Corrigé officiel de l'enseignant + autodéclaration active ("J'avais évité le piège (+100 XP)" ou "Je suis tombé dedans").
+2. **Animation** : Transition animée fluide entre question et correction.
 
 ## 3. Journal de Résolution (Rempli par l'Agent)
 - **Date** : 2026-10-15
-- **Statut final** : `ready`
+- **Statut final** : `resolved`
+- **Fichiers impactés** : `components/review/review-trap-step.tsx` (135L, < 300L).
+- **Vérification** : Composant testé en 2 temps, sans affichage prématuré de la réponse, avec support de l'échec/retry et attribution d'XP.
