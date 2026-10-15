@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ScanResult, ScanApiResponse } from "@/types/loreno";
 import { scanRequestSchema } from "@/lib/validations";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
+import { generateDeckGameAsync } from "@/lib/eager-game-generator";
 
 function createDynamicScanResult(topicTitle?: string, topicSubject?: string): ScanResult {
   const cleanTitle = topicTitle?.trim() || "Notes de Cours & Synthèse";
@@ -249,6 +250,19 @@ export async function POST(request: NextRequest) {
 
         if (!deckError && deckData) {
           savedDeckId = deckData.id;
+
+          // FEAT-017 : Génération anticipée en tâche de fond (Zéro attente)
+          if (savedDeckId && apiKey) {
+            generateDeckGameAsync({
+              deckId: savedDeckId,
+              title: scanResult.title,
+              subject: scanResult.subject,
+              content: scanResult.detailed_content || scanResult.summary || scanResult.title,
+              apiKey,
+            }).catch((eagerErr) => {
+              console.warn("Génération anticipée asynchrone non-bloquante :", eagerErr);
+            });
+          }
         }
       }
     } catch (dbError) {

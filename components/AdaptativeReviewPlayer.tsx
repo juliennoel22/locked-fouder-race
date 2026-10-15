@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ReviewErrorModal } from "./review/review-error-modal";
 import { ReviewCompletedModal } from "./review/review-completed-modal";
@@ -34,6 +34,7 @@ export function AdaptativeReviewPlayer({
 }: AdaptativeReviewPlayerProps) {
   const router = useRouter();
   const currentStep = Math.max(1, Math.min(6, stepNumber));
+  const sessionLogsRef = useRef<Array<{ cardFront: string; rating: "again" | "good" | "hard"; stepNumber?: number }>>([]);
   const [activeMode, setActiveMode] = useState<ReviewInterleavingMode>(() =>
     resolveInterleavingMode(initialMode)
   );
@@ -62,7 +63,25 @@ export function AdaptativeReviewPlayer({
     setErrorCount(0);
     setIsFlipped(false);
     setIsCompleted(false);
+    sessionLogsRef.current = [];
   }, [initQueue]);
+
+  // Hydratation cross-device des cartes faibles (FEAT-018)
+  useEffect(() => {
+    if (!deckId || deckId.startsWith("demo-")) return;
+    try {
+      if (typeof window !== "undefined" && !localStorage.getItem(`loreno_weak_cards_${deckId}`)) {
+        fetch(`/api/review/log?deckId=${deckId}`)
+          .then((r) => r.json())
+          .then((res) => {
+            if (res.success && Array.isArray(res.weakCards) && res.weakCards.length > 0) {
+              localStorage.setItem(`loreno_weak_cards_${deckId}`, JSON.stringify(res.weakCards));
+            }
+          })
+          .catch(() => {});
+      }
+    } catch {}
+  }, [deckId]);
 
   const [errorModalData, setErrorModalData] = useState<{
     isOpen: boolean;
@@ -78,29 +97,21 @@ export function AdaptativeReviewPlayer({
   const currentOptions = useMemo(() => {
     if (!currentItem || currentItem.type !== "quiz") return [];
     const correct = currentItem.back;
-
     if (Array.isArray(currentItem.distractors) && currentItem.distractors.length >= 2) {
-      const selectedDistractors = currentItem.distractors.slice(0, 3);
-      return [correct, ...selectedDistractors].sort(() => Math.random() - 0.5);
+      return [correct, ...currentItem.distractors.slice(0, 3)].sort(() => Math.random() - 0.5);
     }
-
-    const others = flashcards
-      .filter((f) => f.back !== correct)
-      .map((f) => f.back);
-    const shuffledOthers = [...others].sort(() => Math.random() - 0.5).slice(0, 3);
-    return [correct, ...shuffledOthers].sort(() => Math.random() - 0.5);
+    const others = flashcards.filter((f) => f.back !== correct).map((f) => f.back);
+    return [correct, ...others.sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
   }, [currentItem, flashcards]);
 
   const saveProgressToDb = useCallback(
     async (percent: number) => {
       if (!deckId) return;
       const targetPercent = Math.max(0, Math.min(100, Math.round(percent)));
-
       try {
         if (typeof window !== "undefined") {
           const stored = Number(localStorage.getItem(`loreno_progress_${deckId}`) || 0);
-          const maxPercent = Math.max(stored, targetPercent);
-          localStorage.setItem(`loreno_progress_${deckId}`, String(maxPercent));
+          localStorage.setItem(`loreno_progress_${deckId}`, String(Math.max(stored, targetPercent)));
         }
       } catch {}
 
@@ -111,8 +122,15 @@ export function AdaptativeReviewPlayer({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: deckId, progress_percent: targetPercent }),
         });
+        if (sessionLogsRef.current.length > 0) {
+          fetch("/api/review/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ deckId, logs: sessionLogsRef.current }),
+          }).catch(() => {});
+        }
       } catch (e) {
-        console.error("Erreur sauvegarde progress_percent :", e);
+        console.error("Erreur sync session :", e);
       }
     },
     [deckId]
@@ -120,8 +138,10 @@ export function AdaptativeReviewPlayer({
 
   const handleNextItem = () => {
     setIsFlipped(false);
+    if (currentItem && !currentItem.isRetry) {
+      sessionLogsRef.current.push({ cardFront: currentItem.front, rating: "good", stepNumber: currentStep });
+    }
     const nextIdx = currentIndex + 1;
-
     if (nextIdx >= queue.length) {
       setIsCompleted(true);
       saveProgressToDb(stepCompletionPercent);
@@ -132,12 +152,8 @@ export function AdaptativeReviewPlayer({
 
   const handleMistake = (item: ReviewQueueItem) => {
     setErrorCount((prev) => prev + 1);
-    setErrorModalData({
-      isOpen: true,
-      question: item.front,
-      correctAnswer: item.back,
-    });
-
+    setErrorModalData({ isOpen: true, question: item.front, correctAnswer: item.back });
+    sessionLogsRef.current.push({ cardFront: item.front, rating: "again", stepNumber: currentStep });
     try {
       if (typeof window !== "undefined" && deckId) {
         const stored = localStorage.getItem(`loreno_weak_cards_${deckId}`);
@@ -148,15 +164,7 @@ export function AdaptativeReviewPlayer({
         }
       }
     } catch {}
-
-    setQueue((prev) => [
-      ...prev,
-      {
-        ...item,
-        id: `${item.id}-retry-${Date.now()}`,
-        isRetry: true,
-      },
-    ]);
+    setQueue((prev) => [...prev, { ...item, id: `${item.id}-retry-${Date.now()}`, isRetry: true }]);
   };
 
   const handleQuizAnswer = (selected: string) => {

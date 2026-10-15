@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseServerClient } from "@/lib/supabase/server";
 import { DEMO_DECK, DEMO_FLASHCARDS } from "@/lib/demo-deck";
 import { deckGenerateGameSchema } from "@/lib/validations";
 import { verifyAndAuditQuizContent } from "@/lib/ai-validator";
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { deckId } = parseResult.data;
 
-    // Cas Démo Deck
+    // Cas Démo Deck (accès libre pour les tests)
     if (deckId === "demo-droit-constitutionnel" || deckId === "demo") {
       return NextResponse.json({
         success: true,
@@ -51,6 +52,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { success: false, error: "Cours introuvable" },
         { status: 404 }
       );
+    }
+
+    // 1.5 Sécurité multi-tenant : vérifier la propriété du deck
+    if (deck.user_id) {
+      try {
+        const userClient = await createSupabaseServerClient();
+        const { data: { user } } = await userClient.auth.getUser();
+        if (!user || user.id !== deck.user_id) {
+          return NextResponse.json(
+            { success: false, error: "Accès refusé à ce cours" },
+            { status: 403 }
+          );
+        }
+      } catch {
+        return NextResponse.json(
+          { success: false, error: "Authentification requise" },
+          { status: 401 }
+        );
+      }
     }
 
     // Si les flashcards existent déjà en base, on les retourne directement (zéro latence)
@@ -86,7 +106,7 @@ ${contentToAnalyze}
 RÈGLES IMPÉRATIVES DE COHÉRENCE ET CAUSALITÉ STRICTE (CRITIQUE) :
 1. ÉTANCHÉITÉ TOTALE : Tout le contenu doit être EXCLUSIVEMENT tiré de cette fiche de cours.
 2. VALIDATION CAUSALE : Chaque réponse ("back", "initial_quiz_answer") doit répondre DIRECTEMENT, EXACTEMENT ET DE FAÇON PERTINENTE à la question posée ("front", "initial_quiz_question").
-3. INTERDICTION DES ANACHRONISMES OU CONFUSIONS : Ne confonds jamais un fait déclencheur (ex: date d'un krach boursier) avec une réponse d'examen sur les politiques publiques ou conséquences. Si la question porte sur une politique ou un principe, la réponse doit être ce principe précis et non une date ou un lieu.
+3. INTERDICTION DES ANACHRONISMES OU CONFUSIONS : Ne confonds jamais un fait déclencheur avec une réponse d'examen sur les politiques publiques ou conséquences. Si la question porte sur une politique ou un principe, la réponse doit être ce principe précis et non une date ou un lieu.
 4. DISTRACTEURS CRÉDIBLES ET INDÉPENDANTS : Les "distractors" doivent être des fausses réponses très crédibles et spécifiques à la question, JAMAIS de simples permutations d'autres questions sans rapport.
 5. PROGRESSION CHRONOLOGIQUE STRICTE : Ordonne impérativement les flashcards selon le déroulé chronologique de la fiche de cours :
    - Début du tableau (1er tiers) : Définitions et concepts fondateurs de départ.
@@ -94,38 +114,38 @@ RÈGLES IMPÉRATIVES DE COHÉRENCE ET CAUSALITÉ STRICTE (CRITIQUE) :
    - Fin du tableau (3e tiers) : Synthèse avancée, applications et pièges d'examen.
 
 VOLUMÉTRIE CIBLE ADAPTATIVE :
-Génère entre ${volumeTarget.minCards} et ${volumeTarget.maxCards} cartes d'apprentissage (cible : ${volumeTarget.targetCount} cartes) et 1 question piège d'examen avec sa réponse exacte en JSON STRICT avec ce schéma :
-{
-  "initial_quiz_question": "La question piège d'examen la plus probable sur ce cours",
-  "initial_quiz_answer": "La réponse exacte, directe et précise correspondant exactement à cette question piège",
-  "flashcards": [
-    {
-      "front": "Question ou concept clé ?",
-      "back": "Réponse synthétique et exacte répondant directement à la question",
-      "distractors": [
-        "Fausse réponse 1 crédible et spécifique",
-        "Fausse réponse 2 crédible et spécifique",
-        "Fausse réponse 3 crédible et spécifique"
-      ]
-    }
-  ]
-}`;
+Génère entre ${volumeTarget.minCards} et ${volumeTarget.maxCards} cartes d'apprentissage (cible : ${volumeTarget.targetCount} cartes) et 1 question piège d'examen avec sa réponse exacte.`;
 
-    const interaction = await ai.interactions.create({
-      model: "gemini-3.6-flash",
-      input: prompt,
+    const aiResponse = await ai.models.generateContent({
+      model: "gemini-3.8-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            initial_quiz_question: { type: "STRING" },
+            initial_quiz_answer: { type: "STRING" },
+            flashcards: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  front: { type: "STRING" },
+                  back: { type: "STRING" },
+                  distractors: {
+                    type: "ARRAY",
+                    items: { type: "STRING" },
+                  },
+                },
+                required: ["front", "back", "distractors"],
+              },
+            },
+          },
+          required: ["initial_quiz_question", "initial_quiz_answer", "flashcards"],
+        },
+      },
     });
-
-    let rawJson = "";
-    for (const step of interaction.steps || []) {
-      if ("content" in step && Array.isArray(step.content)) {
-        for (const c of step.content) {
-          if (c && typeof c === "object" && "text" in c && typeof c.text === "string") {
-            rawJson += c.text;
-          }
-        }
-      }
-    }
 
     let parsedResult = {
       initial_quiz_question: deck.initial_quiz_question || "Quel est le principe fondamental du cours ?",
@@ -134,8 +154,8 @@ Génère entre ${volumeTarget.minCards} et ${volumeTarget.maxCards} cartes d'app
     };
 
     try {
-      const cleanedJson = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(cleanedJson);
+      const rawText = (aiResponse.text || "").trim();
+      const parsed = JSON.parse(rawText);
       if (Array.isArray(parsed.flashcards) && parsed.flashcards.length > 0) {
         parsedResult = {
           initial_quiz_question: parsed.initial_quiz_question || parsedResult.initial_quiz_question,

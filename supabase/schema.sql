@@ -51,16 +51,22 @@ CREATE INDEX IF NOT EXISTS idx_decks_user_id ON public.decks(user_id);
 CREATE INDEX IF NOT EXISTS idx_flashcards_deck_id ON public.flashcards(deck_id);
 
 -- ==============================================================================
--- 6. SUPABASE STORAGE (BUCKET PRIVÉ 'course-scans')
+-- 7. TABLE REVIEW_LOGS (Historique des révisions & SRS Cross-Device - FEAT-018)
 -- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.review_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    deck_id UUID REFERENCES public.decks(id) ON DELETE CASCADE NOT NULL,
+    card_front TEXT NOT NULL,
+    rating TEXT NOT NULL CHECK (rating IN ('again', 'good', 'hard')),
+    step_number INTEGER DEFAULT 1,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
 
--- Création du bucket privé pour stocker les photos de cours
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('course-scans', 'course-scans', false)
-ON CONFLICT (id) DO UPDATE SET public = false;
+ALTER TABLE public.review_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can select own review_logs" ON public.review_logs FOR SELECT TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own review_logs" ON public.review_logs FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
--- Policies Storage Privé
-CREATE POLICY "Authenticated users read own course-scans" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);
-CREATE POLICY "Authenticated users upload own course-scans" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);
-CREATE POLICY "Authenticated users delete own course-scans" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'course-scans' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE INDEX IF NOT EXISTS idx_review_logs_user_deck ON public.review_logs(user_id, deck_id);
+CREATE INDEX IF NOT EXISTS idx_review_logs_created_at ON public.review_logs(created_at DESC);
 

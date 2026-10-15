@@ -60,25 +60,18 @@ CONSIGNES DE VALIDATION STRICTES :
 
 Renvoie le JSON AUDITÉ ET CORRIGÉ STRICTEMENT sous le même format JSON sans aucun texte supplémentaire.`;
 
-      const interaction = await ai.interactions.create({
-        model: "gemini-3.6-flash",
-        input: criticPrompt,
+      const response = await ai.models.generateContent({
+        model: "gemini-3.8-flash",
+        contents: criticPrompt,
+        config: {
+          responseMimeType: "application/json",
+          temperature: 0,
+        },
       });
 
-      let rawJson = "";
-      for (const step of interaction.steps || []) {
-        if ("content" in step && Array.isArray(step.content)) {
-          for (const c of step.content) {
-            if (c && typeof c === "object" && "text" in c && typeof c.text === "string") {
-              rawJson += c.text;
-            }
-          }
-        }
-      }
-
+      const rawJson = (response.text || "").trim();
       if (rawJson) {
-        const cleanJson = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
-        const verifiedParsed = JSON.parse(cleanJson);
+        const verifiedParsed = JSON.parse(rawJson);
         if (Array.isArray(verifiedParsed.flashcards) && verifiedParsed.flashcards.length > 0) {
           audited = {
             initial_quiz_question: verifiedParsed.initial_quiz_question || audited.initial_quiz_question,

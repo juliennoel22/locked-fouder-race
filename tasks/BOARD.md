@@ -24,9 +24,11 @@
 | `FEAT-013` | `feature` | `P1` | Volumétrie proportionnelle IA & profils modulables | Julien | 🟢 `resolved` | [`tasks/FEAT-013-proportional-ai-volume.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-013-proportional-ai-volume.md) |
 | `FEAT-014` | `feature` | `P1` | Bulletin prédictif d'examen (/20) & diagnostic | Julien | 🟡 `ready` | [`tasks/FEAT-014-predictive-exam-report-card.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-014-predictive-exam-report-card.md) |
 | `UX-015` | `ux` | `P2` | Micro-haptics smartphone & audio chimes dopamine | Julien | 🟡 `ready` | [`tasks/UX-015-smartphone-micro-haptics-and-audio.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-015-smartphone-micro-haptics-and-audio.md) |
-| `SEC-016` | `security` | `P0` | Structured outputs JSON & sécurisation multi-tenant | Julien | 🟡 `ready` | [`tasks/SEC-016-structured-outputs-and-multi-tenant-auth.md`](file:///home/julien/git/locked-fouder-race/tasks/SEC-016-structured-outputs-and-multi-tenant-auth.md) |
-| `FEAT-017` | `feature` | `P1` | Génération anticipée des cartes dès /api/scan (Zéro attente) | Julien | 🟡 `ready` | [`tasks/FEAT-017-eager-background-game-generation.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-017-eager-background-game-generation.md) |
-| `FEAT-018` | `feature` | `P1` | Persistance cross-device SRS & table review_logs | Julien | 🟡 `ready` | [`tasks/FEAT-018-cross-device-srs-persistence.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-018-cross-device-srs-persistence.md) |
+| `SEC-016` | `security` | `P0` | Structured outputs JSON & sécurisation multi-tenant | Julien | 🟢 `resolved` | [`tasks/SEC-016-structured-outputs-and-multi-tenant-auth.md`](file:///home/julien/git/locked-fouder-race/tasks/SEC-016-structured-outputs-and-multi-tenant-auth.md) |
+| `FEAT-017` | `feature` | `P1` | Génération anticipée des cartes dès /api/scan (Zéro attente) | Julien | 🟢 `resolved` | [`tasks/FEAT-017-eager-background-game-generation.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-017-eager-background-game-generation.md) |
+| `FEAT-018` | `feature` | `P1` | Persistance cross-device SRS & table review_logs | Julien | 🟢 `resolved` | [`tasks/FEAT-018-cross-device-srs-persistence.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-018-cross-device-srs-persistence.md) |
+| `UX-019` | `ux` | `P1` | Transformation de l'Étape 6 en défi actif | Julien | 🟡 `ready` | [`tasks/UX-019-interactive-exam-trap-step.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-019-interactive-exam-trap-step.md) |
+| `UX-020` | `ux` | `P2` | Transitions spatiales continues & ergonomie clavier mobile | Julien | 🟡 `ready` | [`tasks/UX-020-spatial-card-transitions-and-keyboard.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-020-spatial-card-transitions-and-keyboard.md) |
 
 ---
 
