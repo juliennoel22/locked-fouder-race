@@ -70,7 +70,7 @@ export function PitchVideoCard({
             onClick={togglePlay}
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer z-20 transition-opacity"
           >
-            <div className="w-16 h-16 rounded-full bg-[#4457f4] text-white flex items-center justify-center shadow-lg shadow-[#4457f4]/40 hover:scale-105 active:scale-95 transition-transform">
+            <div className="w-16 h-16 rounded-full bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/40 hover:scale-105 active:scale-95 transition-transform">
               <Play className="w-7 h-7 fill-white ml-1" />
             </div>
             <span className="mt-3 text-xs font-bold text-white tracking-wide uppercase">

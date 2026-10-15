@@ -130,13 +130,18 @@ Réponds STRICTEMENT en JSON :
         }
 
         if (rawText) {
-          const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-          const parsed = JSON.parse(cleanJson);
-          if (parsed.detailed_content) {
-            enrichedContent = parsed.detailed_content;
-          }
-          if (parsed.summary) {
-            enrichedSummary = parsed.summary;
+          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+          const cleanJson = jsonMatch ? jsonMatch[0] : rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+          try {
+            const parsed = JSON.parse(cleanJson);
+            if (parsed.detailed_content) {
+              enrichedContent = parsed.detailed_content;
+            }
+            if (parsed.summary) {
+              enrichedSummary = parsed.summary;
+            }
+          } catch (jsonErr) {
+            console.warn("JSON extraction fallback in /api/decks/append :", jsonErr);
           }
         }
       } catch (geminiErr) {

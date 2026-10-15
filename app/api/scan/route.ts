@@ -175,19 +175,24 @@ export async function POST(request: NextRequest) {
         }
 
         if (rawText) {
-          const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-          const parsed = JSON.parse(cleanJson);
-          if (parsed.title && (parsed.detailed_content || parsed.summary)) {
-            scanResult = {
-              title: parsed.title,
-              subject: parsed.subject || "Général",
-              summary: parsed.summary || "",
-              detailed_content:
-                parsed.detailed_content ||
-                `# Fiche de Révision : ${parsed.title}\n\n## 1. Synthèse\n${parsed.summary || ""}`,
-              initial_quiz_question: "",
-              flashcards: [],
-            };
+          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+          const cleanJson = jsonMatch ? jsonMatch[0] : rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+          try {
+            const parsed = JSON.parse(cleanJson);
+            if (parsed.title && (parsed.detailed_content || parsed.summary)) {
+              scanResult = {
+                title: parsed.title,
+                subject: parsed.subject || "Général",
+                summary: parsed.summary || "",
+                detailed_content:
+                  parsed.detailed_content ||
+                  `# Fiche de Révision : ${parsed.title}\n\n## 1. Synthèse\n${parsed.summary || ""}`,
+                initial_quiz_question: "",
+                flashcards: [],
+              };
+            }
+          } catch (jsonErr) {
+            console.warn("JSON extraction fallback in /api/scan :", jsonErr);
           }
         }
       } catch (geminiError) {

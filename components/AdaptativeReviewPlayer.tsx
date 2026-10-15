@@ -39,6 +39,20 @@ export function AdaptativeReviewPlayer({
   const [activeMode, setActiveMode] = useState<ReviewInterleavingMode>(() =>
     resolveInterleavingMode(initialMode)
   );
+  const [showDevBanner, setShowDevBanner] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      setShowDevBanner(true);
+      return;
+    }
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("dev") === "true") {
+        setShowDevBanner(true);
+      }
+    }
+  }, []);
 
   const { logCardReview, recordWeakCard, saveProgressToDb, resetSessionLogs } =
     useReviewSync({ deckId, currentStep });
@@ -184,23 +198,25 @@ export function AdaptativeReviewPlayer({
 
   return (
     <div className="w-full flex-1 flex flex-col justify-between py-2 select-none">
-      <ReviewDevBanner
-        currentStep={currentStep}
-        mode={activeMode}
-        onModeChange={(newMode) => {
-          setActiveMode(newMode);
-          try {
-            if (typeof window !== "undefined") {
-              localStorage.setItem("loreno_review_mode", newMode);
-            }
-          } catch {}
-        }}
-        onNextItem={handleNextItem}
-        onValidateStep={() => {
-          saveProgressToDb(stepCompletionPercent);
-          setIsCompleted(true);
-        }}
-      />
+      {showDevBanner && (
+        <ReviewDevBanner
+          currentStep={currentStep}
+          mode={activeMode}
+          onModeChange={(newMode) => {
+            setActiveMode(newMode);
+            try {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("loreno_review_mode", newMode);
+              }
+            } catch {}
+          }}
+          onNextItem={handleNextItem}
+          onValidateStep={() => {
+            saveProgressToDb(stepCompletionPercent);
+            setIsCompleted(true);
+          }}
+        />
+      )}
 
       <ReviewProgressBar
         type={currentItem.type}

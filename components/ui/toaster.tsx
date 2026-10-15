@@ -23,7 +23,7 @@ export function Toaster() {
                 <AlertCircle className="w-4 h-4" />
               </div>
             ) : (
-              <div className="w-8 h-8 rounded-xl bg-[#4457f4]/20 text-[#4457f4] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-brand/20 text-brand flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
             )}

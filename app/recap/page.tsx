@@ -50,7 +50,7 @@ export default function RecapPage() {
 
   const metrics = [
     { label: "Visites Uniques", value: `${stats.visitors}`, sub: `${stats.pageviews} pages vues`, icon: Eye, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Inscriptions", value: `${stats.signupsCount}`, sub: "Comptes Supabase", icon: Users, color: "text-[#4457f4]", bg: "bg-indigo-50" },
+    { label: "Inscriptions", value: `${stats.signupsCount}`, sub: "Comptes Supabase", icon: Users, color: "text-brand", bg: "bg-indigo-50" },
   ];
 
   return (
@@ -181,7 +181,7 @@ export default function RecapPage() {
 
             <Link
               href="/"
-              className="w-full h-13.5 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#3446eb] via-[#4457f4] to-indigo-600 hover:brightness-105 text-white font-bold text-sm transition active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-[#4457f4]/30"
+              className="w-full h-13.5 py-3.5 px-6 rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold text-sm transition active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-brand/30"
             >
               <span>Accéder à Loreno.app</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />

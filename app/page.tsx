@@ -44,7 +44,7 @@ export default function Home() {
           {/* 3 piliers structurés */}
           <div className="grid grid-cols-3 gap-2 pt-1">
             <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200/90 text-center space-y-1.5">
-              <div className="w-8 h-8 rounded-xl bg-[#4457f4]/10 text-[#4457f4] flex items-center justify-center mx-auto">
+              <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center mx-auto">
                 <Camera className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-bold text-zinc-900 block leading-tight">Scan &lt; 2s</span>
@@ -52,7 +52,7 @@ export default function Home() {
             </div>
 
             <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200/90 text-center space-y-1.5">
-              <div className="w-8 h-8 rounded-xl bg-[#4457f4]/10 text-[#4457f4] flex items-center justify-center mx-auto">
+              <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center mx-auto">
                 <Layers className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-bold text-zinc-900 block leading-tight">Flashcards</span>
@@ -60,7 +60,7 @@ export default function Home() {
             </div>
 
             <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200/90 text-center space-y-1.5">
-              <div className="w-8 h-8 rounded-xl bg-[#4457f4]/10 text-[#4457f4] flex items-center justify-center mx-auto">
+              <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center mx-auto">
                 <Bot className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-bold text-zinc-900 block leading-tight">Tuteur IA</span>
@@ -72,7 +72,7 @@ export default function Home() {
           <div className="pt-2 space-y-3">
             <Link
               href="/quiz"
-              className="w-full h-13.5 py-3.5 px-6 bg-gradient-to-r from-[#3446eb] via-[#4457f4] to-indigo-600 hover:brightness-105 text-white font-bold text-sm rounded-2xl active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-lg shadow-[#4457f4]/25"
+              className="w-full h-13.5 py-3.5 px-6 bg-brand hover:bg-brand-hover text-white font-bold text-sm rounded-2xl active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-lg shadow-brand/25"
             >
               <span>Commencer mon entraînement</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />

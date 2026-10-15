@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
-import { Check, X, Flame } from "lucide-react";
+import { Check, X, Flame, Eye } from "lucide-react";
 import { Flashcard } from "@/types/loreno";
 import { MirrorModal } from "./mirror-modal";
 import { PaywallModal } from "./paywall-modal";
@@ -223,7 +223,20 @@ export function FlashcardPlayer({
           </div>
           {isRound2 && <span className="px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-800 text-[10px] font-bold">Round 2</span>}
         </div>
-        <span className="text-xs text-zinc-400 font-mono">{currentIndex + 1} / {activeCards.length}</span>
+        <div className="flex items-center gap-2">
+          {imageUrl && (
+            <button
+              type="button"
+              onClick={() => setShowMirror(true)}
+              className="px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 hover:text-black text-[11px] font-semibold flex items-center gap-1 transition active:scale-95 cursor-pointer"
+              title="Voir la note originale scannée"
+            >
+              <Eye className="w-3.5 h-3.5 text-zinc-500" />
+              <span>Note</span>
+            </button>
+          )}
+          <span className="text-xs text-zinc-400 font-mono">{currentIndex + 1} / {activeCards.length}</span>
+        </div>
       </div>
 
       {/* Progress Bar */}

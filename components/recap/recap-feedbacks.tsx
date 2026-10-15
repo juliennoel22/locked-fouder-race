@@ -49,7 +49,7 @@ export function RecapFeedbacks({ onPhotoClick }: RecapFeedbacksProps) {
           <div
             key={idx}
             onClick={() => onPhotoClick(card.src, card.alt)}
-            className="rounded-2xl border border-zinc-200 bg-white p-2 group cursor-pointer shadow-2xs relative overflow-hidden flex flex-col justify-between hover:border-[#4457f4] transition-all duration-200"
+            className="rounded-2xl border border-zinc-200 bg-white p-2 group cursor-pointer shadow-2xs relative overflow-hidden flex flex-col justify-between hover:border-brand transition-all duration-200"
           >
             <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-zinc-100 border border-zinc-200">
               <Image
