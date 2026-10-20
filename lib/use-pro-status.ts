@@ -107,12 +107,22 @@ export function useProStatus() {
     };
 
     checkProStatus();
+    window.addEventListener("storage", checkProStatus);
+    window.addEventListener("loreno_pro_changed", checkProStatus);
+
+    return () => {
+      window.removeEventListener("storage", checkProStatus);
+      window.removeEventListener("loreno_pro_changed", checkProStatus);
+    };
   }, []);
 
   const activatePro = useCallback(() => {
     localStorage.setItem("loreno_pro", "true");
     setProCookie();
     setIsPro(true);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("loreno_pro_changed"));
+    }
   }, []);
 
   const deactivatePro = useCallback(() => {
@@ -121,6 +131,9 @@ export function useProStatus() {
     removeProCookie();
     setIsPro(false);
     setIsJuryMode(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("loreno_pro_changed"));
+    }
   }, []);
 
   const togglePro = useCallback(() => {

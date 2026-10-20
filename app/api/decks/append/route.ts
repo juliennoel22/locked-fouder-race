@@ -88,13 +88,17 @@ export async function POST(request: NextRequest) {
     if (apiKey) {
       try {
         const ai = new GoogleGenAI({ apiKey });
-        const documentInputs = docList.map((doc) => {
+        const inlineParts = docList.map((doc) => {
           const isPdf =
             doc.mimeType === "application/pdf" || doc.base64.startsWith("JVBERi");
+          const finalMime = isPdf
+            ? "application/pdf"
+            : (doc.mimeType?.startsWith("image/") ? doc.mimeType : "image/jpeg");
           return {
-            type: isPdf ? ("document" as const) : ("image" as const),
-            mime_type: isPdf ? "application/pdf" : (doc.mimeType?.startsWith("image/") ? doc.mimeType : "image/jpeg"),
-            data: doc.base64,
+            inlineData: {
+              mimeType: finalMime,
+              data: doc.base64,
+            },
           };
         });
 
@@ -106,34 +110,28 @@ Tu reçois de nouvelles pages/notes de cours à ajouter au cours existant suivan
 ${existingDeck.detailed_content || existingDeck.summary || ""}
 
 Mission :
-Enrichis et mets à jour la FICHE DE COURS COMPLÈTE en Markdown en y intégrant harmonieusement les nouvelles notions, définitions et points clés des documents fournis, sans supprimer les acquis précédents.
-Réponds STRICTEMENT en JSON :
-{
-  "summary": "Synthèse globale actualisée du cours complet",
-  "detailed_content": "Fiche de cours complète en Markdown, structurée avec sous-titres ##, puces et définitions en gras"
-}`;
+Enrichis et mets à jour la FICHE DE COURS COMPLÈTE en Markdown en y intégrant harmonieusement les nouvelles notions, définitions et points clés des documents fournis, sans supprimer les acquis précédents.`;
 
-        const interaction = await ai.interactions.create({
-          model: "gemini-3.6-flash",
-          input: [{ type: "text", text: promptText }, ...documentInputs],
+        const aiResponse = await ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: [{ text: promptText }, ...inlineParts],
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                summary: { type: "STRING" },
+                detailed_content: { type: "STRING" },
+              },
+              required: ["summary", "detailed_content"],
+            },
+          },
         });
 
-        let rawText = "";
-        for (const step of interaction.steps || []) {
-          if ("content" in step && Array.isArray(step.content)) {
-            for (const c of step.content) {
-              if (c && typeof c === "object" && "text" in c && typeof c.text === "string") {
-                rawText += c.text;
-              }
-            }
-          }
-        }
-
-        if (rawText) {
-          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-          const cleanJson = jsonMatch ? jsonMatch[0] : rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const rawJson = (aiResponse.text || "").trim();
+        if (rawJson) {
           try {
-            const parsed = JSON.parse(cleanJson);
+            const parsed = JSON.parse(rawJson);
             if (parsed.detailed_content) {
               enrichedContent = parsed.detailed_content;
             }

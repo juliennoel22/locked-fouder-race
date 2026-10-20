@@ -30,6 +30,12 @@
 | `UX-019` | `ux` | `P1` | Transformation de l'Étape 6 en défi actif | Julien | 🟢 `resolved` | [`tasks/UX-019-interactive-exam-trap-step.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-019-interactive-exam-trap-step.md) |
 | `UX-020` | `ux` | `P2` | Transitions spatiales continues & ergonomie clavier mobile | Julien | 🟢 `resolved` | [`tasks/UX-020-spatial-card-transitions-and-keyboard.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-020-spatial-card-transitions-and-keyboard.md) |
 | `AUDIT-021` | `chore` | `P0` | Méga Audit MVP Production (< 300L, Zero Any, Zero Lint) | Julien | 🟢 `resolved` | [`tasks/AUDIT-021-mega-audit-mvp-production.md`](file:///home/julien/git/locked-fouder-race/tasks/AUDIT-021-mega-audit-mvp-production.md) |
+| `UX-022` | `ux` | `P0` | Overhaul Design System Studio Mobile-First & Tactile Depth | Julien | 🟢 `resolved` | [`tasks/UX-022-studio-mobile-design-system.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-022-studio-mobile-design-system.md) |
+| `UX-023` | `ux` | `P0` | Intégration complète du Design System Coss UI (Base UI + Tactile) | Julien | 🟢 `resolved` | [`tasks/UX-023-coss-ui-design-system-integration.md`](file:///home/julien/git/locked-fouder-race/tasks/UX-023-coss-ui-design-system-integration.md) |
+| `TECH-024` | `chore` | `P1` | Structured Outputs & responseSchema strict sur /api/scan | Julien | 🟢 `resolved` | [`tasks/TECH-024-scan-structured-outputs-gemini.md`](file:///home/julien/git/locked-fouder-race/tasks/TECH-024-scan-structured-outputs-gemini.md) |
+| `FEAT-025` | `feature` | `P1` | Dev Studio Modal global & bouton flottant de test | Julien | 🟢 `resolved` | [`tasks/FEAT-025-dev-studio-modal.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-025-dev-studio-modal.md) |
+| `FEAT-026` | `feature` | `P1` | Fiches de révision haute densité (schémas, tableaux & callouts) | Julien | 🟢 `resolved` | [`tasks/FEAT-026-deep-study-guides-claude-level.md`](file:///home/julien/git/locked-fouder-race/tasks/FEAT-026-deep-study-guides-claude-level.md) |
+
 
 ---
 

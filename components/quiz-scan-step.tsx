@@ -89,18 +89,18 @@ export function QuizScanStep({
           <div className="space-y-3 pt-2">
             <button
               onClick={() => cameraInputRef.current?.click()}
-              className="w-full h-16 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold flex items-center justify-center gap-3 active:scale-[0.98] transition shadow-md text-sm"
+              className="w-full h-16 rounded-2xl bg-[#4457f4] hover:bg-[#3345de] border-b-4 border-[#2f3ec0] text-white font-black flex items-center justify-center gap-3 active:border-b-0 active:translate-y-1 transition-all duration-100 shadow-[0_8px_20px_rgba(68,87,244,0.4)] text-base cursor-pointer select-none"
             >
-              <Camera className="w-5 h-5" />
-              <span>Prendre une photo</span>
+              <Camera className="w-5 h-5 text-white stroke-[2.5]" />
+              <span className="text-white font-extrabold tracking-wide">Prendre une photo</span>
             </button>
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 font-medium text-xs flex items-center justify-center gap-2 transition"
+              className="w-full h-13 rounded-2xl border-2 border-zinc-200/90 border-b-4 border-b-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 active:border-b-2 active:translate-y-0.5 transition-all duration-100 shadow-[0_4px_12px_rgba(0,0,0,0.05)] cursor-pointer select-none"
             >
-              <Upload className="w-4 h-4" />
-              <span>Importer photos ou document PDF</span>
+              <Upload className="w-4 h-4 text-zinc-700 stroke-[2.5]" />
+              <span className="font-bold">Importer photos ou document PDF</span>
             </button>
 
             {onSkip && (
@@ -108,9 +108,9 @@ export function QuizScanStep({
                 <button
                   type="button"
                   onClick={onSkip}
-                  className="w-full h-14 rounded-xl border border-zinc-300 hover:border-black bg-zinc-50 hover:bg-zinc-100 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xs"
+                  className="w-full h-14 rounded-2xl border border-zinc-200/90 hover:border-black bg-white hover:bg-zinc-50 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-[0_2px_8px_rgba(0,0,0,0.03)] cursor-pointer"
                 >
-                  <span> Je n&apos;ai pas mon cours sous la main</span>
+                  <span>Je n&apos;ai pas mon cours sous la main</span>
                 </button>
                 <p className="text-[11px] text-zinc-500 text-center mt-1.5">
                   Teste immédiatement avec un exemple de cours
@@ -207,27 +207,27 @@ export function QuizScanStep({
             <button
               type="button"
               onClick={handleConfirm}
-              className="w-full h-14 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-md text-sm cursor-pointer"
+              className="w-full h-14 rounded-2xl bg-black hover:bg-zinc-800 text-white font-black flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xl text-sm cursor-pointer"
             >
               <span>Lancer l&apos;analyse du cours ({photos.length} document{photos.length > 1 ? "s" : ""}) →</span>
             </button>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2.5">
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="flex-1 h-11 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 font-medium text-xs flex items-center justify-center gap-1.5 transition"
+                className="flex-1 h-12 rounded-2xl border border-zinc-200/90 bg-white hover:bg-zinc-50 active:scale-[0.98] text-zinc-800 font-semibold text-xs flex items-center justify-center gap-1.5 transition shadow-[0_2px_8px_rgba(0,0,0,0.03)] cursor-pointer"
               >
-                <Camera className="w-4 h-4" />
+                <Camera className="w-4 h-4 text-zinc-600" />
                 <span>Prendre photo</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 h-11 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 font-medium text-xs flex items-center justify-center gap-1.5 transition"
+                className="flex-1 h-12 rounded-2xl border border-zinc-200/90 bg-white hover:bg-zinc-50 active:scale-[0.98] text-zinc-800 font-semibold text-xs flex items-center justify-center gap-1.5 transition shadow-[0_2px_8px_rgba(0,0,0,0.03)] cursor-pointer"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="w-4 h-4 text-zinc-600" />
                 <span>Galerie</span>
               </button>
             </div>

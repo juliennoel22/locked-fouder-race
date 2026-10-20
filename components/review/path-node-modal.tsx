@@ -72,10 +72,10 @@ export function PathNodeModal({
             onClose();
             onStartSession(node);
           }}
-          className="w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm flex items-center justify-center gap-2 active:scale-95 transition shadow-lg cursor-pointer"
+          className="w-full h-13 rounded-2xl bg-emerald-500 hover:bg-emerald-600 border-t border-white/25 border-b-4 border-b-emerald-700 text-white font-black text-sm flex items-center justify-center gap-2 active:border-b-0 active:translate-y-1 transition-all duration-100 shadow-[0_8px_20px_rgba(16,185,129,0.35)] cursor-pointer select-none"
         >
-          <Play className="w-4 h-4 fill-white text-white" />
-          <span>Commencer la session</span>
+          <Play className="w-4 h-4 fill-white text-white stroke-[2.5]" />
+          <span className="tracking-wide">Commencer la session</span>
         </button>
 
         {/* Bouton Mode Test (Fast Complete) */}
@@ -86,10 +86,10 @@ export function PathNodeModal({
               onClose();
               onCompleteNode(node);
             }}
-            className="w-full h-10 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer shadow-sm border border-amber-400"
+            className="w-full h-11 rounded-2xl bg-amber-500 hover:bg-amber-600 border-t border-white/20 border-b-4 border-b-amber-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 active:border-b-0 active:translate-y-1 transition-all duration-100 cursor-pointer shadow-[0_4px_14px_rgba(245,158,11,0.3)] select-none"
           >
             <Zap className="w-3.5 h-3.5 fill-white" />
-            <span>⚡ Mode Test : Valider instantanément cette étape</span>
+            <span className="tracking-wide">⚡ Mode Test : Valider instantanément cette étape</span>
           </button>
         )}
       </div>

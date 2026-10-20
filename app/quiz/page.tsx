@@ -36,8 +36,8 @@ export default function QuizPage() {
   } = useQuizOnboarding();
 
   return (
-    <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
-      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black selection:bg-black selection:text-white">
+    <main className="min-h-[100dvh] w-full bg-[#F8F9FA] text-black selection:bg-black selection:text-white">
+      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-[#F8F9FA] text-black selection:bg-black selection:text-white">
         {/* Top Header */}
         <div className="w-full pt-2">
           <div className="flex items-center justify-between h-9 mb-3">

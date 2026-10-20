@@ -69,6 +69,22 @@ export function FlashcardPlayer({
     setIsCompleted(false);
   }, [cards]);
 
+  useEffect(() => {
+    const handleDevComplete = () => {
+      setFinalKnownCount(activeCards.length);
+      setIsCompleted(true);
+      try { confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } }); } catch {}
+      if (onComplete) onComplete();
+    };
+    const handleDevNext = () => advanceCard(true);
+    window.addEventListener("loreno_dev_complete_step", handleDevComplete);
+    window.addEventListener("loreno_dev_next_item", handleDevNext);
+    return () => {
+      window.removeEventListener("loreno_dev_complete_step", handleDevComplete);
+      window.removeEventListener("loreno_dev_next_item", handleDevNext);
+    };
+  }, [activeCards.length, onComplete]);
+
   const currentCard = activeCards[currentIndex] || activeCards[0] || cards[0];
   const progressPercent = Math.round(((currentIndex + 1) / activeCards.length) * 100);
   const isTourActive = showTourBanner && !isOnboardingCompleted();
@@ -121,13 +137,9 @@ export function FlashcardPlayer({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (touchStartX.current === null || exitDirection) return;
-    const diffX = e.touches[0].clientX - touchStartX.current;
-    const diffY = e.touches[0].clientY - (touchStartY.current || 0);
+    const diffX = e.touches[0].clientX - touchStartX.current, diffY = e.touches[0].clientY - (touchStartY.current || 0);
     if (Math.abs(diffX) > 8 || Math.abs(diffY) > 8) isDragging.current = true;
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-      touchDeltaX.current = diffX;
-      setDragOffset(diffX);
-    }
+    if (Math.abs(diffX) > Math.abs(diffY)) { touchDeltaX.current = diffX; setDragOffset(diffX); }
   };
 
   const handleTouchEnd = () => {
@@ -213,11 +225,12 @@ export function FlashcardPlayer({
       {/* Header : Dynamic Fiery Streak & Index */}
       <div className="w-full flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${streak >= 5 ? "bg-black text-amber-300 border border-amber-400/40 shadow-md animate-pulse" :
-              streak >= 3 ? "bg-zinc-900 text-white shadow-xs" :
-                streak >= 2 ? "bg-zinc-100 border border-zinc-300 text-zinc-900" :
-                  "bg-zinc-100 border border-zinc-200 text-zinc-700 font-medium"
-            }`}>
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+            streak >= 5 ? "bg-black text-amber-300 border border-amber-400/40 shadow-md animate-pulse" :
+            streak >= 3 ? "bg-zinc-900 text-white shadow-xs" :
+            streak >= 2 ? "bg-zinc-100 border border-zinc-300 text-zinc-900" :
+            "bg-zinc-100 border border-zinc-200 text-zinc-700 font-medium"
+          }`}>
             <Flame className={`w-3.5 h-3.5 ${streak >= 2 ? "text-amber-400 fill-amber-400" : "text-zinc-400"}`} />
             <span>{streak >= 5 ? ` x${streak} Maîtrise !` : streak >= 3 ? `🔥 x${streak} En feu !` : streak >= 2 ? `🔥 x${streak} Combo` : `Série : ${streak}`}</span>
           </div>
@@ -267,7 +280,6 @@ export function FlashcardPlayer({
           <X className="w-4 h-4 text-zinc-700" />
           <span>À revoir (Swipe gauche)</span>
         </button>
-
         <button
           onClick={(e) => { e.stopPropagation(); handleNextCard(true); }}
           disabled={Boolean(exitDirection)}
@@ -278,15 +290,8 @@ export function FlashcardPlayer({
         </button>
       </div>
 
-      {/* Modales */}
       <MirrorModal isOpen={showMirror} onClose={() => setShowMirror(false)} imageUrl={imageUrl || null} deckTitle={deckTitle} />
-      <PaywallModal
-        isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        retentionScore={Math.round(((finalKnownCount !== null ? finalKnownCount : knownCount) / Math.max(1, activeCards.length)) * 100)}
-      />
+      <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} retentionScore={Math.round(((finalKnownCount !== null ? finalKnownCount : knownCount) / Math.max(1, activeCards.length)) * 100)} />
     </div>
   );
 }
-
-

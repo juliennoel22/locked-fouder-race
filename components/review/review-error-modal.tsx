@@ -63,14 +63,14 @@ export function ReviewErrorModal({
           )}
         </div>
 
-        {/* Bouton pour poursuivre */}
+        {/* Bouton pour poursuivre (Coss UI 3D Pill) */}
         <button
           type="button"
           onClick={onDismiss}
-          className="w-full h-12 rounded-xl bg-black hover:bg-zinc-800 text-white font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition shadow-md cursor-pointer"
+          className="w-full h-13 rounded-full bg-neutral-900 hover:bg-neutral-800 border-t-2 border-white/30 border-b-4 border-b-black text-white font-extrabold text-sm flex items-center justify-center gap-2 active:border-b-0 active:translate-y-1 transition-all duration-100 shadow-[0_8px_24px_rgba(0,0,0,0.4)] cursor-pointer select-none"
         >
-          <span>J&apos;ai compris, continuer</span>
-          <ArrowRight className="w-4 h-4" />
+          <span className="tracking-wide">J&apos;ai compris, continuer</span>
+          <ArrowRight className="w-4 h-4 stroke-[2.5]" />
         </button>
       </div>
     </div>

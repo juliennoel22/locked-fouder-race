@@ -49,7 +49,7 @@ export function ReviewFlashcardStep({
           }`}
         >
           {/* Face Recto */}
-          <div className="absolute inset-0 w-full h-full p-6 bg-white rounded-3xl flex flex-col justify-between [backface-visibility:hidden] [-webkit-backface-visibility:hidden]">
+          <div className="absolute inset-0 w-full h-full p-6 bg-white rounded-3xl shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col justify-between [backface-visibility:hidden] [-webkit-backface-visibility:hidden]">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-600">
                 Notion / Question
@@ -70,7 +70,7 @@ export function ReviewFlashcardStep({
           </div>
 
           {/* Face Verso (Réponse non-miroir) */}
-          <div className="absolute inset-0 w-full h-full p-6 bg-white rounded-3xl flex flex-col justify-between [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="absolute inset-0 w-full h-full p-6 bg-white rounded-3xl shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col justify-between [backface-visibility:hidden] [-webkit-backface-visibility:hidden] [transform:rotateY(180deg)]">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
                 Réponse / Explication
@@ -95,22 +95,22 @@ export function ReviewFlashcardStep({
       </div>
 
       {/* Boutons d'action Thumb Zone Ergonomiques UX-010 */}
-      <div className="flex items-center gap-3 pt-3">
+      <div className="flex items-center gap-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]">
         <button
           type="button"
           onClick={handleMistake}
-          className="flex-1 h-14 sm:h-16 rounded-2xl border-2 border-red-200 bg-white hover:bg-red-50 text-red-600 font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition shadow-xs cursor-pointer"
+          className="flex-1 h-14 sm:h-15 rounded-2xl border-2 border-red-200 border-b-4 border-b-red-300 bg-white hover:bg-red-50 text-red-600 font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 active:border-b-2 active:translate-y-0.5 transition-all duration-100 shadow-[0_4px_14px_rgba(239,68,68,0.15)] cursor-pointer select-none"
         >
-          <X className="w-5 h-5 stroke-[2.5]" />
+          <X className="w-5 h-5 stroke-[3]" />
           <span>À revoir</span>
         </button>
 
         <button
           type="button"
           onClick={handleSuccess}
-          className="flex-1 h-14 sm:h-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition shadow-md cursor-pointer border border-emerald-400/40"
+          className="flex-1 h-14 sm:h-15 rounded-2xl bg-emerald-500 hover:bg-emerald-600 border-t border-white/25 border-b-4 border-b-emerald-700 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 active:border-b-0 active:translate-y-1 transition-all duration-100 shadow-[0_8px_20px_rgba(16,185,129,0.35)] cursor-pointer select-none"
         >
-          <Check className="w-5 h-5 stroke-[2.5]" />
+          <Check className="w-5 h-5 stroke-[3]" />
           <span>Je sais</span>
         </button>
       </div>

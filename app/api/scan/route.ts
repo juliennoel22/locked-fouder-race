@@ -20,34 +20,30 @@ function createDynamicScanResult(topicTitle?: string, topicSubject?: string): Sc
   };
 }
 
-const SYSTEM_PROMPT = `Tu me donnes la fiche de révision complète et haute densité du cours.
-Tu es le moteur OCR et d'analyse pédagogique d'élite de Loreno (https://www.loreno.app).
+const SYSTEM_PROMPT = `Tu es le moteur OCR et d'analyse pédagogique d'élite de Loreno (https://www.loreno.app).
 Tu reçois une photo ou un document de notes de cours.
-Ta mission est d'extraire l'essence du cours et de rédiger une FICHE DE RÉVISION EXHAUSTIVE ET HAUTE DENSITÉ.
+Ta mission est de rédiger une FICHE DE RÉVISION HAUTE DENSITÉ AU STANDARD CLAUDE ARTIFACTS / OPENAI CANVAS.
 
-RÈGLE D'ÉTANCHÉITÉ ET D'ISOLATION ABSOLUE (CRITIQUE) :
-- Tu dois analyser UNIQUEMENT le sujet réel du document fourni.
-- Il est STRICTEMENT INTERDIT d'injecter des notions d'Histoire, de Droit Constitutionnel, ou d'autres domaines non présents dans le document.
-- Tout le contenu (titre, sujet, synthèse, detailed_content) doit être 100% ÉTANCHEMENT focalisé sur le cours analysé.
+RÈGLE D'ÉTANCHÉITÉ ET D'ISOLATION ABSOLUE :
+- Analyse UNIQUEMENT le sujet réel du document fourni. Interdiction formelle d'injecter des notions hors-sujet.
 
-CONSIGNE HAUTE DENSITÉ & MULTI-PAGES (FEAT-008) :
-- Pour les scans multi-pages (jusqu'à 11 pages et plus), tu dois traiter CHAQUE PAGE AVEC LA MÊME RIGUEUR ET LA MÊME PROFONDEUR.
-- Découpe "detailed_content" en autant de sections (##) et sous-sections qu'il y a de thèmes dans les pages scannées.
-- Ne résume pas grossièrement. Préserve l'intégralité des définitions, repères chronologiques, équations, formules et pièges d'examen.
+STANDARDS OBLIGATOIRES DE LA FICHE DANS "detailed_content" :
+1. Big Picture & Définitions : Définitions exhaustives avec mots-clés en gras (**terme**).
+2. Schéma Conceptuel ou Flux Logique : Inclus obligatoirement un schéma textuel/ASCII dans un bloc \\\`\\\`\\\`diagram ou \\\`\\\`\\\`text pour visualiser les étapes, relations ou hiérarchies.
+3. Tableau Comparatif Markdown : Inclus obligatoirement au moins un tableau comparatif (| Critère | Option A | Option B |) synthétisant les nuances.
+4. Callouts Stratégiques Typés : Inclus obligatoirement au moins 2 callouts :
+   - '> ⚠️ **Point critique du barème** : [piège récurrent d'examen, confusion fréquente]'
+   - '> 💡 **Mémoire & mnémotechnique** : [astuce de rappel, acronyme ou analogie]'
+   - '> 🎯 **Application directe** : [cas concret type partiel ou application]'
+5. Exhaustivité : Ne résume pas grossièrement. Préserve formules, dates, auteurs et pièges.
 
-Génère une réponse STRICTEMENT en format JSON avec cette structure exacte :
+Génère une réponse STRICTEMENT en format JSON avec cette structure :
 {
-  "title": "Titre clair et concis du chapitre ou du cours",
-  "subject": "Matière réelle (ex: Psychologie, Biologie, Économie, Mathématiques)",
+  "title": "Titre clair et concis du cours",
+  "subject": "Matière réelle (ex: Droit, Médecine, Économie, Info, etc.)",
   "summary": "Synthèse percutante en 2 à 3 phrases clés",
-  "detailed_content": "# Fiche de Révision : [Titre]\\n\\n## 1. Concepts Clés & Définitions\\n- **Concept** : Définition précise\\n\\n## 2. Notions Essentielles & Mécanismes\\n...\\n\\n## 3. Points d'Attention & Pièges d'Examen\\n..."
-}
-
-Règles pour "detailed_content" (Fiche de cours complète) :
-- Rédige une vraie fiche de cours EXHAUSTIVE, TOUJOURS COMPLÈTE ET SANS TRONCATURE.
-- Développe impérativement CHAQUE section avec au moins 5 à 10 éléments précis à puces.
-- Inclus des sous-titres (##), des définitions en gras, des listes à puces et des exemples d'examen concrets.
-- Sois très précis et fidèle aux notes de l'étudiant.`;
+  "detailed_content": "# Fiche de Révision : [Titre]\\n\\n## 1. Concepts Clés & Définitions\\n...\\n\\n## 2. Flux & Schéma Logique\\n\\\`\\\`\\\`diagram\\n[A] ---> [B] ---> [C]\\n\\\`\\\`\\\`\\n\\n## 3. Tableau Comparatif\\n| Critère | ... | ... |\\n| :--- | :--- | :--- |\\n\\n## 4. Points Clés & Pièges d'Examen\\n> ⚠️ **Point critique du barème** : ...\\n> 💡 **Mémoire & mnémotechnique** : ..."
+}`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -135,7 +131,7 @@ export async function POST(request: NextRequest) {
     if (apiKey) {
       try {
         const ai = new GoogleGenAI({ apiKey });
-        const documentInputs = imagesList.map((doc) => {
+        const inlineParts = imagesList.map((doc) => {
           const isPdf =
             doc.mimeType === "application/pdf" ||
             doc.base64.startsWith("JVBERi") ||
@@ -146,9 +142,10 @@ export async function POST(request: NextRequest) {
             : (doc.mimeType && doc.mimeType.startsWith("image/") ? doc.mimeType : "image/jpeg");
 
           return {
-            type: isPdf ? ("document" as const) : ("image" as const),
-            mime_type: finalMime,
-            data: doc.base64,
+            inlineData: {
+              mimeType: finalMime,
+              data: doc.base64,
+            },
           };
         });
 
@@ -158,27 +155,28 @@ export async function POST(request: NextRequest) {
             : ""
         }`;
 
-        const interaction = await ai.interactions.create({
-          model: "gemini-3.6-flash",
-          input: [{ type: "text", text: promptText }, ...documentInputs],
+        const aiResponse = await ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: [{ text: promptText }, ...inlineParts],
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                title: { type: "STRING" },
+                subject: { type: "STRING" },
+                summary: { type: "STRING" },
+                detailed_content: { type: "STRING" },
+              },
+              required: ["title", "subject", "summary", "detailed_content"],
+            },
+          },
         });
 
-        let rawText = "";
-        for (const step of interaction.steps || []) {
-          if ("content" in step && Array.isArray(step.content)) {
-            for (const c of step.content) {
-              if (c && typeof c === "object" && "text" in c && typeof c.text === "string") {
-                rawText += c.text;
-              }
-            }
-          }
-        }
-
-        if (rawText) {
-          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-          const cleanJson = jsonMatch ? jsonMatch[0] : rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const rawJson = (aiResponse.text || "").trim();
+        if (rawJson) {
           try {
-            const parsed = JSON.parse(cleanJson);
+            const parsed = JSON.parse(rawJson);
             if (parsed.title && (parsed.detailed_content || parsed.summary)) {
               scanResult = {
                 title: parsed.title,

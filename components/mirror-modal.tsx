@@ -219,24 +219,12 @@ export function MirrorModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg h-[92dvh] sm:h-[85dvh] flex flex-col bg-white border border-zinc-200 rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*,application/pdf"
-          multiple
-          onChange={handleFileUpload}
-          className="hidden"
-        />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileUpload}
-          className="hidden"
-        />
-
+      <div className="relative w-full max-w-lg h-[92dvh] sm:h-[85dvh] flex flex-col bg-white border border-zinc-200 rounded-t-[28px] sm:rounded-3xl overflow-hidden shadow-2xl pb-[env(safe-area-inset-bottom)]">
+        <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple onChange={handleFileUpload} className="hidden" />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" />
+        <div className="w-full pt-2.5 pb-1 flex justify-center sm:hidden bg-white">
+          <div className="w-12 h-1.5 rounded-full bg-zinc-300" />
+        </div>
         <MirrorHeader
           title={title}
           docCount={documents.length}

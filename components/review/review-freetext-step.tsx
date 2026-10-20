@@ -57,11 +57,11 @@ export function ReviewFreeTextStep({ item, onSubmitAnswer }: ReviewFreeTextStepP
       }`}
     >
       <div
-        className={`p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 transition-all ${
-          isFocused ? "py-2 space-y-0.5" : "space-y-1"
+        className={`p-4 rounded-3xl bg-white border border-zinc-200/90 shadow-[0_2px_8px_rgba(0,0,0,0.03)] transition-all ${
+          isFocused ? "py-3 space-y-1" : "space-y-1.5"
         }`}
       >
-        <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
+        <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md inline-block">
           ✍️ Saisie Libre (Examen)
         </span>
         <p className="text-sm font-bold text-zinc-900 pt-0.5 leading-snug">

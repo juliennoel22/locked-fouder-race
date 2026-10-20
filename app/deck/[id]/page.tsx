@@ -13,6 +13,9 @@ import { createClient } from "@/lib/supabase/client";
 
 import { CoursePathMap, PathNode } from "@/components/review/course-path-map";
 import { PathNodeModal } from "@/components/review/path-node-modal";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface DeckPageProps {
   params: Promise<{ id: string }>;
@@ -32,6 +35,17 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
       setDeck(DEMO_DECK);
       setLoading(false);
       return;
+    }
+
+    if (deckId.startsWith("demo-histoire")) {
+      try {
+        const stored = localStorage.getItem("loreno_mock_history_deck");
+        if (stored) {
+          setDeck(JSON.parse(stored));
+          setLoading(false);
+          return;
+        }
+      } catch {}
     }
 
     try {
@@ -92,7 +106,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
 
   if (loading) {
     return (
-      <main className="min-h-[100dvh] w-full bg-white flex flex-col items-center justify-center p-4">
+      <main className="min-h-[100dvh] w-full bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
         <Loader2 className="w-6 h-6 animate-spin text-zinc-400 mb-2" />
         <p className="text-xs text-zinc-500 font-medium">Chargement du cours...</p>
       </main>
@@ -133,8 +147,8 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
   };
 
   return (
-    <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
-      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
+    <main className="min-h-[100dvh] w-full bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
+      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-background text-foreground">
         {/* Header avec bouton retour & pastille PRO */}
         <Header
           backHref={showPathMap ? undefined : "/dashboard"}
@@ -159,60 +173,72 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
           ) : (
             <div className="space-y-4">
               {/* Titre & Badges */}
-              <div className="space-y-2 border-b border-zinc-100 pb-3">
+              <div className="space-y-2 border-b border-zinc-200/60 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-zinc-100 border border-zinc-200 text-zinc-700">
+                  <Badge variant="outline" size="sm">
                     {deck.subject || "Général"}
-                  </span>
-                  <span className="text-[11px] text-zinc-500 font-medium flex items-center gap-1">
-                    <BookOpen className="w-3 h-3 text-zinc-400" />
+                  </Badge>
+                  <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+                    <BookOpen className="w-3 h-3 text-muted-foreground" />
                     Fiche complète
                   </span>
                   {typeof deck.progress_percent === "number" && deck.progress_percent > 0 && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <Badge variant="success" size="sm">
                       {deck.progress_percent}% maîtrisé
-                    </span>
+                    </Badge>
                   )}
                 </div>
-                <h1 className="text-xl font-black tracking-tight text-black leading-snug">
+                <h1 className="text-xl font-black tracking-tight text-foreground leading-snug">
                   {deck.title}
                 </h1>
               </div>
 
-              {/* Bouton unique pour consulter les photos et enrichir le cours */}
+              {/* Bouton unique pour consulter les photos et enrichir le cours (Plush Coss UI Card) */}
               {deck.image_url && (
-                <button
-                  type="button"
+                <div
                   onClick={() => setShowMirrorModal(true)}
-                  className="w-full py-2.5 px-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 text-zinc-800 hover:bg-zinc-100 transition active:scale-[0.99] flex items-center justify-between text-xs font-bold cursor-pointer shadow-2xs"
+                  className="w-full p-3.5 sm:p-4 rounded-2xl bg-white border border-border/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.07)] hover:border-border transition-all duration-150 flex items-center justify-between cursor-pointer select-none active:scale-[0.99]"
                 >
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-zinc-600 shrink-0" />
-                    <span>Consulter la photo & enrichir le cours</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center shrink-0 text-[#4457f4]">
+                      <Eye className="w-5 h-5 stroke-[2.2]" />
+                    </div>
+                    <div className="text-left truncate">
+                      <div className="text-xs sm:text-sm font-bold text-foreground tracking-tight truncate">
+                        Notes manuscrites originales
+                      </div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        Consulter la photo scannée & enrichir le cours
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-zinc-400 font-medium">Ouvrir →</span>
-                </button>
+                  <div className="flex items-center gap-1 text-xs font-bold text-[#4457f4] shrink-0 ml-2 bg-[#4457f4]/8 hover:bg-[#4457f4]/15 px-3 py-1.5 rounded-xl border border-[#4457f4]/15">
+                    <span>Voir</span>
+                    <span className="text-[10px]">→</span>
+                  </div>
+                </div>
               )}
 
               {/* Rendu Markdown de la Fiche Complète */}
-              <div className="p-4 sm:p-5 rounded-3xl bg-zinc-50/70 border border-zinc-200 shadow-2xs">
+              <Card className="p-4 sm:p-5 rounded-2xl">
                 <MarkdownView content={markdownContent} />
-              </div>
+              </Card>
             </div>
           )}
         </div>
 
         {/* CTA UNIQUE STICKY BOTTOM : DÉMARRER L'ENTRAÎNEMENT -> OUVRE LA CARTE DU PARCOURS */}
         {!showPathMap && (
-          <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-white/95 backdrop-blur-md border-t border-zinc-100/80 z-30 pointer-events-auto">
-            <button
+          <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,1.25rem))] left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-auto">
+            <Button
               type="button"
+              size="xl"
               onClick={() => setShowPathMap(true)}
-              className="w-full h-14 rounded-2xl bg-black text-white font-black text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xl cursor-pointer hover:bg-zinc-800"
+              className="w-full h-14 rounded-full font-black text-sm sm:text-base gap-2.5 shadow-[0_12px_32px_rgba(0,0,0,0.5)] bg-neutral-900 border-t-2 border-white/30 border-b-4 border-b-black text-white hover:bg-neutral-800 active:border-b-0 active:translate-y-1 transition-all duration-100"
             >
-              <Play className="w-4 h-4 fill-white text-white" />
-              <span>Démarrer l&apos;entraînement</span>
-            </button>
+              <Play className="w-4 h-4 fill-white text-white stroke-[3]" />
+              <span className="tracking-wide">Démarrer l&apos;entraînement</span>
+            </Button>
           </div>
         )}
 
@@ -250,7 +276,7 @@ export default function DeckPage({ params }: DeckPageProps) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-[100dvh] w-full bg-white flex flex-col items-center justify-center p-4">
+        <main className="min-h-[100dvh] w-full bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
           <Loader2 className="w-6 h-6 animate-spin text-zinc-400 mb-2" />
           <p className="text-xs text-zinc-500 font-medium">Chargement du cours...</p>
         </main>

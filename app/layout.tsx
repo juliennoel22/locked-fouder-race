@@ -1,10 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "@/components/ui/toaster";
 import { ReferralListener } from "@/components/referral-listener";
+import { DevTools } from "@/components/dev-tools";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geistMono = Geist_Mono({subsets:['latin'],variable:'--font-mono'});
+
+const interHeading = Inter({subsets:['latin'],variable:'--font-heading'});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -104,11 +110,7 @@ export const metadata: Metadata = {
   },
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
-  subsets: ["latin"],
-});
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -176,7 +178,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning className="h-full">
+    <html lang="fr" suppressHydrationWarning className={cn("h-full", "font-mono", inter.variable, interHeading.variable, geistMono.variable)}>
       <head>
         <script
           type="application/ld+json"
@@ -197,7 +199,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.className} antialiased min-h-full bg-white text-black`}>
+      <body className={`${inter.variable} font-sans antialiased min-h-full bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -207,6 +209,7 @@ export default function RootLayout({
         >
           {children}
           <ReferralListener />
+          <DevTools />
           <Toaster />
           <Analytics />
         </ThemeProvider>

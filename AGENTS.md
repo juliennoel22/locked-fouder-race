@@ -42,6 +42,10 @@
 5. **Aesthetic & Design Tokens Sémantiques** :
    - Thème épuré avec tokens sémantiques stricts (zéro couleur hexadécimale arbitraire comme `[#4457f4]`).
    - Utiliser obligatoirement : `brand` (`#4457f4`), `brand-hover` (`#3345de`), `brand/10`, `border-brand/20`.
+6. **Référence UI & Primitives Tactiles Mobiles (COSS UI / Base UI)** :
+   - **Benchmark Design System Officiel** : [COSS UI](https://coss.com/ui) (construit sur **Base UI** `@base-ui-components/react`).
+   - **Trick Mobile Touch Target (Obligatoire sur petites cibles)** : Utiliser `pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 pointer-coarse:after:size-full` pour garantir la cible tactile minimale de 44x44px sans altérer la compacité visuelle sur desktop.
+   - **Finition Physique & Micro-relief** : Appliquer les micro-biseaux de lumière (`inset-shadow-[0_1px_rgba(255,255,255,0.16)]`) et l'effet d'enfoncement physique au tap (`[:active,[data-pressed]]:inset-shadow-[0_1px_rgba(0,0,0,0.08)]`) sur les CTA clés.
 
 ---
 

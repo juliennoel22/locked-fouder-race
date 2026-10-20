@@ -167,8 +167,8 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
-      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
+    <main className="min-h-[100dvh] w-full bg-[#F8F9FA] text-black selection:bg-brand selection:text-white">
+      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-[#F8F9FA] text-black">
         {justUnlocked && (
           <div className="mb-3 p-3.5 rounded-2xl bg-black text-white flex items-center justify-between animate-in slide-in-from-top duration-300 shadow-md">
             <div className="text-xs">

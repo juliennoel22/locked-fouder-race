@@ -160,7 +160,10 @@ export function AiTutorModal({ isOpen, onClose, notebook }: AiTutorModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md h-[90dvh] sm:h-[650px] bg-white border border-zinc-200 rounded-t-3xl sm:rounded-3xl flex flex-col shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-md h-[92dvh] sm:h-[650px] bg-white border border-zinc-200 rounded-t-[28px] sm:rounded-3xl flex flex-col shadow-2xl overflow-hidden pb-[env(safe-area-inset-bottom)]">
+        <div className="w-full pt-2.5 pb-1 flex justify-center sm:hidden bg-zinc-50/80">
+          <div className="w-12 h-1.5 rounded-full bg-zinc-300" />
+        </div>
         {/* Header */}
         <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/80">
           <div className="flex items-center gap-2.5">

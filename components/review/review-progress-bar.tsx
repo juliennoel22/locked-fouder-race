@@ -1,6 +1,7 @@
 "use client";
 
 import { ReviewItemType } from "./review-types";
+import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
 
 interface ReviewProgressBarProps {
   type: ReviewItemType;
@@ -35,21 +36,23 @@ export function ReviewProgressBar({
     : stepLabel;
 
   return (
-    <div className="w-full space-y-1.5 pb-3">
-      <div className="flex items-center justify-between text-[11px] font-bold text-zinc-500">
-        <span className="flex items-center gap-1 text-brand font-black">
+    <div className="w-full space-y-1.5 pb-2">
+      <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+        <span className="font-bold text-foreground tracking-tight">
           {displayTitle}
         </span>
-        <span>
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
           {currentIndex + 1} / {totalCount}
         </span>
       </div>
-      <div className="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
-        <div
-          className="h-full bg-gradient-to-r from-brand to-emerald-500 rounded-full transition-all duration-300"
-          style={{ width: `${Math.max(5, progressPercent)}%` }}
-        />
-      </div>
+      <Progress value={progressPercent} className="w-full">
+        <ProgressTrack className="h-1.5 bg-muted">
+          <ProgressIndicator
+            className="bg-brand transition-all duration-300"
+            style={{ width: `${Math.max(5, progressPercent)}%` }}
+          />
+        </ProgressTrack>
+      </Progress>
     </div>
   );
 }

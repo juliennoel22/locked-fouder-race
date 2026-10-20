@@ -67,7 +67,8 @@
 - **Publishable Key** : `sb_publishable_qPKyRvryGiPpgS893UUPlg_P6LJz_S6`
 - **Schéma SQL & Storage** : Exécuté avec succès ! Tables `decks`, `flashcards`, bucket public `course-scans` et RLS configurés.
 
-### 4. Design System Sémantique & MCP 2026
+### 4. Design System Sémantique, COSS UI & MCP 2026
+- **Benchmark UI de Référence** : [COSS UI](https://coss.com/ui) (Base UI + Tailwind v4 + Micro-relief physique `inset-shadow` + Touch targets 44px via `pointer-coarse`).
 - **Tokens de Style Unifiés** : `brand` (`#4457f4`), `brand-hover` (`#3345de`), `brand/10`, `border-brand/20` sans hexadécimal arbitraire.
 - **Connecteurs MCP Connectés** :
   - `supabase` (Inspection schémas, requêtes directes, migrations)
@@ -97,8 +98,8 @@
 | **Phase 6** | **Tuteur d'Examen IA (Chatbot)** | 🟢 Terminé | Chatbot interactif posant des questions pièges d'examen et évaluant les réponses. |
 | **Phase 7** | **Code Quality & Architecture Agentique** | 🟢 Terminé | Audit documenté dans `docs/`, 100% des fichiers sous 300 lignes, contrats Zod stricts, 0 `any`, compilation validée. |
 | **Phase 8** | **Living Agentic Backlog & Triage Baptiste** | 🟢 Terminé | 18 vocaux transcrits & nettoyés, 11 photos de cours indexées, `INBOX_BAPTISTE.md`, tickets `BUG-003` à `FEAT-011` créés dans `tasks/` et `tasks/BOARD.md`. |
-| **Phase 9** | **Sprint Stabilisation & Clôture P0/P1** | 🟡 Ready | Résolution ordonnée de la fiabilité IA (`BUG-003`), déblocage roadmap (`BUG-004`), persistance auth (`BUG-005`), réduction filleul (`FEAT-007`). |
-| **Phase 10** | **Vidéo Pitch & Soumission Jury** | ⏳ À venir | Vidéo MP4 $\le$ 500 Mo, vérification clé Stripe Read-Only, repo public. |
+| **Phase 9** | **Sprint Stabilisation & Clôture P0/P1** | 🟢 Terminé | Résolution des tickets Baptiste (`BUG-003` à `FEAT-011`), Coss UI (`UX-023`), Structured Outputs (`TECH-024`), Dev Studio Modal (`FEAT-025`), et Fiches Haute Densité Claude/ChatGPT (`FEAT-026`). |
+| **Phase 10** | **Vidéo Pitch & Acquisition Live** | 🟡 En cours | Vidéo démo mobile $\le$ 2 min, tests d'affiliation réels en prod, lancement acquisition TikTok. |
 
 ---
 

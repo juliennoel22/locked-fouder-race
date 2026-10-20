@@ -43,7 +43,7 @@ export function FloatingScanBar({
   };
 
   return (
-    <div className="fixed bottom-5 left-0 right-0 max-w-md mx-auto px-4 flex flex-col items-center z-30 pointer-events-auto">
+    <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,1.25rem))] left-0 right-0 max-w-md mx-auto px-4 flex flex-col items-center z-30 pointer-events-auto">
       {/* Banner 3 Jours Pro Parrainage avec option d'achat */}
       {!isPro && isReferralTrial && onOpenPaywall && (
         <div
@@ -104,31 +104,31 @@ export function FloatingScanBar({
       <div className="w-full flex items-center justify-center gap-2.5">
         <button
           onClick={handleScanClick}
-          className="w-12 h-12 rounded-full bg-white border border-zinc-200 text-black flex items-center justify-center shadow-xl active:scale-95 hover:bg-zinc-100 transition shrink-0 cursor-pointer"
+          className="w-13 h-13 rounded-full bg-white border border-zinc-200 border-b-3 border-b-zinc-300 text-black flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.1)] active:border-b active:translate-y-0.5 hover:bg-zinc-50 transition-all duration-100 shrink-0 cursor-pointer select-none"
           aria-label="Prendre une photo"
         >
-          <Camera className="w-5 h-5 text-black" />
+          <Camera className="w-5 h-5 text-black stroke-[2.2]" />
         </button>
 
         <button
           onClick={handleScanClick}
-          className="flex-1 h-12 px-5 rounded-full bg-black border border-black text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-xl active:scale-95 hover:bg-zinc-800 transition cursor-pointer"
+          className="flex-1 h-14 px-5 rounded-full bg-neutral-900 border-t-2 border-white/30 border-b-4 border-b-black text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(0,0,0,0.45)] active:border-b-0 active:translate-y-1 hover:bg-neutral-800 transition-all duration-100 cursor-pointer select-none"
         >
-          <Plus className="w-4 h-4" />
-          <span>Nouveau cours</span>
+          <Plus className="w-4 h-4 stroke-[3]" />
+          <span className="tracking-wide">Nouveau cours</span>
         </button>
 
         {onOpenFeedback && (
           <button
             onClick={onOpenFeedback}
-            className="relative w-12 h-12 rounded-full bg-white border border-zinc-200 text-black flex items-center justify-center shadow-xl active:scale-95 hover:bg-zinc-100 transition shrink-0 cursor-pointer"
+            className="relative w-13 h-13 rounded-full bg-white border border-zinc-200 border-b-3 border-b-zinc-300 text-black flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.1)] active:border-b active:translate-y-0.5 hover:bg-zinc-50 transition-all duration-100 shrink-0 cursor-pointer select-none"
             aria-label="Donner son avis"
             title="Donner son avis sur Loreno"
           >
-            <MessageSquare className="w-5 h-5 text-black" />
+            <MessageSquare className="w-5 h-5 text-black stroke-[2.2]" />
             <span className="absolute -top-1 -right-1 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-40"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-brand text-white text-[9px] font-bold items-center justify-center border-2 border-white">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4457f4] opacity-40"></span>
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-[#4457f4] text-white text-[9px] font-bold items-center justify-center border-2 border-white">
                 1
               </span>
             </span>

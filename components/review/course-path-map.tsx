@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   BookOpen, Layers, CheckCircle2, Gift, Flame,
   Trophy, Lock, Check, Star, Play, Award, Zap, ChevronRight
 } from "lucide-react";
 import { ReviewItemType } from "./review-types";
 import { REVIEW_STEPS_CONFIG } from "@/lib/review-config";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export interface PathNode {
   id: string;
@@ -29,18 +32,10 @@ interface CoursePathMapProps {
   onOpenCourseSheet?: () => void;
 }
 
-const STEP_ICONS: Record<number, React.ElementType> = {
-  1: BookOpen, 2: Layers, 3: CheckCircle2, 4: Gift, 5: Flame, 6: Trophy
-};
-
+const STEP_ICONS: Record<number, React.ElementType> = { 1: BookOpen, 2: Layers, 3: CheckCircle2, 4: Gift, 5: Flame, 6: Trophy };
 const DEFAULT_PATH_NODES: PathNode[] = REVIEW_STEPS_CONFIG.map((cfg) => ({
-  id: cfg.id,
-  type: cfg.type,
-  title: cfg.title,
-  subtitle: cfg.subtitle,
-  icon: STEP_ICONS[cfg.stepNumber] || BookOpen,
-  position: cfg.position,
-  stepNumber: cfg.stepNumber,
+  id: cfg.id, type: cfg.type, title: cfg.title, subtitle: cfg.subtitle,
+  icon: STEP_ICONS[cfg.stepNumber] || BookOpen, position: cfg.position, stepNumber: cfg.stepNumber,
 }));
 
 export function CoursePathMap({
@@ -55,6 +50,16 @@ export function CoursePathMap({
 }: CoursePathMapProps) {
   const activeNodeRef = useRef<HTMLDivElement>(null);
   const nodes = DEFAULT_PATH_NODES;
+  const [showDevMode, setShowDevMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get("dev") === "true" || localStorage.getItem("loreno_dev_mode") === "true") {
+        setShowDevMode(true);
+      }
+    }
+  }, []);
 
   const effectiveProgress = useMemo(() => {
     let localVal = 0;
@@ -75,7 +80,6 @@ export function CoursePathMap({
 
   const currentStepIndex = Math.min(completedCount, nodes.length - 1);
 
-  // Auto-scroll au palier actif lors du chargement (effet Duolingo)
   useEffect(() => {
     if (activeNodeRef.current) {
       activeNodeRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -90,8 +94,8 @@ export function CoursePathMap({
 
   return (
     <div className="w-full flex flex-col items-center select-none pb-28 pt-2">
-      {/* Barre d'outils Mode Test Rapidité */}
-      {onUpdateProgress && (
+      {/* Barre d'outils Mode Test (Masquée par défaut sauf avec ?dev=true) */}
+      {showDevMode && onUpdateProgress && (
         <div className="w-full mb-3 p-2.5 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs font-bold text-amber-900 shadow-2xs">
           <span className="flex items-center gap-1.5 font-black text-[11px]">
             <Zap className="w-4 h-4 fill-amber-500 text-amber-500" />
@@ -123,47 +127,59 @@ export function CoursePathMap({
         </div>
       )}
 
-      {/* En-tête Unité Duolingo Style (Interactive : Clic ouvre la fiche complète) */}
-      <button
-        type="button"
+      {/* En-tête Unité Coss UI Style (Interactive : Clic ouvre la fiche complète) */}
+      <Card
         onClick={onOpenCourseSheet}
-        className="w-full rounded-3xl bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white p-4 sm:p-5 shadow-lg border border-emerald-400/40 space-y-2 text-left mb-6 relative overflow-hidden transition active:scale-[0.99] cursor-pointer hover:brightness-105"
+        className="w-full bg-neutral-900 border-neutral-800 text-white p-5 shadow-sm space-y-3 text-left mb-6 relative overflow-hidden transition active:scale-[0.99] cursor-pointer hover:border-neutral-700"
       >
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 border border-white/30 px-2.5 py-0.5 rounded-full text-white">
+          <Badge
+            variant="outline"
+            size="sm"
+            className="border-neutral-700 bg-neutral-800/80 text-neutral-300 font-bold uppercase tracking-wider text-[10px]"
+          >
             UNITÉ 1 • {subject || "MAÎTRISE DU COURS"}
-          </span>
-          <div className="flex items-center gap-1 bg-black/20 backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-black text-amber-300">
+          </Badge>
+          <Badge
+            variant="warning"
+            size="sm"
+            className="gap-1 font-mono font-bold bg-amber-400/10 text-amber-300 border-amber-400/30"
+          >
             <Award className="w-3.5 h-3.5" />
             <span>{effectiveProgress}%</span>
-          </div>
+          </Badge>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base sm:text-lg font-black text-white leading-tight">
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-0.5 min-w-0">
+            <h2 className="text-base sm:text-lg font-bold font-heading text-white leading-tight truncate">
               {deckTitle}
             </h2>
-            <p className="text-xs text-emerald-100 font-medium mt-0.5">
+            <p className="text-xs text-neutral-400 font-medium">
               Parcours de révision séquentiel adaptatif
             </p>
           </div>
           {onOpenCourseSheet && (
-            <div className="px-2.5 py-1 rounded-xl bg-white/20 border border-white/30 text-white text-xs font-bold flex items-center gap-1 shrink-0 ml-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              className="gap-1 bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700 shrink-0 font-semibold"
+            >
               <span>Lire la fiche</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </div>
+              <ChevronRight className="w-3 h-3" />
+            </Button>
           )}
         </div>
 
         {/* Barre de progression globale */}
-        <div className="w-full h-2 bg-black/20 rounded-full overflow-hidden border border-white/20 pt-0.5">
+        <div className="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden border border-neutral-700/60">
           <div
-            className="h-full bg-white rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-brand to-emerald-400 rounded-full transition-all duration-500"
             style={{ width: `${Math.max(5, effectiveProgress)}%` }}
           />
         </div>
-      </button>
+      </Card>
 
       {/* CHEMIN VISUEL EN ZIGZAG (DUOLINGO MAP) */}
       <div className="relative w-full flex flex-col items-center space-y-7 py-2">
@@ -213,58 +229,28 @@ export function CoursePathMap({
                 disabled={!isClickable}
                 className={`relative w-16 h-16 sm:w-18 sm:h-18 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer ${
                   isDone
-                    ? "bg-gradient-to-tr from-emerald-500 to-green-400 text-white shadow-lg border-4 border-white shadow-emerald-500/30"
+                    ? "bg-emerald-600 text-white shadow-[0_6px_16px_rgba(5,150,105,0.28)] border-4 border-white"
                     : isCurrent
-                    ? "bg-gradient-to-tr from-emerald-500 via-green-500 to-emerald-400 text-white shadow-xl ring-4 ring-emerald-300 ring-offset-2 animate-pulse border-4 border-white"
+                    ? "bg-emerald-500 text-white shadow-[0_8px_20px_rgba(16,185,129,0.35)] ring-4 ring-emerald-400/40 ring-offset-2 animate-pulse border-4 border-white"
                     : isLocked && onUpdateProgress
                     ? "bg-amber-100 text-amber-700 border-4 border-amber-300 cursor-pointer shadow-sm hover:scale-105"
                     : "bg-zinc-200 text-zinc-400 border-4 border-zinc-300 cursor-not-allowed"
                 }`}
               >
-                {isDone ? (
-                  <Check className="w-8 h-8 stroke-[3]" />
-                ) : isLocked && !onUpdateProgress ? (
-                  <Lock className="w-6 h-6 text-zinc-400" />
-                ) : isLocked && onUpdateProgress ? (
-                  <Zap className="w-6 h-6 text-amber-600 fill-amber-500" />
-                ) : (
-                  <IconComponent className="w-7 h-7 sm:w-8 sm:h-8" />
-                )}
-
-                {/* Badge numéro ou statut */}
-                {isDone && (
-                  <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-400 text-black border-2 border-white flex items-center justify-center text-[10px] font-black shadow-xs">
-                    ✓
-                  </span>
-                )}
+                {isDone ? <Check className="w-8 h-8 stroke-[3]" /> : isLocked && !onUpdateProgress ? <Lock className="w-6 h-6 text-zinc-400" /> : isLocked && onUpdateProgress ? <Zap className="w-6 h-6 text-amber-600 fill-amber-500" /> : <IconComponent className="w-7 h-7 sm:w-8 sm:h-8" />}
+                {isDone && <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-400 text-black border-2 border-white flex items-center justify-center text-[10px] font-black shadow-xs">✓</span>}
               </button>
-
-              {/* Titre & Étoiles de sous-nœud */}
               <div className="mt-1.5 text-center space-y-0.5">
-                <div
-                  className={`text-xs font-bold leading-tight ${
-                    isDone
-                      ? "text-emerald-700 font-extrabold"
-                      : isCurrent
-                      ? "text-black font-extrabold"
-                      : "text-zinc-400"
-                  }`}
-                >
+                <div className={`text-xs font-bold leading-tight ${isDone ? "text-emerald-700 font-extrabold" : isCurrent ? "text-black font-extrabold" : "text-zinc-400"}`}>
                   {node.title}
                 </div>
                 <p className="text-[10px] text-zinc-400 font-medium">
                   {node.subtitle}
                 </p>
 
-                {/* 3 Étoiles sous le nœud si validé */}
                 {isDone && (
                   <div className="flex items-center justify-center gap-0.5 pt-0.5">
-                    {[1, 2, 3].map((s) => (
-                      <Star
-                        key={s}
-                        className="w-3 h-3 fill-amber-400 text-amber-400"
-                      />
-                    ))}
+                    {[1, 2, 3].map((s) => (<Star key={s} className="w-3 h-3 fill-amber-400 text-amber-400" />))}
                   </div>
                 )}
               </div>
@@ -274,19 +260,20 @@ export function CoursePathMap({
       </div>
 
       {/* Bouton sticky de lancement du nœud courant */}
-      <div className="fixed bottom-5 left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-auto">
-        <button
+      <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,1.25rem))] left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-auto">
+        <Button
           type="button"
+          size="xl"
           onClick={() => onStartNextNode(currentStepIndex + 1)}
-          className="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xl border border-emerald-400/40 cursor-pointer"
+          className="w-full h-14 rounded-full font-black text-sm sm:text-base gap-2.5 shadow-[0_12px_32px_rgba(68,87,244,0.5)] bg-[#4457f4] border-t-2 border-white/35 border-b-4 border-b-[#26339f] text-white hover:bg-[#394ae0] active:border-b-0 active:translate-y-1 transition-all duration-100"
         >
-          <Play className="w-4 h-4 fill-white text-white" />
+          <Play className="w-4 h-4 fill-white text-white stroke-[3]" />
           <span>
             {progressPercent >= 100
               ? "Rejouer le parcours"
               : `Continuer l'Étape ${currentStepIndex + 1}`}
           </span>
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -72,7 +72,12 @@ export function PaywallModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white border border-zinc-200 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-md bg-white border border-zinc-200 rounded-t-[28px] sm:rounded-3xl p-6 pt-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl overflow-hidden">
+        {/* iOS Grab Handle */}
+        <div className="w-full pt-1 pb-3 flex justify-center sm:hidden">
+          <div className="w-12 h-1.5 rounded-full bg-zinc-300" />
+        </div>
+
         {/* Close Button */}
         <button
           onClick={onClose}

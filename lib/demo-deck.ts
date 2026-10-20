@@ -3,27 +3,42 @@ import { Deck, NotebookItem } from "@/types/loreno";
 export const DEMO_DETAILED_CONTENT = `# Fiche de Révision : Droit Constitutionnel — Séparation des Pouvoirs
 
 ## 1. Concepts Clés & Définitions
-- **La Séparation des Pouvoirs** : Principe cardinal d'organisation de l'État moderne formulé par John Locke (*Second Traité du gouvernement civil*, 1690) et formalisé de manière systématique par **Montesquieu** dans *De l'esprit des lois* (1748).
-- **Finalité Politique** : Prévenir la tyrannie et préserver la liberté politique des citoyens. Selon Montesquieu : *"Pour qu'on ne puisse abuser du pouvoir, il faut que, par la disposition des choses, le pouvoir arrête le pouvoir."*
+- **La Séparation des Pouvoirs** : Principe cardinal d'organisation constitutionnelle formulé par John Locke (*1690*) et systématisé par **Montesquieu** dans *De l'esprit des lois* (*1748*).
+- **Finalité Politique** : Prévenir l'absolutisme et garantir les libertés individuelles. Maxime fondamentale : *"Pour qu'on ne puisse abuser du pouvoir, il faut que, par la disposition des choses, le pouvoir arrête le pouvoir."*
 
-## 2. La Tripartition Traditionnelle des Fonctions
-1. **Pouvoir Législatif** : Puissance d'édicter la loi générale, de voter le budget et de contrôler l'exécutif (Parlement, Assemblée Nationale, Sénat).
-2. **Pouvoir Exécutif** : Mission d'appliquer les lois, de conduire la politique gouvernementale et d'administrer l'État (Chef de l'État, Premier Ministre, Gouvernement).
-3. **Pouvoir Judiciaire** : Autorité juridictionnelle chargée de trancher les litiges et de veiller au respect de la légalité en sanctionnant les infractions (Juges et Tribunaux indépendants).
+## 2. Architecture & Flux Institutionnel
+\`\`\`diagram
+┌────────────────────────────────────────────────────────┐
+│             SOUVERAINETÉ NATIONALE & CITOYENS          │
+└───────────────────────────┬────────────────────────────┘
+                            │
+       ┌────────────────────┼────────────────────┐
+       ▼                    ▼                    ▼
+[LÉGISLATIF]           [EXÉCUTIF]           [JUDICIAIRE]
+(Parlement)            (Gouvernement)       (Tribunaux)
+• Édicte la loi        • Applique la loi    • Tranche les litiges
+• Vote le budget       • Conduite de l'État • Contrôle légalité
+       │                    │                    │
+       └──────────────┬─────┴────────────────────┘
+                      ▼
+            [ORDRE CONSTITUTIONNEL]
+\`\`\`
 
-## 3. Les Deux Modèles d'Application
-- **Séparation Stricte (Régime Présidentiel)** :
-  - Spécialisation rigide des organes institutionnels avec indépendance mutuelle absolue.
-  - Absence totale d'armes réciproques : pas de droit de dissolution de l'Assemblée par le Président, pas de motion de censure ni de responsabilité ministérielle du Parlement contre le Chef de l'État.
-  - *Exemple archétypal* : Les États-Unis (Constitution de 1787 avec système de "Checks and Balances").
-- **Séparation Souple (Régime Parlementaire)** :
-  - Collaboration équilibrée et interdépendance fonctionnelle continue entre l'exécutif et le législatif.
-  - Moyens d'action réciproques : le Premier ministre engage sa responsabilité devant les députés (motion de censure), tandis que l'exécutif dispose du pouvoir de dissoudre la chambre basse.
-  - *Exemple historique* : Le Royaume-Uni (modèle de Westminster) ou la France sous les IIIe et IVe Républiques.
+## 3. Tableau Comparatif des Modèles d'Application
+| Critère d'Analyse | Régime Présidentiel (Stricte) | Régime Parlementaire (Souple) |
+| :--- | :--- | :--- |
+| **Séparation** | Étanche & spécialisation rigide | Souple avec collaboration continue |
+| **Origine Exécutif** | Élection distincte & autonome | Issu de la majorité parlementaire |
+| **Droit de Dissolution** | ❌ Aucun (indépendance totale) | ✅ Oui (arme de l'exécutif) |
+| **Responsabilité Politique** | ❌ Nulle devant le Parlement | ✅ Oui (censure, confiance) |
+| **Exemple Archétypal** | États-Unis (Constitution de 1787) | Royaume-Uni, Allemagne, Espagne |
 
-## 4. Pièges d'Examen & Subtilités Fréquentes
-- **Le Mythe Montesquieu** : Montesquieu n'a en réalité jamais utilisé l'expression exacte de *"séparation des pouvoirs"*, mais évoquait une distribution et une faculté d'empêcher entre puissances.
-- **La Ve République Française** : Régime hybride qualifié de *semi-présidentiel* par Maurice Duverger, doté d'un président fort élu au suffrage universel direct mais conservant les mécanismes parlementaires (dissolution article 12, censure article 49.2).`;
+## 4. Points Clés & Pièges d'Examen
+> ⚠️ **Point critique du barème d'examen** : Ne confonds jamais séparation stricte et absence totale de relations. Aux États-Unis, le mécanisme des *Checks and Balances* (veto présidentiel, confirmation sénatoriale) organise un contre-pouvoir permanent sans responsabilité politique directe.
+
+> 💡 **Mémoire & mnémotechnique** : Retiens la règle des 3 verbes cardinaux : **L**égiférer (Législatif), **E**xécuter (Exécutif), **J**uger (Judiciaire) — "L-E-J".
+
+> 🎯 **Application directe & cas type** : Dans un commentaire sur l'Art. 16 de la DDHC de 1789 (*"Toute Société dans laquelle la garantie des Droits n'est pas assurée, ni la séparation des Pouvoirs déterminée, n'a point de Constitution"*), démontre que la séparation est érigée en condition d'existence même de l'État de droit.`;
 
 export const DEMO_FLASHCARDS = [
   {

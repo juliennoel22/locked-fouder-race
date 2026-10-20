@@ -16,7 +16,6 @@ import { ReviewQuizStep } from "./review/review-quiz-step";
 import { ReviewChestStep } from "./review/review-chest-step";
 import { ReviewTrapStep } from "./review/review-trap-step";
 import { ReviewFreeTextStep } from "./review/review-freetext-step";
-import { ReviewDevBanner } from "./review/review-dev-banner";
 import { buildQueueForStep } from "./review/review-queue-builder";
 import { useReviewSync } from "./review/use-review-sync";
 import { ReviewInterleavingMode, resolveInterleavingMode } from "@/lib/review-config";
@@ -36,23 +35,9 @@ export function AdaptativeReviewPlayer({
 }: AdaptativeReviewPlayerProps) {
   const router = useRouter();
   const currentStep = Math.max(1, Math.min(6, stepNumber));
-  const [activeMode, setActiveMode] = useState<ReviewInterleavingMode>(() =>
+  const [activeMode] = useState<ReviewInterleavingMode>(() =>
     resolveInterleavingMode(initialMode)
   );
-  const [showDevBanner, setShowDevBanner] = useState(false);
-
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      setShowDevBanner(true);
-      return;
-    }
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("dev") === "true") {
-        setShowDevBanner(true);
-      }
-    }
-  }, []);
 
   const { logCardReview, recordWeakCard, saveProgressToDb, resetSessionLogs } =
     useReviewSync({ deckId, currentStep });
@@ -118,6 +103,20 @@ export function AdaptativeReviewPlayer({
       setCurrentIndex(nextIdx);
     }
   };
+
+  useEffect(() => {
+    const onDevNext = () => handleNextItem();
+    const onDevComplete = () => {
+      saveProgressToDb(stepCompletionPercent);
+      setIsCompleted(true);
+    };
+    window.addEventListener("loreno_dev_next_item", onDevNext);
+    window.addEventListener("loreno_dev_complete_step", onDevComplete);
+    return () => {
+      window.removeEventListener("loreno_dev_next_item", onDevNext);
+      window.removeEventListener("loreno_dev_complete_step", onDevComplete);
+    };
+  }, [handleNextItem, saveProgressToDb, stepCompletionPercent]);
 
   const handleMistake = (item: ReviewQueueItem) => {
     setErrorCount((prev) => prev + 1);
@@ -198,26 +197,6 @@ export function AdaptativeReviewPlayer({
 
   return (
     <div className="w-full flex-1 flex flex-col justify-between py-2 select-none">
-      {showDevBanner && (
-        <ReviewDevBanner
-          currentStep={currentStep}
-          mode={activeMode}
-          onModeChange={(newMode) => {
-            setActiveMode(newMode);
-            try {
-              if (typeof window !== "undefined") {
-                localStorage.setItem("loreno_review_mode", newMode);
-              }
-            } catch {}
-          }}
-          onNextItem={handleNextItem}
-          onValidateStep={() => {
-            saveProgressToDb(stepCompletionPercent);
-            setIsCompleted(true);
-          }}
-        />
-      )}
-
       <ReviewProgressBar
         type={currentItem.type}
         currentIndex={currentIndex}

@@ -52,6 +52,19 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
         return;
       }
 
+      if (deckId.startsWith("demo-histoire")) {
+        try {
+          const stored = localStorage.getItem("loreno_mock_history_deck");
+          if (stored) {
+            setDeck(JSON.parse(stored));
+            setIsGeneratingLesson(false);
+            setIsApiReady(true);
+            setLoading(false);
+            return;
+          }
+        } catch {}
+      }
+
       try {
         const supabase = createClient();
         const { data, error } = await supabase
@@ -116,7 +129,7 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
 
   if (loading) {
     return (
-      <main className="min-h-[100dvh] w-full bg-white flex flex-col items-center justify-center p-4">
+      <main className="min-h-[100dvh] w-full bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
         <Loader2 className="w-6 h-6 animate-spin text-zinc-400 mb-2" />
         <p className="text-xs text-zinc-500 font-medium">Chargement de ta session...</p>
       </main>
@@ -137,8 +150,8 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
   }
 
   return (
-    <main className="min-h-[100dvh] w-full bg-white text-black selection:bg-black selection:text-white">
-      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-white text-black">
+    <main className="min-h-[100dvh] w-full bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
+      <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-background text-foreground">
         {/* Header avec lien de retour direct à la fiche de cours */}
         <Header
           backHref={`/deck/${deck.id}`}
@@ -173,7 +186,7 @@ export default function ReviewPage({ params }: ReviewPageProps) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-[100dvh] w-full bg-white flex flex-col items-center justify-center p-4">
+        <main className="min-h-[100dvh] w-full bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
           <Loader2 className="w-6 h-6 animate-spin text-zinc-400 mb-2" />
           <p className="text-xs text-zinc-500 font-medium">Chargement de ta session...</p>
         </main>
