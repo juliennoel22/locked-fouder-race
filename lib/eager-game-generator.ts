@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 import { getAiVolumeTarget } from "./review-config";
 import { verifyAndAuditQuizContent } from "./ai-validator";
+import { packFlashcardBack, packQuizFields } from "./db-compat";
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -34,7 +35,6 @@ export async function generateDeckGameAsync({
 
   const admin = getAdminClient();
 
-  // Vérifier si des flashcards existent déjà
   const { data: existing } = await admin
     .from("flashcards")
     .select("id")
@@ -55,11 +55,20 @@ RÈGLES IMPÉRATIVES DE COHÉRENCE ET CAUSALITÉ STRICTE (CRITIQUE) :
 1. ÉTANCHÉITÉ TOTALE : Tout le contenu doit être EXCLUSIVEMENT tiré de cette fiche de cours.
 2. VALIDATION CAUSALE : Chaque réponse ("back", "initial_quiz_answer") doit répondre DIRECTEMENT, EXACTEMENT ET DE FAÇON PERTINENTE à la question posée ("front", "initial_quiz_question").
 3. INTERDICTION DES ANACHRONISMES OU CONFUSIONS : Ne confonds jamais un fait déclencheur avec une réponse d'examen sur les politiques publiques ou conséquences.
-4. DISTRACTEURS CRÉDIBLES ET INDÉPENDANTS : Les distracteurs doivent être des fausses réponses crédibles et spécifiques.
+4. DISTRACTEURS CRÉDIBLES ET INDÉPENDANTS : Les distracteurs doivent être 3 fausses réponses crédibles et spécifiques.
 5. PROGRESSION CHRONOLOGIQUE STRICTE : Ordonne les flashcards du début à la fin de la fiche (1er tiers: bases, 2e tiers: mécanismes, 3e tiers: synthèse & pièges).
+6. ORTHOGONALITÉ CONCEPTUELLE ABSOLUE (ZÉRO RÉPÉTITION) :
+   - Chaque carte d'apprentissage DOIT couvrir un point du cours, un concept, une date ou un mécanisme PÉDAGOGIQUEMENT DISTINCT.
+   - INTERDICTION FORMELLE de générer plusieurs cartes ayant la même réponse ("back") ou testant la même notion sous des formulations proches.
+   - Varie systématiquement les angles pédagogiques : Définition, Cause, Processus/Mécanisme, Conséquence, Nuance/Exception.
+7. STRUCTURE EN 3 PARTIES DU CORRIGÉ D'EXAMEN ("initial_quiz_answer") :
+   - Rédige impérativement "initial_quiz_answer" en 3 parties articulées :
+     1) Analyse du 1er volet / Thèse A avec les concepts exacts du cours.
+     2) Contrepoint / Thèse B introduit par "À l'inverse, ..." avec des exemples précis du cours.
+     3) Synthèse finale introduite par "En somme, là où ..., ...".
 
 VOLUMÉTRIE CIBLE ADAPTATIVE :
-Génère entre ${volumeTarget.minCards} et ${volumeTarget.maxCards} cartes d'apprentissage (cible : ${volumeTarget.targetCount} cartes) et 1 question piège d'examen avec sa réponse exacte.`;
+Génère entre ${volumeTarget.minCards} et ${volumeTarget.maxCards} cartes d'apprentissage (cible : ${volumeTarget.targetCount} cartes) et 1 question piège d'examen avec son corrigé structuré en 3 parties.`;
 
   const ai = new GoogleGenAI({ apiKey });
   const aiResponse = await ai.models.generateContent({
@@ -103,32 +112,46 @@ Génère entre ${volumeTarget.minCards} et ${volumeTarget.maxCards} cartes d'app
     flashcards: parsed.flashcards || [],
   };
 
-  // Critic Guardrail
   finalResult = await verifyAndAuditQuizContent(finalResult, content, apiKey);
 
   if (Array.isArray(finalResult.flashcards) && finalResult.flashcards.length > 0) {
-    const cardsToInsert = finalResult.flashcards.map((c, idx) => ({
+    const fullCards = finalResult.flashcards.map((c, idx) => ({
       deck_id: deckId,
       front: c.front,
       back: c.back,
+      distractors: c.distractors || [],
       order_index: idx,
     }));
 
-    await admin.from("flashcards").insert(cardsToInsert);
+    const insertTry = await admin.from("flashcards").insert(fullCards);
+    if (insertTry.error && insertTry.error.code === "PGRST204") {
+      const compatCards = finalResult.flashcards.map((c, idx) => ({
+        deck_id: deckId,
+        front: c.front,
+        back: packFlashcardBack(c.back, c.distractors),
+        order_index: idx,
+      }));
+      await admin.from("flashcards").insert(compatCards);
+    }
 
     if (finalResult.initial_quiz_question) {
-      try {
+      const { error: updateErr } = await admin
+        .from("decks")
+        .update({
+          initial_quiz_question: finalResult.initial_quiz_question,
+          initial_quiz_answer: finalResult.initial_quiz_answer,
+        })
+        .eq("id", deckId);
+
+      if (updateErr && updateErr.code === "PGRST204") {
         await admin
           .from("decks")
           .update({
-            initial_quiz_question: finalResult.initial_quiz_question,
-            initial_quiz_answer: finalResult.initial_quiz_answer,
+            initial_quiz_question: packQuizFields(
+              finalResult.initial_quiz_question,
+              finalResult.initial_quiz_answer
+            ),
           })
-          .eq("id", deckId);
-      } catch {
-        await admin
-          .from("decks")
-          .update({ initial_quiz_question: finalResult.initial_quiz_question })
           .eq("id", deckId);
       }
     }

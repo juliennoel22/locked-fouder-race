@@ -122,7 +122,7 @@ export function ScanModal({
       setLoadingProgress(90);
       setLoadingMessage("Fiche de cours prête !");
 
-      const primaryImageUrl = compressedList[0]?.previewUrl || null;
+      const primaryImageUrl = json.imageUrl || null;
       const savedDeckId = json.deckId;
 
       let createdNotebook: NotebookItem;

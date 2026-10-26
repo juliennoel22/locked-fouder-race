@@ -166,6 +166,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Vous ne pouvez pas parrainer votre propre compte" }, { status: 400 });
     }
 
+    if (user.user_metadata?.referred_by) {
+      return NextResponse.json({
+        success: true,
+        alreadyReferred: true,
+        proUntil: user.user_metadata.pro_until || null,
+        message: "Ce compte bénéficie déjà d'un parrainage actif.",
+      });
+    }
+
     const newCount = (Number(referrer.invited_count) || 0) + 1;
     let earnedDays = Number(referrer.pro_days_earned) || 0;
 
@@ -188,22 +197,41 @@ export async function POST(request: NextRequest) {
       const { data: targetUserData } = await admin.auth.admin.getUserById(referrer.user_id!);
       if (targetUserData?.user) {
         const targetMeta = targetUserData.user.user_metadata || {};
+        const updatedReferrerMeta: Record<string, unknown> = {
+          ...targetMeta,
+          invited_count: newCount,
+          pro_days_earned: earnedDays,
+        };
+
+        if (newCount % 5 === 0) {
+          const currentReferrerUntil = targetMeta.pro_until
+            ? new Date(String(targetMeta.pro_until)).getTime()
+            : 0;
+          const baseTime = Math.max(Date.now(), Number.isNaN(currentReferrerUntil) ? 0 : currentReferrerUntil);
+          updatedReferrerMeta.pro_until = new Date(baseTime + 3 * 24 * 60 * 60 * 1000).toISOString();
+        }
+
         await admin.auth.admin.updateUserById(referrer.user_id!, {
-          user_metadata: {
-            ...targetMeta,
-            invited_count: newCount,
-            pro_days_earned: earnedDays,
-          },
+          user_metadata: updatedReferrerMeta,
         });
       }
     } catch {}
 
-    const proUntil = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    const existingRefereeUntil = user.user_metadata?.pro_until
+      ? new Date(String(user.user_metadata.pro_until)).getTime()
+      : 0;
+    const refereeBaseTime = Math.max(Date.now(), Number.isNaN(existingRefereeUntil) ? 0 : existingRefereeUntil);
+    const proUntil = new Date(refereeBaseTime + 3 * 24 * 60 * 60 * 1000).toISOString();
+    const isAlreadyPaidPro = Boolean(
+      user.user_metadata?.is_pro &&
+        (user.user_metadata?.plan === "fondateur" || user.user_metadata?.stripe_session_id)
+    );
+
     try {
       await admin.auth.admin.updateUserById(user.id, {
         user_metadata: {
           ...user.user_metadata,
-          is_pro: true,
+          is_pro: isAlreadyPaidPro,
           pro_until: proUntil,
           referred_by: cleanCode,
         },

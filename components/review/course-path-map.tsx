@@ -195,10 +195,11 @@ export function CoursePathMap({
         </svg>
 
         {nodes.map((node, index) => {
+          const canDevOverride = showDevMode && Boolean(onUpdateProgress);
           const isDone = index < completedCount;
-          const isCurrent = index === currentStepIndex && progressPercent < 100;
-          const isLocked = index > completedCount && progressPercent < 100;
-          const isClickable = !isLocked || Boolean(onUpdateProgress);
+          const isCurrent = index === currentStepIndex && effectiveProgress < 100;
+          const isLocked = index > completedCount && effectiveProgress < 100;
+          const isClickable = !isLocked || canDevOverride;
           const IconComponent = node.icon;
 
           return (
@@ -232,12 +233,12 @@ export function CoursePathMap({
                     ? "bg-emerald-600 text-white shadow-[0_6px_16px_rgba(5,150,105,0.28)] border-4 border-white"
                     : isCurrent
                     ? "bg-emerald-500 text-white shadow-[0_8px_20px_rgba(16,185,129,0.35)] ring-4 ring-emerald-400/40 ring-offset-2 animate-pulse border-4 border-white"
-                    : isLocked && onUpdateProgress
+                    : isLocked && canDevOverride
                     ? "bg-amber-100 text-amber-700 border-4 border-amber-300 cursor-pointer shadow-sm hover:scale-105"
                     : "bg-zinc-200 text-zinc-400 border-4 border-zinc-300 cursor-not-allowed"
                 }`}
               >
-                {isDone ? <Check className="w-8 h-8 stroke-[3]" /> : isLocked && !onUpdateProgress ? <Lock className="w-6 h-6 text-zinc-400" /> : isLocked && onUpdateProgress ? <Zap className="w-6 h-6 text-amber-600 fill-amber-500" /> : <IconComponent className="w-7 h-7 sm:w-8 sm:h-8" />}
+                {isDone ? <Check className="w-8 h-8 stroke-[3]" /> : isLocked && !canDevOverride ? <Lock className="w-6 h-6 text-zinc-400" /> : isLocked && canDevOverride ? <Zap className="w-6 h-6 text-amber-600 fill-amber-500" /> : <IconComponent className="w-7 h-7 sm:w-8 sm:h-8" />}
                 {isDone && <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-400 text-black border-2 border-white flex items-center justify-center text-[10px] font-black shadow-xs">✓</span>}
               </button>
               <div className="mt-1.5 text-center space-y-0.5">
@@ -265,11 +266,11 @@ export function CoursePathMap({
           type="button"
           size="xl"
           onClick={() => onStartNextNode(currentStepIndex + 1)}
-          className="w-full h-14 rounded-full font-black text-sm sm:text-base gap-2.5 shadow-[0_12px_32px_rgba(68,87,244,0.5)] bg-[#4457f4] border-t-2 border-white/35 border-b-4 border-b-[#26339f] text-white hover:bg-[#394ae0] active:border-b-0 active:translate-y-1 transition-all duration-100"
+          className="w-full h-14 rounded-full font-black text-sm sm:text-base gap-2.5 shadow-[0_12px_32px_rgba(68,87,244,0.5)] bg-brand border-t-2 border-white/35 border-b-4 border-b-[#26339f] text-white hover:bg-brand-hover active:border-b-0 active:translate-y-1 transition-all duration-100"
         >
           <Play className="w-4 h-4 fill-white text-white stroke-[3]" />
           <span>
-            {progressPercent >= 100
+            {effectiveProgress >= 100
               ? "Rejouer le parcours"
               : `Continuer l'Étape ${currentStepIndex + 1}`}
           </span>

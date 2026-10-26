@@ -77,18 +77,24 @@ export function useProStatus() {
           } catch {}
         }
 
-        const proUntilStr = user?.user_metadata?.pro_until;
+        const proUntilStr =
+          user?.user_metadata?.pro_until || localStorage.getItem("loreno_pro_until") || null;
         const isProUntilValid = proUntilStr ? new Date(proUntilStr).getTime() > Date.now() : false;
-        const isLifetime = Boolean(user?.user_metadata?.is_pro);
-        const userIsPro = isLifetime || isProUntilValid || isLocalPro;
+        const isPaidLifetime = Boolean(
+          user?.user_metadata?.is_pro &&
+            (!user?.user_metadata?.pro_until ||
+              user?.user_metadata?.plan === "fondateur" ||
+              user?.user_metadata?.stripe_session_id)
+        );
+        const userIsPro = isPaidLifetime || isProUntilValid || isLocalPro;
 
         setIsPro(userIsPro);
-        setProUntil(proUntilStr || null);
-        setIsReferralTrial(isProUntilValid && !isLifetime);
+        setProUntil(proUntilStr);
+        setIsReferralTrial(isProUntilValid && !isPaidLifetime);
 
-        if (userIsPro) {
+        if (isPaidLifetime) {
           setProCookie();
-        } else {
+        } else if (!userIsPro) {
           removeProCookie();
         }
 

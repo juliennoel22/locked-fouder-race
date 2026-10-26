@@ -121,18 +121,20 @@ export default function NewNotebookPage() {
       setLoadingProgress(100);
       setLoadingMessage("Génération terminée !");
 
-      const primaryImageUrl = compressedList[0]?.previewUrl;
+      const primaryImageUrl = json.imageUrl || undefined;
 
-      // Enregistrer dans le cache pour affichage instantané sur le dashboard
       if (typeof window !== "undefined") {
-        sessionStorage.setItem(
-          "loreno_scan_cache",
-          JSON.stringify({
-            scanData: finalScanResult,
-            imageUrl: primaryImageUrl,
-            pageCount: selectedPhotos.length,
-          })
-        );
+        sessionStorage.removeItem("loreno_scan_cache");
+        if (!json.deckId) {
+          sessionStorage.setItem(
+            "loreno_scan_cache",
+            JSON.stringify({
+              scanData: finalScanResult,
+              imageUrl: primaryImageUrl,
+              pageCount: selectedPhotos.length,
+            })
+          );
+        }
       }
 
       setTimeout(() => {

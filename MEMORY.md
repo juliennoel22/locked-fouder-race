@@ -31,7 +31,7 @@
 - **Hauteur & Layout** : `100dvh` (pas de `100vh`), `max-w-md mx-auto` sur desktop avec shell immersif.
 - **Anti-Zoom iOS** : Inputs/Textareas à 16px strict sur mobile via `globals.css`.
 - **Thumb Zone** : Actions principales (Scan, Flip, Next, Achat) placées en bas de l'écran pour être opérables à une main.
-- **Dark Theme Natif** : Palette `zinc-950` avec accents ambre/orange.
+- **Dark Theme Natif** : Palette `zinc-950` avec accents ambre/mandarine.
 
 ---
 
@@ -99,7 +99,8 @@
 | **Phase 7** | **Code Quality & Architecture Agentique** | 🟢 Terminé | Audit documenté dans `docs/`, 100% des fichiers sous 300 lignes, contrats Zod stricts, 0 `any`, compilation validée. |
 | **Phase 8** | **Living Agentic Backlog & Triage Baptiste** | 🟢 Terminé | 18 vocaux transcrits & nettoyés, 11 photos de cours indexées, `INBOX_BAPTISTE.md`, tickets `BUG-003` à `FEAT-011` créés dans `tasks/` et `tasks/BOARD.md`. |
 | **Phase 9** | **Sprint Stabilisation & Clôture P0/P1** | 🟢 Terminé | Résolution des tickets Baptiste (`BUG-003` à `FEAT-011`), Coss UI (`UX-023`), Structured Outputs (`TECH-024`), Dev Studio Modal (`FEAT-025`), et Fiches Haute Densité Claude/ChatGPT (`FEAT-026`). |
-| **Phase 10** | **Vidéo Pitch & Acquisition Live** | 🟡 En cours | Vidéo démo mobile $\le$ 2 min, tests d'affiliation réels en prod, lancement acquisition TikTok. |
+| **Phase 10** | **Audit Prod `/boost` (`BUG-027` à `BUG-031`)** | 🟢 Terminé | Codec DB transparent `lib/db-compat.ts`, réparation live du deck 1929 de Baptiste (`326cc1b2-35ae-44c8-b5a3-09aed924ed6e`), correction des 5 biais de `review-queue-builder.ts`, verrouillage Dev Mode en prod, upload Storage `course-scans` et boucle d'affiliation Stripe. |
+| **Phase 11** | **Vidéo Pitch & Acquisition Live** | 🟡 En cours | Vidéo démo mobile $\le$ 2 min, tests d'affiliation réels en prod, lancement acquisition TikTok. |
 
 ---
 
@@ -109,10 +110,10 @@
 - [ ] **Test du flux d'Affiliation complet en navigation privée** :
   1. Se connecter sur `/dashboard` et cliquer sur `🎁 Affiliation` pour copier son lien parrain (ex: `https://loreno.app?ref=JULIEN-XXXX`).
   2. Ouvrir une fenêtre incognito, coller le lien et créer un 2nd compte de test.
-  3. Vérifier que le compte filleul débloque immédiatement les **3 jours Pro offerts** (badge "Mon compte" et bandeau bas actif).
+  3. Vérifier que le compte filleul débloque immédiatement les **3 jours Pro offerts** (badge "Mon compte" et bandeau bas actif) tout en pouvant ouvrir le Paywall à `-20%` (`7,99 €`).
   4. Vérifier que le parrain voit son nombre de potes invités passer de `0` à `1` dans sa modale.
-- [ ] **Console SQL Supabase (Optionnel pour perfectionnisme DB)** :
-  - Exécuter le fichier `supabase/migrations/20260923_affiliate_system.sql` dans le SQL Editor de Supabase (`bfxbrveuwyiidfthevdn`) pour instancier la table PostgreSQL physique `user_referrals` (le fallback `user_metadata` assure déjà 100% de fonctionnement sans elle).
+- [ ] **Console SQL Supabase : Exécuter la migration consolidée unique** :
+  - Exécuter `supabase/migrations/20261026_full_schema_sync.sql` dans le SQL Editor de Supabase (`bfxbrveuwyiidfthevdn`) pour synchroniser `detailed_content`, `progress_percent`, `initial_quiz_answer`, `image_urls`, `distractors`, `review_logs`, `feedback` et `user_referrals` (le codec `lib/db-compat.ts` assure déjà 100% de persistance sans perte en attendant).
 - [ ] **Enregistrement de la Vidéo Pitch Jury (FounderRace)** :
   - Démo mobile en < 2 min : Scan photo d'un cours manuscrit $\rightarrow$ Rendu de la fiche Markdown $\rightarrow$ Parcours de révision adaptatif Duolingo $\rightarrow$ Paywall Stripe & Affiliation.
 

@@ -99,7 +99,7 @@ export const DEMO_DECK: Deck = {
   initial_quiz_question:
     "Quelle est la différence fondamentale entre la séparation stricte des pouvoirs (régime présidentiel) et la séparation souple (régime parlementaire) ?",
   initial_quiz_answer:
-    "La séparation stricte exclut tout moyen d'action réciproque (pas de droit de dissolution ni de motion de censure), tandis que la séparation souple repose sur une collaboration institutionnelle avec droits de dissolution et de censure.",
+    "Dans un régime à séparation stricte des pouvoirs (comme le régime présidentiel américain), les organes exécutif et législatif sont élus indépendamment et ne disposent d'aucun moyen de révocation mutuelle (ni droit de dissolution, ni motion de censure). À l'inverse, la séparation souple des pouvoirs (comme dans les régimes parlementaires britannique ou français) organise une collaboration fonctionnelle où le Gouvernement est politiquement responsable devant le Parlement en contrepartie du droit de dissolution. En somme, là où le régime présidentiel garantit l'équilibre par l'indépendance organique et les Checks and Balances, le régime parlementaire l'assure par la responsabilité politique croisée.",
   image_url: null,
   progress_percent: 0,
   created_at: new Date().toISOString(),
@@ -109,6 +109,7 @@ export const DEMO_DECK: Deck = {
     deck_id: "demo-droit-constitutionnel",
     front: f.front,
     back: f.back,
+    distractors: f.distractors,
     order_index: i,
   })),
 };

@@ -46,17 +46,28 @@ export function PaywallModal({
         const { data: { user } } = await supabase.auth.getUser();
 
         const urlObj = new URL(baseUrl);
+        let effectiveHasRef = hasRefFlag;
         if (user) {
-          if (user.user_metadata?.is_pro) {
+          const isPaidLifetime = Boolean(
+            user.user_metadata?.is_pro &&
+              (!user.user_metadata?.pro_until ||
+                user.user_metadata?.plan === "fondateur" ||
+                user.user_metadata?.stripe_session_id)
+          );
+          if (isPaidLifetime) {
             setIsPro(true);
             return;
+          }
+          if (user.user_metadata?.referred_by) {
+            effectiveHasRef = true;
+            setHasReferralDiscount(true);
           }
           urlObj.searchParams.set("client_reference_id", user.id);
           if (user.email) {
             urlObj.searchParams.set("prefilled_email", user.email);
           }
         }
-        if (hasRefFlag) {
+        if (effectiveHasRef) {
           urlObj.searchParams.set("prefilled_promo_code", "PARRAIN20");
         }
         setStripeUrl(urlObj.toString());
@@ -171,7 +182,9 @@ export function PaywallModal({
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 h-13 py-3.5 px-6 rounded-xl bg-gradient-to-r from-brand via-brand-hover to-indigo-700 hover:brightness-105 text-white font-bold text-sm transition active:scale-[0.99] shadow-lg shadow-brand/25"
           >
-            <span>S&apos;abonner à Loreno Pro (9,99 € / mois)</span>
+            <span>
+              S&apos;abonner à Loreno Pro ({hasReferralDiscount ? "7,99 €" : "9,99 €"} / mois)
+            </span>
             <ArrowRight className="w-4 h-4 stroke-[2.5]" />
           </a>
 

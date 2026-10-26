@@ -4,26 +4,44 @@ import { useState } from "react";
 import { Send } from "lucide-react";
 import { ReviewQueueItem } from "./review-types";
 
+const FRENCH_STOP_WORDS = new Set([
+  "les", "des", "une", "par", "aux", "est", "son", "ses", "sur",
+  "dans", "pour", "avec", "sans", "plus", "tout", "comme", "que", "qui",
+  "pas", "ont", "ete", "fait", "elle", "elles", "ils", "sont", "cette",
+  "ces", "leurs", "leur", "mais", "donc", "vers", "sous", "entre", "avoir", "etre",
+]);
+
 export function checkFreeTextAnswer(userAnswer: string, correctAnswer: string): boolean {
   const cleanUser = userAnswer.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const cleanCorrect = correctAnswer.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   if (!cleanUser) return false;
   if (cleanUser === cleanCorrect) return true;
-  if (cleanUser.length >= 3 && cleanCorrect.includes(cleanUser)) return true;
   if (cleanCorrect.length >= 3 && cleanUser.includes(cleanCorrect)) return true;
 
-  const userWords = cleanUser.split(/\s+/).filter((w) => w.length >= 3);
-  const correctWords = cleanCorrect.split(/\s+/).filter((w) => w.length >= 3);
+  const extractSignificantWords = (txt: string) =>
+    txt
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length >= 3 && !FRENCH_STOP_WORDS.has(w));
 
-  if (correctWords.length > 0 && userWords.length > 0) {
-    const matchCount = userWords.filter((uw) =>
-      correctWords.some((cw) => cw.includes(uw) || uw.includes(cw))
-    ).length;
-    if (matchCount >= Math.ceil(correctWords.length * 0.4)) return true;
+  const userWords = Array.from(new Set(extractSignificantWords(cleanUser)));
+  const correctWords = Array.from(new Set(extractSignificantWords(cleanCorrect)));
+
+  if (userWords.length === 0 || correctWords.length === 0) return false;
+
+  if (
+    userWords.length === 1 &&
+    (userWords[0].length >= 5 || /^\d{4}$/.test(userWords[0])) &&
+    correctWords.some((cw) => cw.includes(userWords[0]) || userWords[0].includes(cw))
+  ) {
+    return true;
   }
 
-  return false;
+  const matchCount = userWords.filter((uw) =>
+    correctWords.some((cw) => cw.includes(uw) || uw.includes(cw))
+  ).length;
+  const requiredMatches = Math.min(2, Math.max(1, Math.ceil(correctWords.length * 0.4)));
+  return matchCount >= requiredMatches;
 }
 
 interface ReviewFreeTextStepProps {

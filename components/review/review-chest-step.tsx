@@ -37,9 +37,6 @@ export function ReviewChestStep({ onValidate }: ReviewChestStepProps) {
           <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-amber-400 via-amber-500 to-yellow-300 flex items-center justify-center text-white shadow-xl shadow-amber-500/25 animate-bounce">
             <Gift className="w-12 h-12 text-white fill-white/20" />
           </div>
-          <span className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white shadow-sm">
-            <Sparkles className="w-4 h-4 fill-white text-white" />
-          </span>
         </div>
 
         {/* Textes de Victoire Intermédiaire */}
@@ -48,7 +45,7 @@ export function ReviewChestStep({ onValidate }: ReviewChestStepProps) {
             Palier Mi-Parcours Débloqué
           </span>
           <h2 className="text-xl sm:text-2xl font-black text-black tracking-tight">
-            Coffre Trésor de Rétention
+            Coffre Trésor
           </h2>
           <p className="text-xs text-zinc-500 max-w-xs mx-auto leading-relaxed">
             Tu as assimilé les concepts clés et réussi le test 3D. Ta mémoire de travail est amorcée.

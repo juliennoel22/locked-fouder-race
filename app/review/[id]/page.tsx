@@ -3,16 +3,38 @@
 import { useEffect, useState, use, Suspense, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { Deck } from "@/types/loreno";
+import { Deck, Flashcard } from "@/types/loreno";
 import { DEMO_DECK } from "@/lib/demo-deck";
 import { Header } from "@/components/Header";
 import { AdaptativeReviewPlayer } from "@/components/AdaptativeReviewPlayer";
 import { LessonLoadingOverlay } from "@/components/review/lesson-loading-overlay";
 import { createClient } from "@/lib/supabase/client";
 import { resolveInterleavingMode } from "@/lib/review-config";
+import { unpackDeck } from "@/lib/db-compat";
 
 interface ReviewPageProps {
   params: Promise<{ id: string }>;
+}
+
+function hydrateMissingExamAnswer(deck: Deck): string | null {
+  if (deck.initial_quiz_answer && deck.initial_quiz_answer.trim()) {
+    return deck.initial_quiz_answer.trim();
+  }
+  if (!deck.initial_quiz_question?.trim()) {
+    return null;
+  }
+  const ensureDot = (s: string) => (/[.!?]$/.test(s.trim()) ? s.trim() : `${s.trim()}.`);
+  const cards = deck.flashcards || [];
+  if (cards.length >= 3) {
+    const cA = ensureDot(cards[Math.max(0, cards.length - 3)].back);
+    const cB = ensureDot(cards[Math.max(0, cards.length - 2)].back);
+    const cC = ensureDot(cards[cards.length - 1].back);
+    return `${cA} À l'inverse, ${cB.charAt(0).toLowerCase()}${cB.slice(1)} En somme, ${cC.charAt(0).toLowerCase()}${cC.slice(1)}`;
+  }
+  if (cards.length > 0) {
+    return ensureDot(cards[cards.length - 1].back);
+  }
+  return deck.summary || null;
 }
 
 export function ReviewSessionView({ deckId }: { deckId: string }) {
@@ -56,7 +78,11 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
         try {
           const stored = localStorage.getItem("loreno_mock_history_deck");
           if (stored) {
-            setDeck(JSON.parse(stored));
+            const unpacked = unpackDeck(JSON.parse(stored) as Deck);
+            setDeck({
+              ...unpacked,
+              initial_quiz_answer: hydrateMissingExamAnswer(unpacked),
+            });
             setIsGeneratingLesson(false);
             setIsApiReady(true);
             setLoading(false);
@@ -73,10 +99,15 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
           .eq("id", deckId)
           .single();
 
-        const loadedDeck: Deck = (error || !data) ? DEMO_DECK : data;
-        setDeck(loadedDeck);
+        const rawLoaded: Deck = error || !data ? DEMO_DECK : (data as Deck);
+        const unpacked = unpackDeck(rawLoaded);
+        const hydratedDeck: Deck = {
+          ...unpacked,
+          initial_quiz_answer: hydrateMissingExamAnswer(unpacked),
+        };
+        setDeck(hydratedDeck);
 
-        const hasCards = Array.isArray(loadedDeck.flashcards) && loadedDeck.flashcards.length > 0;
+        const hasCards = Array.isArray(hydratedDeck.flashcards) && hydratedDeck.flashcards.length > 0;
         if (!hasCards && deckId !== "demo-droit-constitutionnel" && deckId !== "demo") {
           setIsGeneratingLesson(true);
           setIsApiReady(false);
@@ -97,7 +128,6 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
     loadDeck();
   }, [deckId]);
 
-  // Génération Just-in-Time par l'IA la toute première fois que l'étudiant joue
   useEffect(() => {
     if (!deck || !isGeneratingLesson || hasTriggeredRef.current) return;
     hasTriggeredRef.current = true;
@@ -111,11 +141,19 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
         });
         const json = await res.json();
         if (json.success && Array.isArray(json.flashcards)) {
-          setDeck((prev) => (prev ? {
-            ...prev,
-            flashcards: json.flashcards,
-            initial_quiz_question: json.initial_quiz_question || prev.initial_quiz_question,
-          } : null));
+          const sortedCards = [...(json.flashcards as Flashcard[])].sort(
+            (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)
+          );
+          setDeck((prev) =>
+            prev
+              ? unpackDeck({
+                  ...prev,
+                  flashcards: sortedCards,
+                  initial_quiz_question: json.initial_quiz_question || prev.initial_quiz_question,
+                  initial_quiz_answer: json.initial_quiz_answer || prev.initial_quiz_answer,
+                })
+              : null
+          );
         }
       } catch (err) {
         console.error("Erreur génération de leçon JIT :", err);
@@ -138,7 +176,6 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
 
   if (!deck) return null;
 
-  // Première fois que l'étudiant joue : affichage du rituel de préparation avec checklist et orbe
   if (isGeneratingLesson) {
     return (
       <LessonLoadingOverlay
@@ -149,23 +186,25 @@ export function ReviewSessionView({ deckId }: { deckId: string }) {
     );
   }
 
+  const sortedFlashcards = [...(deck.flashcards || [])].sort(
+    (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)
+  );
+
   return (
     <main className="min-h-[100dvh] w-full bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-background text-foreground">
-        {/* Header avec lien de retour direct à la fiche de cours */}
         <Header
           backHref={`/deck/${deck.id}`}
           title={`Étape ${effectiveStepNumber} / 6`}
         />
 
-        {/* Moteur Adaptatif Duolingo Style */}
         <div className="flex-1 flex flex-col min-h-0">
           <AdaptativeReviewPlayer
             key={`player-${deck.id}-step-${effectiveStepNumber}`}
             deckId={deck.id}
             deckTitle={deck.title}
             subject={deck.subject}
-            flashcards={deck.flashcards || []}
+            flashcards={sortedFlashcards}
             initialQuizQuestion={deck.initial_quiz_question}
             initialQuizAnswer={deck.initial_quiz_answer}
             stepNumber={effectiveStepNumber}

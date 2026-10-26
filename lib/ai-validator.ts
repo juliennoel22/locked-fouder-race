@@ -21,15 +21,22 @@ export async function verifyAndAuditQuizContent(
 ): Promise<VerifiedQuizPayload> {
   let audited = { ...candidate };
 
-  // 1. Programmatic Sanity Clean-up
+  // 1. Programmatic Sanity Clean-up & Anti-Duplicate Guardrail
+  const seenFronts = new Set<string>();
+  const seenBacks = new Set<string>();
   audited.flashcards = (audited.flashcards || []).filter((card) => {
     if (!card.front?.trim() || !card.back?.trim()) return false;
-    // Discard identical Q&A
     if (card.front.trim().toLowerCase() === card.back.trim().toLowerCase()) return false;
+
+    const frontKey = card.front.trim().toLowerCase().replace(/[^a-z0-9à-ÿ]/g, "");
+    const backKey = card.back.trim().toLowerCase().replace(/[^a-z0-9à-ÿ]/g, "");
+    if (seenFronts.has(frontKey) || seenBacks.has(backKey)) return false;
+    seenFronts.add(frontKey);
+    seenBacks.add(backKey);
+
     return true;
   });
 
-  // Ensure distractors don't contain the correct answer
   audited.flashcards = audited.flashcards.map((card) => ({
     ...card,
     distractors: (card.distractors || []).filter(
@@ -37,7 +44,7 @@ export async function verifyAndAuditQuizContent(
     ),
   }));
 
-  // 2. High-speed LLM Critic Pass (Temperature 0 for Fact-Checking & Causal Verification)
+  // 2. High-speed LLM Critic Pass with structured responseSchema
   if (apiKey && sourceText?.trim() && audited.flashcards.length > 0) {
     try {
       const ai = new GoogleGenAI({ apiKey });
@@ -53,19 +60,46 @@ ${JSON.stringify(audited, null, 2)}
 CONSIGNES DE VALIDATION STRICTES :
 1. VÉRIFIE la question piège ("initial_quiz_question") et sa réponse ("initial_quiz_answer") :
    - Si la question demande la RÉACTION, la POLITIQUE ou les CONSÉQUENCES d'un événement, la réponse DOIT être cette réaction ou politique, et NON PAS la date ou le fait déclencheur !
-   - Si la réponse est incohérente, CORRIGE la réponse pour qu'elle réponde exactement à la question.
+   - Formate obligatoirement "initial_quiz_answer" selon une structure argumentative en 3 parties :
+     1) Analyse du 1er volet / Thèse A.
+     2) Contrepoint / Thèse B ("À l'inverse, ...") avec des exemples précis du cours.
+     3) Synthèse ("En somme, là où ..., ...").
 2. VÉRIFIE chaque flashcard :
    - Assure-toi que la réponse ("back") répond DIRECTEMENT à la question ("front").
-   - Nettoie les distracteurs pour qu'ils soient tous pertinents et distincts de la réponse exacte.
+   - Nettoie les distracteurs pour qu'ils soient 3 fausses réponses pertinentes et distinctes de la réponse exacte.
+3. VÉRIFIE l'orthogonalité et la diversité (ZÉRO RÉPÉTITION) :
+   - Assure-toi qu'aucune carte ne répète la même notion ou réponse qu'une autre. Chaque carte doit être unique.
 
-Renvoie le JSON AUDITÉ ET CORRIGÉ STRICTEMENT sous le même format JSON sans aucun texte supplémentaire.`;
+Renvoie le JSON AUDITÉ ET CORRIGÉ STRICTEMENT sous le même format JSON.`;
 
       const response = await ai.models.generateContent({
         model: "gemini-3.8-flash",
         contents: criticPrompt,
         config: {
           responseMimeType: "application/json",
-          temperature: 0,
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              initial_quiz_question: { type: "STRING" },
+              initial_quiz_answer: { type: "STRING" },
+              flashcards: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    front: { type: "STRING" },
+                    back: { type: "STRING" },
+                    distractors: {
+                      type: "ARRAY",
+                      items: { type: "STRING" },
+                    },
+                  },
+                  required: ["front", "back", "distractors"],
+                },
+              },
+            },
+            required: ["initial_quiz_question", "initial_quiz_answer", "flashcards"],
+          },
         },
       });
 

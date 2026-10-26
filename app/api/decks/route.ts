@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 import { deckCreateSchema, deckUpdateSchema } from "@/lib/validations";
+import {
+  packFlashcardBack,
+  packQuizFields,
+  packSummaryFields,
+  unpackDeck,
+  unpackFlashcard,
+} from "@/lib/db-compat";
+
+interface FlashcardRecord {
+  id: string;
+  deck_id: string;
+  front: string;
+  back: string;
+  distractors?: string[];
+  order_index: number;
+}
 
 interface DeckRecord {
   id: string;
@@ -11,17 +27,11 @@ interface DeckRecord {
   subject: string;
   summary: string | null;
   detailed_content?: string | null;
-  progress_percent: number;
+  progress_percent?: number | null;
   initial_quiz_question: string | null;
+  initial_quiz_answer?: string | null;
   image_url: string | null;
-}
-
-interface FlashcardRecord {
-  id: string;
-  deck_id: string;
-  front: string;
-  back: string;
-  order_index: number;
+  flashcards?: FlashcardRecord[];
 }
 
 function getAdminClient() {
@@ -76,7 +86,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, decks: decks || [] });
+    const unpackedDecks = (decks || []).map((d) => unpackDeck(d as DeckRecord));
+    return NextResponse.json({ success: true, decks: unpackedDecks });
   } catch (err) {
     console.error("Erreur GET /api/decks :", err);
     return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 });
@@ -105,14 +116,13 @@ export async function POST(request: NextRequest) {
       detailed_content,
       progress_percent,
       initial_quiz_question,
+      initial_quiz_answer,
       image_url,
       flashcards,
     } = parseResult.data;
 
+    const cleanImageUrl = image_url && !image_url.startsWith("blob:") ? image_url : null;
     const admin = getAdminClient();
-
-    let deck: DeckRecord | null = null;
-    let deckError: { code?: string; message: string } | null = null;
 
     const initialInsert = await admin
       .from("decks")
@@ -124,27 +134,27 @@ export async function POST(request: NextRequest) {
         detailed_content: detailed_content || null,
         progress_percent: progress_percent ?? 0,
         initial_quiz_question: initial_quiz_question || null,
-        image_url: image_url || null,
+        initial_quiz_answer: initial_quiz_answer || null,
+        image_url: cleanImageUrl,
       })
-      .select("id, created_at, user_id, title, subject, summary, progress_percent, initial_quiz_question, image_url")
+      .select("*")
       .single();
 
-    deck = (initialInsert.data as DeckRecord) || null;
-    deckError = initialInsert.error;
+    let deck = (initialInsert.data as DeckRecord) || null;
+    let deckError = initialInsert.error;
 
     if (deckError && deckError.code === "PGRST204") {
-      console.warn("Retentative d'insertion sans detailed_content (PGRST204 fallback)...");
       const fallbackInsert = await admin
         .from("decks")
         .insert({
           user_id: user.id,
           title: title || "Cours sans titre",
           subject: subject || "Général",
-          summary: summary || null,
-          initial_quiz_question: initial_quiz_question || null,
-          image_url: image_url || null,
+          summary: packSummaryFields(summary, detailed_content, progress_percent ?? 0),
+          initial_quiz_question: packQuizFields(initial_quiz_question, initial_quiz_answer),
+          image_url: cleanImageUrl,
         })
-        .select("id, created_at, user_id, title, subject, summary, initial_quiz_question, image_url")
+        .select("*")
         .single();
 
       deck = (fallbackInsert.data as DeckRecord) || null;
@@ -152,32 +162,37 @@ export async function POST(request: NextRequest) {
     }
 
     if (deckError || !deck) {
-      console.error("Erreur insertion deck :", deckError);
       return NextResponse.json({ success: false, error: deckError?.message || "Erreur création cours" }, { status: 500 });
     }
 
     let insertedCards: FlashcardRecord[] = [];
     if (flashcards && flashcards.length > 0) {
-      const cardsToInsert = flashcards.map((c, idx) => ({
+      const fullCards = flashcards.map((c, idx) => ({
         deck_id: deck!.id,
         front: c.front,
         back: c.back,
+        distractors: c.distractors || [],
         order_index: idx,
       }));
 
-      const { data: cards, error: cardsError } = await admin
-        .from("flashcards")
-        .insert(cardsToInsert)
-        .select();
-
-      if (cardsError) console.error("Erreur insertion flashcards :", cardsError);
-      else insertedCards = (cards as FlashcardRecord[]) || [];
+      const firstCardsTry = await admin.from("flashcards").insert(fullCards).select();
+      if (firstCardsTry.error && firstCardsTry.error.code === "PGRST204") {
+        const compatCards = flashcards.map((c, idx) => ({
+          deck_id: deck!.id,
+          front: c.front,
+          back: packFlashcardBack(c.back, c.distractors),
+          order_index: idx,
+        }));
+        const retryCards = await admin.from("flashcards").insert(compatCards).select();
+        if (!retryCards.error && retryCards.data) {
+          insertedCards = (retryCards.data as FlashcardRecord[]).map((c) => unpackFlashcard(c));
+        }
+      } else if (!firstCardsTry.error && firstCardsTry.data) {
+        insertedCards = (firstCardsTry.data as FlashcardRecord[]).map((c) => unpackFlashcard(c));
+      }
     }
 
-    return NextResponse.json({
-      success: true,
-      deck: { ...deck, flashcards: insertedCards },
-    });
+    return NextResponse.json({ success: true, deck: unpackDeck({ ...deck, flashcards: insertedCards }) });
   } catch (err) {
     console.error("Erreur POST /api/decks :", err);
     return NextResponse.json({ success: false, error: "Erreur interne" }, { status: 500 });
@@ -190,17 +205,12 @@ export async function DELETE(request: NextRequest) {
     const user = await getAuthUser(request, supabase);
     if (!user) return NextResponse.json({ success: false, error: "Non autorisé" }, { status: 401 });
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const id = new URL(request.url).searchParams.get("id");
     if (!id) return NextResponse.json({ success: false, error: "ID du cours manquant" }, { status: 400 });
 
     const admin = getAdminClient();
     const { error } = await admin.from("decks").delete().eq("id", id).eq("user_id", user.id);
-
-    if (error) {
-      console.error("Erreur suppression deck :", error);
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
+    if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -222,15 +232,13 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { id, progress_percent, detailed_content } = parseResult.data;
-
-    const updatePayload: Record<string, unknown> = {};
+    const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (typeof progress_percent === "number") {
       updatePayload.progress_percent = Math.max(0, Math.min(100, Math.round(progress_percent)));
     }
     if (typeof detailed_content === "string") {
       updatePayload.detailed_content = detailed_content;
     }
-    updatePayload.updated_at = new Date().toISOString();
 
     const admin = getAdminClient();
     const { data: updatedDeck, error } = await admin
@@ -238,29 +246,32 @@ export async function PATCH(request: NextRequest) {
       .update(updatePayload)
       .eq("id", id)
       .eq("user_id", user.id)
-      .select("id, progress_percent, detailed_content, updated_at")
+      .select("*")
       .single();
 
     if (error) {
       if (error.code === "PGRST204") {
-        console.warn("PGRST204: Colonne absente de la table decks, fallback sur updated_at...");
+        const { data: currentRow } = await admin.from("decks").select("*").eq("id", id).eq("user_id", user.id).single();
+        if (!currentRow) return NextResponse.json({ success: false, error: "Cours introuvable" }, { status: 404 });
+
+        const packedSummary = packSummaryFields(currentRow.summary, detailed_content, progress_percent);
         const fallbackUpdate = await admin
           .from("decks")
-          .update({ updated_at: updatePayload.updated_at })
+          .update({ summary: packedSummary })
           .eq("id", id)
           .eq("user_id", user.id)
-          .select("id, updated_at")
+          .select("*")
           .single();
-        return NextResponse.json({
-          success: true,
-          deck: { id, progress_percent, updated_at: fallbackUpdate.data?.updated_at },
-        });
+
+        const targetRow = (fallbackUpdate.data as DeckRecord) || { ...(currentRow as DeckRecord), summary: packedSummary };
+        return NextResponse.json({ success: true, deck: unpackDeck(targetRow) });
       }
-      console.error("Erreur PATCH /api/decks :", error);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, deck: updatedDeck });
+    const unpacked = unpackDeck(updatedDeck as DeckRecord);
+    if (typeof progress_percent === "number") unpacked.progress_percent = Math.max(0, Math.min(100, Math.round(progress_percent)));
+    return NextResponse.json({ success: true, deck: unpacked });
   } catch (err) {
     console.error("Erreur interne PATCH /api/decks :", err);
     return NextResponse.json({ success: false, error: "Erreur interne" }, { status: 500 });

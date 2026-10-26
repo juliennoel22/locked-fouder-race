@@ -45,8 +45,11 @@ export function ReferralListener() {
         document.cookie = "loreno_ref_code=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
         if (data.success) {
-          localStorage.setItem("loreno_pro", "true");
-          document.cookie = "loreno_pro=true; path=/; max-age=2592000; SameSite=Lax";
+          if (data.proUntil) {
+            localStorage.setItem("loreno_pro_until", String(data.proUntil));
+          }
+          localStorage.setItem("loreno_has_referral_discount", "true");
+          window.dispatchEvent(new Event("loreno_pro_changed"));
 
           // Rechargement doux pour activer les 3 jours Pro immédiatement
           if (window.location.pathname !== "/dashboard") {

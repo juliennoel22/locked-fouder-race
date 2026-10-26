@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, getClientIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 import { deckAppendSchema } from "@/lib/validations";
+import { packSummaryFields, unpackDeck, CompatDeckLike } from "@/lib/db-compat";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +18,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isProUser = Boolean(user.user_metadata?.is_pro);
+    const proUntilStr = user.user_metadata?.pro_until;
+    const hasActiveTrial = typeof proUntilStr === "string" && new Date(proUntilStr).getTime() > Date.now();
+    const isProUser = Boolean(user.user_metadata?.is_pro) || hasActiveTrial;
     const identifier = getClientIdentifier(request, user.id);
     const rateLimitConfig = isProUser
       ? { limit: 30, windowSeconds: 600 }
@@ -39,20 +43,22 @@ export async function POST(request: NextRequest) {
 
     const { deckId, base64, mimeType, imageUrl, images = [] } = parseResult.data;
 
-    // Récupérer le deck existant
-    const { data: existingDeck, error: deckErr } = await supabase
+    // Utiliser select("*") et unpackDeck pour éviter l'erreur 42703/PGRST204 si detailed_content n'existe pas encore
+    const { data: rawExistingDeck, error: deckErr } = await supabase
       .from("decks")
-      .select("id, title, subject, summary, detailed_content, image_url")
+      .select("*")
       .eq("id", deckId)
       .eq("user_id", user.id)
       .single();
 
-    if (deckErr || !existingDeck) {
+    if (deckErr || !rawExistingDeck) {
       return NextResponse.json(
         { success: false, error: "Cours non trouvé ou accès non autorisé." },
         { status: 404 }
       );
     }
+
+    const existingDeck = unpackDeck(rawExistingDeck as CompatDeckLike);
 
     const docList: Array<{ base64: string; mimeType: string; imageUrl?: string }> = [];
 
@@ -147,15 +153,58 @@ Enrichis et mets à jour la FICHE DE COURS COMPLÈTE en Markdown en y intégrant
       }
     }
 
-    // Mise à jour de la fiche de cours dans Supabase
-    await supabase
+    let finalImageUrl =
+      existingDeck.image_url && !existingDeck.image_url.startsWith("blob:")
+        ? existingDeck.image_url
+        : null;
+
+    if (!finalImageUrl && docList[0]) {
+      try {
+        const admin = createSupabaseAdminClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          { auth: { autoRefreshToken: false, persistSession: false } }
+        );
+        const firstDoc = docList[0];
+        const isPdf = firstDoc.mimeType === "application/pdf" || firstDoc.base64.startsWith("JVBERi");
+        const ext = isPdf ? "pdf" : "jpg";
+        const contentType = isPdf ? "application/pdf" : "image/jpeg";
+        const storagePath = `${user.id}/${deckId}-append-${Date.now()}.${ext}`;
+        const { error: upErr } = await admin.storage
+          .from("course-scans")
+          .upload(storagePath, Buffer.from(firstDoc.base64, "base64"), { contentType, upsert: true });
+        if (!upErr) {
+          const { data: pub } = admin.storage.from("course-scans").getPublicUrl(storagePath);
+          if (pub?.publicUrl) finalImageUrl = pub.publicUrl;
+        }
+      } catch {}
+    }
+
+    // Mise à jour de la fiche de cours dans Supabase avec fallback PGRST204
+    const updateTry = await supabase
       .from("decks")
       .update({
         detailed_content: enrichedContent,
         summary: enrichedSummary,
+        ...(finalImageUrl ? { image_url: finalImageUrl } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq("id", deckId);
+
+    if (updateTry.error && updateTry.error.code === "PGRST204") {
+      const packedSummary = packSummaryFields(
+        enrichedSummary,
+        enrichedContent,
+        existingDeck.progress_percent
+      );
+      await supabase
+        .from("decks")
+        .update({
+          summary: packedSummary,
+          ...(finalImageUrl ? { image_url: finalImageUrl } : {}),
+        })
+        .eq("id", deckId);
+    }
 
     // Réinitialiser les flashcards pour régénération Just-in-Time au prochain jeu
     await supabase.from("flashcards").delete().eq("deck_id", deckId);
@@ -165,6 +214,7 @@ Enrichis et mets à jour la FICHE DE COURS COMPLÈTE en Markdown en y intégrant
       message: "Fiche de cours enrichie avec succès !",
       detailed_content: enrichedContent,
       summary: enrichedSummary,
+      imageUrl: finalImageUrl,
     });
   } catch (error) {
     console.error("Erreur globale /api/decks/append :", error);

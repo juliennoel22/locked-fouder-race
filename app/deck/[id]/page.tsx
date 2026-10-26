@@ -10,6 +10,7 @@ import { MarkdownView } from "@/components/markdown-view";
 import { MirrorModal } from "@/components/mirror-modal";
 import { PaywallModal } from "@/components/paywall-modal";
 import { createClient } from "@/lib/supabase/client";
+import { unpackDeck } from "@/lib/db-compat";
 
 import { CoursePathMap, PathNode } from "@/components/review/course-path-map";
 import { PathNodeModal } from "@/components/review/path-node-modal";
@@ -29,6 +30,16 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
   const [selectedPathNode, setSelectedPathNode] = useState<PathNode | null>(null);
   const [showMirrorModal, setShowMirrorModal] = useState<boolean>(false);
   const [showPaywall, setShowPaywall] = useState<boolean>(false);
+  const [showDevMode, setShowDevMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get("dev") === "true" || localStorage.getItem("loreno_dev_mode") === "true") {
+        setShowDevMode(true);
+      }
+    }
+  }, []);
 
   const loadDeck = useCallback(async () => {
     if (deckId === "demo-droit-constitutionnel" || deckId === "demo") {
@@ -41,7 +52,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
       try {
         const stored = localStorage.getItem("loreno_mock_history_deck");
         if (stored) {
-          setDeck(JSON.parse(stored));
+          setDeck(unpackDeck(JSON.parse(stored) as Deck));
           setLoading(false);
           return;
         }
@@ -59,7 +70,7 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
       if (error || !data) {
         setDeck(DEMO_DECK);
       } else {
-        setDeck(data);
+        setDeck(unpackDeck(data as Deck));
       }
     } catch (err) {
       console.error("Erreur chargement deck :", err);
@@ -115,10 +126,16 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
 
   if (!deck) return null;
 
+  const sortedCards = [...(deck.flashcards || [])].sort(
+    (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)
+  );
+  const validImageUrl =
+    deck.image_url && !deck.image_url.startsWith("blob:") ? deck.image_url : null;
+
   const markdownContent = deck.detailed_content?.trim() || (
     `# Fiche de Révision : ${deck.title}\n\n## 1. Synthèse du Cours\n${deck.summary || "Synthèse des notions essentielles du cours."}\n\n## 2. Notions Essentielles\n${
-      Array.isArray(deck.flashcards) && deck.flashcards.length > 0
-        ? deck.flashcards.map((f) => `- **${f.front}** : ${f.back}`).join("\n")
+      sortedCards.length > 0
+        ? sortedCards.map((f) => `- **${f.front}** : ${f.back}`).join("\n")
         : `- **Concept Principal** : Définition et mécanismes de base de **${deck.title}**.\n- **Méthodologie** : Méthode d'analyse et points d'attention aux partiels.`
     }\n\n## 3. Synthèse des Connaissances\nCette fiche est prête pour ton entraînement adaptatif.`
   );
@@ -129,8 +146,8 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
     subject: deck.subject || "Général",
     emoji: "📝",
     date: "Aujourd'hui",
-    sourceCount: deck.flashcards?.length || 0,
-    imageUrl: deck.image_url,
+    sourceCount: sortedCards.length,
+    imageUrl: validImageUrl,
     detailed_content: deck.detailed_content,
     deck: {
       title: deck.title,
@@ -138,7 +155,8 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
       summary: deck.summary || "",
       detailed_content: deck.detailed_content || "",
       initial_quiz_question: deck.initial_quiz_question || "",
-      flashcards: (deck.flashcards || []).map((f) => ({
+      initial_quiz_answer: deck.initial_quiz_answer || undefined,
+      flashcards: sortedCards.map((f) => ({
         front: f.front,
         back: f.back,
         distractors: f.distractors,
@@ -149,7 +167,6 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
   return (
     <main className="min-h-[100dvh] w-full bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       <div className="w-full max-w-md mx-auto min-h-[100dvh] flex flex-col justify-between p-4 bg-background text-foreground">
-        {/* Header avec bouton retour & pastille PRO */}
         <Header
           backHref={showPathMap ? undefined : "/dashboard"}
           onBack={showPathMap ? () => setShowPathMap(false) : undefined}
@@ -157,7 +174,6 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
           onOpenPaywall={() => setShowPaywall(true)}
         />
 
-        {/* CONTENU PRINCIPAL */}
         <div className="flex-1 flex flex-col space-y-4 pb-28 pt-1 text-left">
           {showPathMap ? (
             <CoursePathMap
@@ -167,12 +183,11 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
               progressPercent={deck.progress_percent || 0}
               onSelectNode={(node) => setSelectedPathNode(node)}
               onStartNextNode={(stepNum) => router.push(`/review/${deck.id}?step=${stepNum || 1}`)}
-              onUpdateProgress={handleUpdateProgress}
+              onUpdateProgress={showDevMode ? handleUpdateProgress : undefined}
               onOpenCourseSheet={() => setShowPathMap(false)}
             />
           ) : (
             <div className="space-y-4">
-              {/* Titre & Badges */}
               <div className="space-y-2 border-b border-zinc-200/60 pb-3">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" size="sm">
@@ -193,33 +208,31 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
                 </h1>
               </div>
 
-              {/* Bouton unique pour consulter les photos et enrichir le cours (Plush Coss UI Card) */}
-              {deck.image_url && (
-                <div
-                  onClick={() => setShowMirrorModal(true)}
-                  className="w-full p-3.5 sm:p-4 rounded-2xl bg-white border border-border/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.07)] hover:border-border transition-all duration-150 flex items-center justify-between cursor-pointer select-none active:scale-[0.99]"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-[#4457f4]/10 border border-[#4457f4]/20 flex items-center justify-center shrink-0 text-[#4457f4]">
-                      <Eye className="w-5 h-5 stroke-[2.2]" />
-                    </div>
-                    <div className="text-left truncate">
-                      <div className="text-xs sm:text-sm font-bold text-foreground tracking-tight truncate">
-                        Notes manuscrites originales
-                      </div>
-                      <div className="text-[11px] text-muted-foreground truncate">
-                        Consulter la photo scannée & enrichir le cours
-                      </div>
-                    </div>
+              <div
+                onClick={() => setShowMirrorModal(true)}
+                className="w-full p-3.5 sm:p-4 rounded-2xl bg-white border border-border/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.07)] hover:border-border transition-all duration-150 flex items-center justify-between cursor-pointer select-none active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0 text-brand">
+                    <Eye className="w-5 h-5 stroke-[2.2]" />
                   </div>
-                  <div className="flex items-center gap-1 text-xs font-bold text-[#4457f4] shrink-0 ml-2 bg-[#4457f4]/8 hover:bg-[#4457f4]/15 px-3 py-1.5 rounded-xl border border-[#4457f4]/15">
-                    <span>Voir</span>
-                    <span className="text-[10px]">→</span>
+                  <div className="text-left truncate">
+                    <div className="text-xs sm:text-sm font-bold text-foreground tracking-tight truncate">
+                      Notes manuscrites originales
+                    </div>
+                    <div className="text-[11px] text-muted-foreground truncate">
+                      {validImageUrl
+                        ? "Consulter la photo scannée & enrichir le cours"
+                        : "Ajouter une photo ou un PDF pour enrichir ce cours"}
+                    </div>
                   </div>
                 </div>
-              )}
+                <div className="flex items-center gap-1 text-xs font-bold text-brand shrink-0 ml-2 bg-brand/10 hover:bg-brand/15 px-3 py-1.5 rounded-xl border border-brand/20">
+                  <span>{validImageUrl ? "Voir" : "Ajouter"}</span>
+                  <span className="text-[10px]">→</span>
+                </div>
+              </div>
 
-              {/* Rendu Markdown de la Fiche Complète */}
               <Card className="p-4 sm:p-5 rounded-2xl">
                 <MarkdownView content={markdownContent} />
               </Card>
@@ -227,7 +240,6 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
           )}
         </div>
 
-        {/* CTA UNIQUE STICKY BOTTOM : DÉMARRER L'ENTRAÎNEMENT -> OUVRE LA CARTE DU PARCOURS */}
         {!showPathMap && (
           <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,1.25rem))] left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-auto">
             <Button
@@ -242,20 +254,18 @@ export function DeckDetailView({ deckId }: { deckId: string }) {
           </div>
         )}
 
-        {/* Modal Nœud du Parcours */}
         <PathNodeModal
           isOpen={Boolean(selectedPathNode)}
           node={selectedPathNode}
           onClose={() => setSelectedPathNode(null)}
           onStartSession={(node) => router.push(`/review/${deck.id}?step=${node?.stepNumber || 1}`)}
-          onCompleteNode={handleCompleteNode}
+          onCompleteNode={showDevMode ? handleCompleteNode : undefined}
         />
 
-        {/* Modal Photo Miroir & Enrichissement */}
         <MirrorModal
           isOpen={showMirrorModal}
           onClose={() => setShowMirrorModal(false)}
-          imageUrl={deck.image_url}
+          imageUrl={validImageUrl}
           deckTitle={deck.title}
           currentNotebook={notebookItem}
           onDeckUpdated={() => loadDeck()}

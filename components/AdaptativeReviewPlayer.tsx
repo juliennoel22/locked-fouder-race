@@ -257,7 +257,12 @@ export function AdaptativeReviewPlayer({
           <ReviewTrapStep
             item={currentItem}
             onValidate={handleNextItem}
-            onMistake={() => handleMistake(currentItem)}
+            onMistake={() => {
+              setErrorCount((prev) => prev + 1);
+              logCardReview(currentItem.front, "again");
+              recordWeakCard(currentItem.front);
+              handleNextItem();
+            }}
           />
         )}
       </div>

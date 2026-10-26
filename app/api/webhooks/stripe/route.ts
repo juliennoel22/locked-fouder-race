@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
         if (targetUserId) {
           const { data: userObj } = await adminSupabase.auth.admin.getUserById(targetUserId);
           const existingMeta = userObj?.user?.user_metadata || {};
+          const alreadyRewardedSession = existingMeta.stripe_session_id === session.id;
 
           await adminSupabase.auth.admin.updateUserById(targetUserId, {
             user_metadata: {
@@ -81,6 +82,67 @@ export async function POST(request: NextRequest) {
               stripe_session_id: session.id,
             },
           });
+
+          // Créditer 20% de commission au parrain si l'acheteur a été parrainé
+          const referredByCode =
+            typeof existingMeta.referred_by === "string"
+              ? existingMeta.referred_by.trim().toUpperCase()
+              : null;
+
+          if (referredByCode && !alreadyRewardedSession) {
+            const amountPaidCents =
+              typeof session.amount_total === "number" && session.amount_total > 0
+                ? session.amount_total
+                : 999;
+            const commissionCents = Math.round(amountPaidCents * 0.2);
+
+            try {
+              const { data: refRow } = await adminSupabase
+                .from("user_referrals")
+                .select("*")
+                .eq("referral_code", referredByCode)
+                .single();
+
+              let referrerUserId: string | null = refRow?.user_id || null;
+
+              if (refRow && referrerUserId && referrerUserId !== targetUserId) {
+                await adminSupabase
+                  .from("user_referrals")
+                  .update({
+                    balance_cents: (Number(refRow.balance_cents) || 0) + commissionCents,
+                    total_earned_cents: (Number(refRow.total_earned_cents) || 0) + commissionCents,
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq("user_id", referrerUserId);
+              }
+
+              if (!referrerUserId) {
+                const { data: allUsers } = await adminSupabase.auth.admin.listUsers();
+                const matchedReferrer = allUsers?.users?.find(
+                  (u) => u.user_metadata?.referral_code?.toUpperCase() === referredByCode
+                );
+                if (matchedReferrer && matchedReferrer.id !== targetUserId) {
+                  referrerUserId = matchedReferrer.id;
+                }
+              }
+
+              if (referrerUserId && referrerUserId !== targetUserId) {
+                const { data: refUserObj } = await adminSupabase.auth.admin.getUserById(referrerUserId);
+                if (refUserObj?.user) {
+                  const refMeta = refUserObj.user.user_metadata || {};
+                  await adminSupabase.auth.admin.updateUserById(referrerUserId, {
+                    user_metadata: {
+                      ...refMeta,
+                      balance_cents: (Number(refMeta.balance_cents) || 0) + commissionCents,
+                      total_earned_cents: (Number(refMeta.total_earned_cents) || 0) + commissionCents,
+                    },
+                  });
+                }
+              }
+            } catch (refErr) {
+              console.warn("Erreur non-bloquante crédit commission parrain Stripe :", refErr);
+            }
+          }
 
           console.log(`✅ Statut Pro activé avec succès en BDD Supabase pour l'utilisateur ${targetUserId}`);
         } else {

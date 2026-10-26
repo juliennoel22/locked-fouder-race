@@ -61,3 +61,19 @@
 - **Vocal 19 (Nœud 2 bloqué)** : *"J'ai terminé le premier quiz, j'ai pas la possibilité de passer au second, ça me laisse pas sélectionner la seconde case."*
 - **Vocal 20 (Accès Fiche)** : *"Ce serait bien que quand on clique sur le gros bouton vert tout en haut avec le titre du cours, ça nous affiche la fiche de révision."*
 - **Vocal 21 & 22 (Cadence & Alerte)** : *"Est-ce que tu pourrais me faire un topo de si t'as avancé et comment t'avances ? Soit on avance vraiment un max, soit on met de côté... j'ai besoin que tu me tiennes au courant par rapport à ce que tu m'as dit (demi-journée mardi et vendredi)."*
+
+---
+
+## 🚨 Nouveaux Retours Production (26/10/2026 — Session Épreuve Finale & Répétition Quiz)
+
+### 🔴 P0 — [BUG-027] Rupture causale Question / Réponse Piège d'Examen (Étape 6)
+- **Signalement Baptiste** :
+  - *Photo 1* : À l'Étape 6/6, Question posée : *"Face à la faillite des politiques libérales classiques suite au krach de Wall Street, quelle a été la réaction propre aux régimes autoritaires par rapport aux démocraties ?"*
+  - *Photo 2* : Corrigé type affiché par Loreno : *"Le krach boursier du 24 octobre 1929 à Wall Street."*
+  - *Feedback de Baptiste* : *"Et la réponse n'est pas juste. Le corrigé devrait être : Pour répondre à la crise de 1929, les régimes autoritaires ont imposé un dirigisme étatique absolu, visant l'autarcie économique et le réarmement massif au détriment des libertés individuelles pour préparer la guerre. À l'inverse, les démocraties ont opté pour un interventionnisme modéré (comme le New Deal américain ou le Front populaire en France), qui visait à réguler le capitalisme et créer des protections sociales tout en préservant la démocratie. En somme, là où les démocraties ont choisi la voie de l'État-providence, les dictatures ont choisi celle de l'économie de guerre."*
+- **Diagnostic Technique & Résolution Complète (Audit `/boost` 26/10/2026)** :
+  1. **Codec DB Transparent (`TECH-029` — `lib/db-compat.ts`)** : Les colonnes `initial_quiz_answer`, `detailed_content`, `progress_percent` et `distractors` n'étaient pas encore migrées sur Supabase Prod (`PGRST204`). Le codec `lib/db-compat.ts` les encode/décode désormais sans aucune perte dans les colonnes existantes, et la migration consolidée `supabase/migrations/20261026_full_schema_sync.sql` est prête.
+  2. **Réparation Live du Deck de Baptiste (`326cc1b2-35ae-44c8-b5a3-09aed924ed6e`)** : Mis à jour directement en base de production avec 12 flashcards orthogonales couvrant tout son cours sur la crise de 1929, des distracteurs dédiés, la fiche complète haute densité et son corrigé exact en 3 parties.
+  3. **Refonte Queue Builder (`BUG-028` — `components/review/review-queue-builder.ts`)** : Correction des 5 biais algorithmiques (intercalage `c1` à l'étape 1 en mode flash, offset progressif par étape dans `getDistinctCards`, sélection de la dernière carte du Tiers 1 à l'étape 3, déstructuration `const [, cEndAlt]` à l'étape 6, et interdiction d'écraser `initialQuizQuestion` par `safeCards[0]`).
+  4. **Verrouillage UX Production (`BUG-030`) & Boucle Affiliation (`BUG-031`)** : Masquage strict des contrôles Dev Mode en prod, upload serveur Supabase Storage (`course-scans`), purge de `loreno_scan_cache`, suppression de la double modale sur `exam_trap`, et réparation complète du tunnel d'affiliation (-20% filleul + 20% commission Stripe parrain).
+

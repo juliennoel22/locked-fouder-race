@@ -92,9 +92,10 @@ export default function DashboardPage() {
       if (typeof window !== "undefined") {
         const cached = sessionStorage.getItem("loreno_scan_cache");
         if (cached) {
+          sessionStorage.removeItem("loreno_scan_cache");
           try {
             const parsed = JSON.parse(cached);
-            if (parsed.scanData?.title) {
+            if (parsed.scanData?.title && !parsed.deckId) {
               const alreadyExists = loadedNotebooks.some(
                 (n) => n.title.trim().toLowerCase() === parsed.scanData.title.trim().toLowerCase()
               );
@@ -109,7 +110,7 @@ export default function DashboardPage() {
                     summary,
                     detailed_content,
                     initial_quiz_question,
-                    image_url: parsed.imageUrl,
+                    image_url: parsed.imageUrl && !String(parsed.imageUrl).startsWith("blob:") ? parsed.imageUrl : null,
                     flashcards,
                   }),
                 });
@@ -117,7 +118,6 @@ export default function DashboardPage() {
                 if (saveJson.success && saveJson.deck) {
                   const savedNb = formatDeckItem(saveJson.deck);
                   loadedNotebooks = [savedNb, ...loadedNotebooks];
-                  sessionStorage.removeItem("loreno_scan_cache");
                 }
               }
             }
@@ -156,6 +156,9 @@ export default function DashboardPage() {
   const handleDeleteNotebook = async (id: string) => {
     if (id === DEMO_NOTEBOOK_ITEM.id) return;
     try {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("loreno_scan_cache");
+      }
       await fetch(`/api/decks?id=${id}`, { method: "DELETE" });
       setNotebooks((prev) => {
         const remaining = prev.filter((n) => n.id !== id);

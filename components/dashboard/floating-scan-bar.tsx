@@ -45,7 +45,7 @@ export function FloatingScanBar({
   return (
     <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,1.25rem))] left-0 right-0 max-w-md mx-auto px-4 flex flex-col items-center z-30 pointer-events-auto">
       {/* Banner 3 Jours Pro Parrainage avec option d'achat */}
-      {!isPro && isReferralTrial && onOpenPaywall && (
+      {isReferralTrial && onOpenPaywall && (
         <div
           onClick={onOpenPaywall}
           className="w-full mb-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 border border-indigo-500/40 text-white flex items-center justify-between shadow-2xl hover:brightness-105 transition-all cursor-pointer active:scale-[0.99] select-none"

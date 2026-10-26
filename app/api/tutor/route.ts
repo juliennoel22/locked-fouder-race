@@ -25,7 +25,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { title, subject, summary, flashcards, messages } = parseResult.data;
 
-    const isProUser = Boolean(user?.user_metadata?.is_pro);
+    const proUntilStr = user?.user_metadata?.pro_until;
+    const hasActiveTrial = typeof proUntilStr === "string" && new Date(proUntilStr).getTime() > Date.now();
+    const isProUser = Boolean(user?.user_metadata?.is_pro) || hasActiveTrial;
 
     // Rate Limiting : 10 messages/10 min (Freemium/IP), 60 messages/10 min (Pro)
     const identifier = getClientIdentifier(request, user?.id);
@@ -88,21 +90,12 @@ Directives pédagogiques impératives :
 
     const prompt = `${systemPrompt}\n\nHistorique de la conversation :\n${historyText}\n\nTuteur:`;
 
-    const interaction = await ai.interactions.create({
-      model: "gemini-3.6-flash",
-      input: prompt,
+    const aiResponse = await ai.models.generateContent({
+      model: "gemini-3.8-flash",
+      contents: prompt,
     });
 
-    let reply = "";
-    for (const step of interaction.steps || []) {
-      if ("content" in step && Array.isArray(step.content)) {
-        for (const c of step.content) {
-          if (c && typeof c === "object" && "text" in c && typeof c.text === "string") {
-            reply += c.text;
-          }
-        }
-      }
-    }
+    let reply = (aiResponse.text || "").trim();
 
     if (!reply) {
       reply = `Excellente question sur ${title}. Retiens avant tout les points de synthèse et prépare-toi à argumenter avec précision le jour de l'épreuve !`;
