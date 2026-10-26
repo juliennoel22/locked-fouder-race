@@ -54,10 +54,11 @@
 
 ### 2. Stripe Compte Dédié Loreno (LIVE)
 - **Stripe Account ID** : `acct_1UEmQlAH5Oe6wyUi` (Loreno Live)
-- **Produit** : `Loreno — Pass Partiels Fondateur (Accès à vie)`
-- **Prix** : 9,99 € TTC
-- **Stripe Payment Link Direct Live** :  
-  👉 **[https://buy.stripe.com/aFa00idmx0iL8aV4gyds401](https://buy.stripe.com/aFa00idmx0iL8aV4gyds401)**
+- **Produit** : `Loreno Pro — Abonnement Mensuel Récurrent` (sans engagement)
+- **Prix** : 9,99 € / mois (ou 7,99 € / mois avec coupon `PARRAIN20`)
+- **Stripe Payment Link Direct Live (Abonnement)** :  
+  👉 **[https://buy.stripe.com/cNi9ASfuF7Ld62N3cuds402](https://buy.stripe.com/cNi9ASfuF7Ld62N3cuds402)**
+- **Coupon Parrainage -20% Actif** : `PARRAIN20` (`https://buy.stripe.com/cNi9ASfuF7Ld62N3cuds402?prefilled_promo_code=PARRAIN20`)
 - **Clé API Publishable Live** : `pk_live_51UEmQlAH5Oe6wyUiMZPv2AOWrSs18SUdtdgh9qAdBDW1JstYJvZQJXi1E8Q5XOuDHn4QCiJwtzRvKqbkCIqH0o3N00E6XfO1zy`
 
 ### 3. Supabase Loreno (PROD)
@@ -107,13 +108,15 @@
 ## 📋 Détail Exhaustif de ce qu'il reste à faire (Roadmap & Backlog)
 
 ### 🧪 1. Actions Immédiates & Tests Manuels (À réaliser par Julien)
+- [x] **Console SQL Supabase : Exécuter la migration consolidée unique** :
+  - Exécuté avec succès ! `supabase/migrations/20261026_full_schema_sync.sql` joué sur Supabase Prod (`bfxbrveuwyiidfthevdn`). Colonnes natives, tables d'affiliation et backfill opérationnels.
+- [x] **Configuration Coupon Stripe `PARRAIN20`** :
+  - Actif sur le compte Stripe Live (`acct_1UEmQlAH5Oe6wyUi`) pour appliquer la réduction immédiate de -20% (7,99 €) aux filleuls.
 - [ ] **Test du flux d'Affiliation complet en navigation privée** :
   1. Se connecter sur `/dashboard` et cliquer sur `🎁 Affiliation` pour copier son lien parrain (ex: `https://loreno.app?ref=JULIEN-XXXX`).
   2. Ouvrir une fenêtre incognito, coller le lien et créer un 2nd compte de test.
   3. Vérifier que le compte filleul débloque immédiatement les **3 jours Pro offerts** (badge "Mon compte" et bandeau bas actif) tout en pouvant ouvrir le Paywall à `-20%` (`7,99 €`).
   4. Vérifier que le parrain voit son nombre de potes invités passer de `0` à `1` dans sa modale.
-- [ ] **Console SQL Supabase : Exécuter la migration consolidée unique** :
-  - Exécuter `supabase/migrations/20261026_full_schema_sync.sql` dans le SQL Editor de Supabase (`bfxbrveuwyiidfthevdn`) pour synchroniser `detailed_content`, `progress_percent`, `initial_quiz_answer`, `image_urls`, `distractors`, `review_logs`, `feedback` et `user_referrals` (le codec `lib/db-compat.ts` assure déjà 100% de persistance sans perte en attendant).
 - [ ] **Enregistrement de la Vidéo Pitch Jury (FounderRace)** :
   - Démo mobile en < 2 min : Scan photo d'un cours manuscrit $\rightarrow$ Rendu de la fiche Markdown $\rightarrow$ Parcours de révision adaptatif Duolingo $\rightarrow$ Paywall Stripe & Affiliation.
 

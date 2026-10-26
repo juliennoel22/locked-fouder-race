@@ -17,7 +17,7 @@ export function PaywallModal({
 }: PaywallModalProps) {
   const [stripeUrl, setStripeUrl] = useState<string>(
     process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
-      "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401"
+      "https://buy.stripe.com/cNi9ASfuF7Ld62N3cuds402"
   );
 
   const [isPro, setIsPro] = useState<boolean>(false);
@@ -29,7 +29,7 @@ export function PaywallModal({
     const checkProAndBuildStripeLink = async () => {
       const baseUrl =
         process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK ||
-        "https://buy.stripe.com/aFa00idmx0iL8aV4gyds401";
+        "https://buy.stripe.com/cNi9ASfuF7Ld62N3cuds402";
 
       const hasRefFlag =
         typeof window !== "undefined" &&
