@@ -2,158 +2,18 @@
 
 import React, { useMemo } from "react";
 import { AlertTriangle, Lightbulb, Target, Sparkles } from "lucide-react";
+import katex from "katex";
+import { renderInline } from "@/lib/markdown-inline";
+import { parseMarkdownBlocks, type ParsedBlock } from "@/lib/markdown-parser";
 
 interface MarkdownViewProps {
   content: string;
   className?: string;
 }
 
-type ParsedBlock =
-  | { type: "h1"; text: string }
-  | { type: "h2"; text: string }
-  | { type: "h3"; text: string }
-  | { type: "callout"; variant: "trap" | "memo" | "app" | "default"; text: string }
-  | { type: "table"; headers: string[]; rows: string[][] }
-  | { type: "code"; code: string; lang: string }
-  | { type: "bullet"; text: string }
-  | { type: "number"; num: string; text: string }
-  | { type: "paragraph"; text: string }
-  | { type: "spacer" };
-
-function renderInline(text: string): React.ReactNode {
-  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return (
-        <strong key={i} className="font-extrabold text-zinc-950">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    }
-    if (part.startsWith("*") && part.endsWith("*")) {
-      return (
-        <em key={i} className="italic text-zinc-800">
-          {part.slice(1, -1)}
-        </em>
-      );
-    }
-    if (part.startsWith("`") && part.endsWith("`")) {
-      return (
-        <code key={i} className="px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-200 font-mono text-[11px] text-zinc-900 font-semibold">
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    return part;
-  });
-}
-
 export function MarkdownView({ content, className = "" }: MarkdownViewProps) {
   const blocks = useMemo<ParsedBlock[]>(() => {
-    if (!content) return [];
-    const lines = content.split("\n");
-    const result: ParsedBlock[] = [];
-    let i = 0;
-
-    while (i < lines.length) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      if (!trimmed) {
-        result.push({ type: "spacer" });
-        i++;
-        continue;
-      }
-
-      // 1. Code blocks (```text, ```mermaid, etc.)
-      if (trimmed.startsWith("```")) {
-        const lang = trimmed.slice(3).trim();
-        const codeLines: string[] = [];
-        i++;
-        while (i < lines.length && !lines[i].trim().startsWith("```")) {
-          codeLines.push(lines[i]);
-          i++;
-        }
-        if (i < lines.length) i++; // skip closing ```
-        result.push({ type: "code", code: codeLines.join("\n"), lang });
-        continue;
-      }
-
-      // 2. Markdown Tables (| Col 1 | Col 2 |)
-      if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
-        const tableLines: string[] = [];
-        while (i < lines.length && lines[i].trim().startsWith("|") && lines[i].trim().endsWith("|")) {
-          tableLines.push(lines[i].trim());
-          i++;
-        }
-        if (tableLines.length >= 2) {
-          const parseRow = (rowStr: string) =>
-            rowStr
-              .slice(1, -1)
-              .split("|")
-              .map((c) => c.trim());
-          const headers = parseRow(tableLines[0]);
-          const contentRows = tableLines.slice(1).filter((r) => !r.replace(/[\s|:-]/g, "").length ? false : true);
-          const rows = contentRows.map(parseRow);
-          result.push({ type: "table", headers, rows });
-          continue;
-        }
-      }
-
-      // 3. Headings
-      if (trimmed.startsWith("# ")) {
-        result.push({ type: "h1", text: trimmed.substring(2) });
-        i++;
-        continue;
-      }
-      if (trimmed.startsWith("## ")) {
-        result.push({ type: "h2", text: trimmed.substring(3) });
-        i++;
-        continue;
-      }
-      if (trimmed.startsWith("### ")) {
-        result.push({ type: "h3", text: trimmed.substring(4) });
-        i++;
-        continue;
-      }
-
-      // 4. Callouts & Blockquotes (> ...)
-      if (trimmed.startsWith("> ")) {
-        const quoteText = trimmed.substring(2).trim();
-        let variant: "trap" | "memo" | "app" | "default" = "default";
-        if (quoteText.includes("⚠️") || /pi[èe]ge/i.test(quoteText) || /attention/i.test(quoteText)) {
-          variant = "trap";
-        } else if (quoteText.includes("💡") || /m[ée]mo/i.test(quoteText) || /mn[ée]motechnique/i.test(quoteText) || /astuce/i.test(quoteText)) {
-          variant = "memo";
-        } else if (quoteText.includes("🎯") || /application/i.test(quoteText) || /exemple/i.test(quoteText) || /cas pratique/i.test(quoteText)) {
-          variant = "app";
-        }
-        result.push({ type: "callout", variant, text: quoteText });
-        i++;
-        continue;
-      }
-
-      // 5. Bullets (- or * or •)
-      if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
-        result.push({ type: "bullet", text: trimmed.substring(2) });
-        i++;
-        continue;
-      }
-
-      // 6. Numbered lists (1. Item)
-      const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
-      if (numMatch) {
-        result.push({ type: "number", num: numMatch[1], text: numMatch[2] });
-        i++;
-        continue;
-      }
-
-      // 7. Regular paragraph
-      result.push({ type: "paragraph", text: line });
-      i++;
-    }
-
-    return result;
+    return parseMarkdownBlocks(content);
   }, [content]);
 
   if (!content) return null;
@@ -202,6 +62,28 @@ export function MarkdownView({ content, className = "" }: MarkdownViewProps) {
                 </pre>
               </div>
             );
+
+          case "math": {
+            try {
+              const html = katex.renderToString(block.math, {
+                displayMode: true,
+                throwOnError: false,
+              });
+              return (
+                <div
+                  key={idx}
+                  className="my-3 overflow-x-auto text-center p-3 rounded-2xl bg-zinc-50 border border-zinc-200/90 shadow-2xs text-black"
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              );
+            } catch {
+              return (
+                <pre key={idx} className="my-2 p-2 bg-zinc-100 font-mono text-xs overflow-x-auto">
+                  {block.math}
+                </pre>
+              );
+            }
+          }
 
           case "table":
             return (

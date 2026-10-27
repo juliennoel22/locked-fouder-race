@@ -124,3 +124,6 @@ Dès qu'une tâche d'exécution lourde démarre (refactor multi-fichiers, build,
    - Actions priorisées $\rightarrow$ `tasks/TASK-XXX.md`.
    - Vue Kanban $\rightarrow$ `tasks/BOARD.md`.
    - Synthèse opérationnelle $\rightarrow$ `MEMORY.md`.
+5. **Transparence Copy & Zéro Fausse Promesse** :
+   - Toute modification touchant du texte visible utilisateur (titres, modale de paywall, bullets marketing, promesses de fonctionnalités, boutons, toasts) DOIT être signalée avec un diff explicite *Avant $\rightarrow$ Après*.
+   - Interdiction formelle de référencer des fonctionnalités absentes ou non fonctionnelles (ex: faux "Tuteur IA", promesses d'examen non implémentées). Validation obligatoire de Julien pour tout changement de valeur perçue.

@@ -98,10 +98,11 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  // 2. Si l'utilisateur est connecté mais n'a pas terminé son onboarding, bloquer l'accès à la landing page
-  if (user && !isOnboardingCompleted && !isJury && pathname === "/") {
+  // 2. Si l'utilisateur est déjà connecté et arrive sur la landing page (/)
+  const wantsLanding = request.nextUrl.searchParams.has("landing");
+  if (user && !isJury && pathname === "/" && !wantsLanding) {
     const url = request.nextUrl.clone();
-    url.pathname = "/quiz";
+    url.pathname = isOnboardingCompleted ? "/dashboard" : "/quiz";
     const redirectResponse = NextResponse.redirect(url);
     supabaseResponse.cookies.getAll().forEach((c) => {
       redirectResponse.cookies.set(c.name, c.value);

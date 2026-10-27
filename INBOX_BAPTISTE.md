@@ -77,3 +77,27 @@
   3. **Refonte Queue Builder (`BUG-028` — `components/review/review-queue-builder.ts`)** : Correction des 5 biais algorithmiques (intercalage `c1` à l'étape 1 en mode flash, offset progressif par étape dans `getDistinctCards`, sélection de la dernière carte du Tiers 1 à l'étape 3, déstructuration `const [, cEndAlt]` à l'étape 6, et interdiction d'écraser `initialQuizQuestion` par `safeCards[0]`).
   4. **Verrouillage UX Production (`BUG-030`) & Boucle Affiliation (`BUG-031`)** : Masquage strict des contrôles Dev Mode en prod, upload serveur Supabase Storage (`course-scans`), purge de `loreno_scan_cache`, suppression de la double modale sur `exam_trap`, et réparation complète du tunnel d'affiliation (-20% filleul + 20% commission Stripe parrain).
 
+---
+
+## 🚨 Nouveaux Retours Production (27/10/2026 — Session Vocaux & Mobile App)
+
+### 🔴 P0 — [BUG-034] Redirection automatique à la racine (/) pour les utilisateurs déjà connectés
+- **Signalement Baptiste (Vocaux 1 & 2)** :
+  > *"À chaque fois que je vais sur Loreno, ça me renvoie vers la page pour se connecter. Donc quand je clique sur 'J'ai déjà un compte', ça me connecte automatiquement sans passer par la page de connexion, mais ça me met sur la page d'onboarding comme si je venais pour la première fois... Il faudrait que je sois automatiquement connecté si je me suis déjà connecté avant."*
+- **Diagnostic** : `lib/supabase/middleware.ts` ne redirige que sur les routes `/auth/*`. Sur `/`, la landing statique s'affiche.
+- **Ticket** : [`tasks/BUG-034-auto-redirect-authenticated-session.md`](file:///home/julien/git/LORENO/tasks/BUG-034-auto-redirect-authenticated-session.md).
+
+### 🔴 P0 — [UX-033] Intégrité Copy Paywall & Élimination Fausses Promesses ("Tuteur IA")
+- **Signalement Julien / Capture écran Paywall** :
+  - Sur la modale de paywall Stripe (`components/paywall-modal.tsx`), deux arguments sont entourés et survendent des fonctionnalités inexistantes :
+    1. *"Tuteur IA d'examen sur tes notes"* (Pas de chatbot tuteur interactif live).
+    2. *"Détection des questions pièges d'examen"* (Formulé comme un outil d'analyse autonome alors qu'il s'agit d'une carte piège à l'étape 6).
+    3. Sous-titre : *"Accède à toutes les fiches, aux questions pièges des partiels et au tuteur IA."*
+- **Ticket** : [`tasks/UX-033-paywall-copy-integrity-and-features.md`](file:///home/julien/git/LORENO/tasks/UX-033-paywall-copy-integrity-and-features.md).
+
+### 🟠 P1 — [BUG-032] Rendu KaTeX des formules mathématiques et scientifiques dans les fiches
+- **Signalement Julien / Capture écran Markdown** :
+  - Les formules scientifiques issues de cours de chimie/physique s'affichent en LaTeX brut (`$X = f(C)$`, `\Delta X`, `\frac{m}{M}`, `\lambda`) dans `components/markdown-view.tsx`.
+- **Diagnostic** : `renderInline` découpe uniquement le markdown basique et ignore la syntaxe mathématique `$`. KaTeX n'est pas intégré.
+- **Ticket** : [`tasks/BUG-032-markdown-latex-katex-rendering.md`](file:///home/julien/git/LORENO/tasks/BUG-032-markdown-latex-katex-rendering.md).
+

@@ -179,7 +179,7 @@ export default function DashboardPage() {
                 <span>🎉</span> Loreno Pro Activé !
               </div>
               <p className="text-[11px] text-zinc-300 mt-0.5">
-                Tous tes accès illimités et le Tuteur IA sont débloqués.
+                Tous tes accès illimités sont débloqués sur tous tes cours.
               </p>
             </div>
             <button

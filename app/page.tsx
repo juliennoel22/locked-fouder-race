@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Camera, Layers, Bot, ArrowRight, ShieldCheck } from "lucide-react";
+import { Camera, Layers, FileText, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function Home() {
   return (
@@ -61,10 +61,10 @@ export default function Home() {
 
             <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200/90 text-center space-y-1.5">
               <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center mx-auto">
-                <Bot className="w-4 h-4" />
+                <FileText className="w-4 h-4" />
               </div>
-              <span className="text-[11px] font-bold text-zinc-900 block leading-tight">Tuteur IA</span>
-              <span className="text-[10px] text-zinc-500 block">Entraînement</span>
+              <span className="text-[11px] font-bold text-zinc-900 block leading-tight">Fiches Mémo</span>
+              <span className="text-[10px] text-zinc-500 block">Synthèse Rapide</span>
             </div>
           </div>
 

@@ -121,7 +121,7 @@ export function PaywallModal({
             Débloque l&apos;intégralité de tes cours
           </h2>
           <p className="text-xs sm:text-sm text-zinc-600">
-            Accède à toutes les fiches, aux questions pièges des partiels et au tuteur IA.
+            Scanne l&apos;ensemble de tes cours et révise en illimité sans aucune restriction.
           </p>
         </div>
 
@@ -157,19 +157,19 @@ export function PaywallModal({
               <div className="w-4 h-4 rounded-full bg-black text-white flex items-center justify-center shrink-0">
                 <Check className="w-3 h-3 stroke-[2.5]" />
               </div>
-              <span><strong>Scans &amp; Flashcards illimités</strong> sur tous tes cours</span>
+              <span><strong>Scans de cours illimités</strong> (notes manuscrites, polys, PDF)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-black text-white flex items-center justify-center shrink-0">
                 <Check className="w-3 h-3 stroke-[2.5]" />
               </div>
-              <span><strong>Détection des questions pièges</strong> d&apos;examen</span>
+              <span><strong>Flashcards &amp; révisions illimitées</strong> sur tous tes cours</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded-full bg-black text-white flex items-center justify-center shrink-0">
                 <Check className="w-3 h-3 stroke-[2.5]" />
               </div>
-              <span><strong>Tuteur IA d&apos;examen</strong> sur tes notes</span>
+              <span><strong>Fiches de synthèse</strong> générées en 2 secondes</span>
             </div>
           </div>
         </div>

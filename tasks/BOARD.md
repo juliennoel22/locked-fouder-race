@@ -1,7 +1,7 @@
 # 📋 AGENTIC TASK BOARD — LORENO
 
 > **Tableau de Bord des Tâches Atomiques**  
-> *Dernière mise à jour* : 2026-10-15 (Méga Audit MVP de Production & Clôture AUDIT-021)
+> *Dernière mise à jour* : 2026-10-27 (Triage des retours Baptiste & Tickets BUG-032, UX-033, BUG-034)
 
 ---
 
@@ -40,6 +40,9 @@
 | `TECH-029` | `chore` | `P0` | Codec de compatibilité DB transparent (`lib/db-compat.ts`) & SQL sync | Julien | 🟢 `resolved` | [`tasks/TECH-029-db-compat-codec-and-schema-sync.md`](file:///home/julien/git/LORENO/tasks/TECH-029-db-compat-codec-and-schema-sync.md) |
 | `BUG-030` | `bug` | `P0` | Verrouillage UX Prod (Roadmap Dev Mode, Storage, Cache & Exam Trap) | Julien | 🟢 `resolved` | [`tasks/BUG-030-production-ux-lock-and-storage.md`](file:///home/julien/git/LORENO/tasks/BUG-030-production-ux-lock-and-storage.md) |
 | `BUG-031` | `bug` | `P1` | Boucle d'Affiliation (Bandeau 3j, Paywall -20% & Commission Stripe) | Baptiste / Julien | 🟢 `resolved` | [`tasks/BUG-031-referral-loop-and-stripe-commission.md`](file:///home/julien/git/LORENO/tasks/BUG-031-referral-loop-and-stripe-commission.md) |
+| `BUG-032` | `bug` | `P1` | Rendu KaTeX des formules mathématiques et scientifiques dans les fiches | Baptiste / Julien | 🟢 `resolved` | [`tasks/BUG-032-markdown-latex-katex-rendering.md`](file:///home/julien/git/LORENO/tasks/BUG-032-markdown-latex-katex-rendering.md) |
+| `UX-033` | `ux` | `P0` | Intégrité Copy Paywall & Élimination Fausses Promesses ("Tuteur IA") | Julien | 🟢 `resolved` | [`tasks/UX-033-paywall-copy-integrity-and-features.md`](file:///home/julien/git/LORENO/tasks/UX-033-paywall-copy-integrity-and-features.md) |
+| `BUG-034` | `bug` | `P0` | Redirection automatique à la racine (/) pour les sessions actives | Baptiste | 🟢 `resolved` | [`tasks/BUG-034-auto-redirect-authenticated-session.md`](file:///home/julien/git/LORENO/tasks/BUG-034-auto-redirect-authenticated-session.md) |
 
 
 ---

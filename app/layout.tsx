@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ReferralListener } from "@/components/referral-listener";
 import { DevTools } from "@/components/dev-tools";
 import "./globals.css";
+import "katex/dist/katex.min.css";
 import { cn } from "@/lib/utils";
 
 const geistMono = Geist_Mono({subsets:['latin'],variable:'--font-mono'});
